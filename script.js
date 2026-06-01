@@ -4,12 +4,14 @@ const subjects = [
     semester: "3rd Year - 1st Semester",
     code: "IT311",
     name: "Information Assurance and Security",
-    accent: "#f43f5e",
+    accent: "#e11d48",
+    meetingPlatform: "Google Meet",
     links: {
-      // Replace "#" with your actual class resources whenever you have them.
       syllabus: "#",
       drive: "#",
       github: "#",
+      facebook: "#",
+      meeting: "#",
     },
   },
   {
@@ -17,11 +19,14 @@ const subjects = [
     semester: "3rd Year - 1st Semester",
     code: "IT313",
     name: "Mobile Programming",
-    accent: "#10b981",
+    accent: "#059669",
+    meetingPlatform: "Zoom",
     links: {
       syllabus: "#",
       drive: "#",
       github: "#",
+      facebook: "#",
+      meeting: "#",
     },
   },
   {
@@ -29,11 +34,14 @@ const subjects = [
     semester: "3rd Year - 1st Semester",
     code: "IT314",
     name: "Software Engineering",
-    accent: "#6366f1",
+    accent: "#4f46e5",
+    meetingPlatform: "Google Meet",
     links: {
       syllabus: "#",
       drive: "#",
       github: "#",
+      facebook: "#",
+      meeting: "#",
     },
   },
   {
@@ -41,11 +49,14 @@ const subjects = [
     semester: "3rd Year - 1st Semester",
     code: "IT315",
     name: "IT Elective 1",
-    accent: "#8b5cf6",
+    accent: "#7c3aed",
+    meetingPlatform: "Zoom",
     links: {
       syllabus: "#",
       drive: "#",
       github: "#",
+      facebook: "#",
+      meeting: "#",
     },
   },
   {
@@ -53,33 +64,42 @@ const subjects = [
     semester: "4th Year - 1st Semester",
     code: "IT413",
     name: "Social and Professional Issues",
-    accent: "#f59e0b",
+    accent: "#d97706",
+    meetingPlatform: "Google Meet",
     links: {
       syllabus: "#",
       drive: "#",
       github: "#",
+      facebook: "#",
+      meeting: "#",
     },
   },
 ];
 
-const views = [
-  { id: "overview", label: "Overview", title: "All Subjects", filter: () => true },
-  { id: "third-year", label: "3rd Year", title: "3rd Year - 1st Semester", filter: (subject) => subject.year === "3rd Year" },
-  { id: "fourth-year", label: "4th Year", title: "4th Year - 1st Semester", filter: (subject) => subject.year === "4th Year" },
+const navItems = [
+  { id: "overview", label: "Overview", icon: "⌂", title: "Subject Dashboard", eyebrow: "Overview" },
+  { id: "subjects", label: "Subjects", icon: "□", title: "All Subjects", eyebrow: "Coursework" },
+  { id: "messenger", label: "Messenger / Facebook", icon: "✉", title: "Class Conversations", eyebrow: "Messenger" },
+  { id: "meetings", label: "Meet / Zoom", icon: "◎", title: "Class Meeting Rooms", eyebrow: "Live Classes" },
+  { id: "folders", label: "Subject Folders", icon: "▣", title: "Subject Folders", eyebrow: "Resources" },
 ];
 
+const folderCategories = ["Assignments", "Projects", "Modules", "Lectures", "Links", "Other"];
 const storagePrefix = "subjectDashboard.v1";
+
 let activeView = "overview";
+let searchQuery = "";
 
 const desktopNav = document.querySelector("#desktopNav");
 const mobileNav = document.querySelector("#mobileNav");
-const subjectGrid = document.querySelector("#subjectGrid");
-const template = document.querySelector("#subjectCardTemplate");
+const appContent = document.querySelector("#appContent");
 const viewEyebrow = document.querySelector("#viewEyebrow");
 const viewTitle = document.querySelector("#viewTitle");
-const progressFill = document.querySelector("#progressFill");
 const progressPercent = document.querySelector("#progressPercent");
+const progressFill = document.querySelector("#progressFill");
 const progressBarA11y = document.querySelector("#progressBarA11y");
+const todayPill = document.querySelector("#todayPill");
+const searchInput = document.querySelector("#searchInput");
 const menuToggle = document.querySelector("#menuToggle");
 const menuClose = document.querySelector("#menuClose");
 const mobileMenu = document.querySelector("#mobileMenu");
@@ -108,6 +128,15 @@ function writeJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function getTasks(code) {
   return readJson(storageKey(code, "tasks"), []);
 }
@@ -125,155 +154,424 @@ function saveNotes(code, value) {
   localStorage.setItem(storageKey(code, "notes"), value);
 }
 
+function getResources(code) {
+  return readJson(storageKey(code, "resources"), []);
+}
+
+function saveResources(code, resources) {
+  writeJson(storageKey(code, "resources"), resources);
+}
+
+function getPortalSettings(subject) {
+  return {
+    facebook: "",
+    meeting: "",
+    meetingPlatform: subject.meetingPlatform,
+    ...readJson(storageKey(subject.code, "portal"), {}),
+  };
+}
+
+function savePortalSettings(subject, settings) {
+  writeJson(storageKey(subject.code, "portal"), settings);
+}
+
+function filteredSubjects() {
+  const term = searchQuery.trim().toLowerCase();
+  if (!term) return subjects;
+  return subjects.filter((subject) => {
+    const resourceText = getResources(subject.code)
+      .map((resource) => `${resource.title} ${resource.category} ${resource.note} ${resource.url}`)
+      .join(" ");
+    return `${subject.code} ${subject.name} ${subject.semester} ${resourceText}`.toLowerCase().includes(term);
+  });
+}
+
+function linkLabel(type, subject) {
+  return {
+    syllabus: "Syllabus",
+    drive: "Google Drive",
+    github: "GitHub Repo",
+    facebook: "Facebook / Messenger",
+    meeting: subject?.meetingPlatform ?? "Meet / Zoom",
+  }[type];
+}
+
 function renderNav(target) {
   target.innerHTML = "";
-
-  views.forEach((view) => {
+  navItems.forEach((item) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "nav-button";
-    button.textContent = view.label;
-    button.setAttribute("aria-selected", String(view.id === activeView));
+    button.setAttribute("aria-selected", String(item.id === activeView));
+    button.innerHTML = `<span class="nav-icon">${item.icon}</span><span>${item.label}</span>`;
     button.addEventListener("click", () => {
-      activeView = view.id;
+      activeView = item.id;
       closeMobileMenu();
-      renderDashboard();
+      renderApp();
     });
     target.append(button);
   });
 }
 
-function linkLabel(type) {
-  return {
-    syllabus: "Syllabus",
-    drive: "Google Drive",
-    github: "GitHub Repository",
-  }[type];
+function renderApp() {
+  const view = navItems.find((item) => item.id === activeView) ?? navItems[0];
+  viewEyebrow.textContent = view.eyebrow;
+  viewTitle.textContent = view.title;
+  renderNav(desktopNav);
+  renderNav(mobileNav);
+  updateProgress();
+
+  const renderers = {
+    overview: renderOverview,
+    subjects: renderSubjects,
+    messenger: renderMessenger,
+    meetings: renderMeetings,
+    folders: renderFolders,
+  };
+  renderers[activeView]();
 }
 
-function renderTaskList(list, subject, count) {
-  const tasks = getTasks(subject.code);
-  list.innerHTML = "";
-  count.textContent = `${tasks.filter((task) => task.done).length}/${tasks.length} done`;
+function renderOverview() {
+  const allTasks = subjects.flatMap((subject) => getTasks(subject.code));
+  const completed = allTasks.filter((task) => task.done).length;
+  const totalResources = subjects.reduce((sum, subject) => sum + getResources(subject.code).length, 0);
+  appContent.innerHTML = "";
+  appContent.append(
+    metricGrid([
+      ["Subjects", `${subjects.length}`, "Hardcoded course load for this dashboard.", "↗"],
+      ["Completed Tasks", `${completed}/${allTasks.length}`, "Across every subject tracker.", "✓"],
+      ["Folder Items", `${totalResources}`, "Assignments, projects, modules, lectures, and links.", "▣"],
+    ]),
+  );
 
-  if (tasks.length === 0) {
-    const empty = document.createElement("li");
-    empty.className = "rounded-lg border border-dashed border-white/10 px-3 py-3 text-sm text-slate-500";
-    empty.textContent = "No tasks yet.";
-    list.append(empty);
-    return;
-  }
+  const layout = document.createElement("section");
+  layout.className = "overview-grid";
+  layout.append(renderSubjectTable(), renderTodayPanel());
+  appContent.append(layout);
+}
 
-  tasks.forEach((task) => {
-    const row = document.createElement("li");
-    row.className = `task-row ${task.done ? "is-complete" : ""}`;
+function metricGrid(items) {
+  const grid = document.createElement("section");
+  grid.className = "metric-grid";
+  items.forEach(([title, value, text, icon]) => {
+    const card = document.createElement("article");
+    card.className = "metric-card";
+    card.innerHTML = `
+      <div class="metric-top">
+        <h3>${title}</h3>
+        <span class="metric-orb">${icon}</span>
+      </div>
+      <strong>${value}</strong>
+      <p>${text}</p>
+    `;
+    grid.append(card);
+  });
+  return grid;
+}
 
-    const checkbox = document.createElement("input");
-    checkbox.className = "task-checkbox";
-    checkbox.type = "checkbox";
-    checkbox.checked = task.done;
-    checkbox.setAttribute("aria-label", `Mark ${task.text} as complete`);
-    checkbox.addEventListener("change", () => {
-      const nextTasks = getTasks(subject.code).map((item) =>
-        item.id === task.id ? { ...item, done: checkbox.checked } : item,
-      );
-      saveTasks(subject.code, nextTasks);
-      renderTaskList(list, subject, count);
+function renderSubjectTable() {
+  const card = document.createElement("section");
+  card.className = "panel-card";
+  card.innerHTML = `<h3>Subjects</h3><p class="panel-muted">Quick scan of your current course load.</p>`;
+
+  const list = document.createElement("div");
+  list.className = "resource-list";
+  filteredSubjects().forEach((subject) => {
+    const tasks = getTasks(subject.code);
+    const done = tasks.filter((task) => task.done).length;
+    const code = escapeHtml(subject.code);
+    const name = escapeHtml(subject.name);
+    const semester = escapeHtml(subject.semester);
+    const row = document.createElement("article");
+    row.className = "resource-row";
+    row.style.setProperty("--accent", subject.accent);
+    row.innerHTML = `
+      <span class="subject-chip">${escapeHtml(subject.code.slice(2))}</span>
+      <div class="resource-main">
+        <span class="resource-category">${code}</span>
+        <p class="resource-title-small">${name}</p>
+        <p class="resource-note">${semester} · ${done}/${tasks.length} tasks · ${getResources(subject.code).length} folder items</p>
+      </div>
+      <button class="delete-task" type="button" aria-label="Open ${code} folders">›</button>
+    `;
+    row.querySelector("button").addEventListener("click", () => {
+      activeView = "folders";
+      renderApp();
+      setTimeout(() => document.querySelector(`[data-folder="${subject.code}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
     });
-
-    const text = document.createElement("span");
-    text.className = "task-text";
-    text.textContent = task.text;
-
-    const remove = document.createElement("button");
-    remove.className = "delete-task";
-    remove.type = "button";
-    remove.textContent = "x";
-    remove.setAttribute("aria-label", `Delete ${task.text}`);
-    remove.addEventListener("click", () => {
-      const nextTasks = getTasks(subject.code).filter((item) => item.id !== task.id);
-      saveTasks(subject.code, nextTasks);
-      renderTaskList(list, subject, count);
-    });
-
-    row.append(checkbox, text, remove);
     list.append(row);
   });
+  card.append(list);
+  return card;
+}
+
+function renderTodayPanel() {
+  const card = document.createElement("section");
+  card.className = "panel-card";
+  card.innerHTML = `
+    <h3>Focus Board</h3>
+    <p class="panel-muted">Use the folders menu to keep files, links, and class materials organized by subject.</p>
+    <div class="section-label">Suggested Workflow</div>
+    <ul class="resource-list">
+      <li class="resource-row"><span class="metric-orb">1</span><div class="resource-main">Add the instructor's Messenger or Facebook link.</div><span></span></li>
+      <li class="resource-row"><span class="metric-orb">2</span><div class="resource-main">Add each class Meet or Zoom URL.</div><span></span></li>
+      <li class="resource-row"><span class="metric-orb">3</span><div class="resource-main">Store assignments, modules, lectures, and useful links in Subject Folders.</div><span></span></li>
+    </ul>
+  `;
+  return card;
+}
+
+function renderSubjects() {
+  const grid = document.createElement("section");
+  grid.className = "subject-grid";
+  filteredSubjects().forEach((subject) => grid.append(renderSubjectCard(subject)));
+  appContent.innerHTML = "";
+  appContent.append(grid);
 }
 
 function renderSubjectCard(subject) {
-  const fragment = template.content.cloneNode(true);
-  const shell = fragment.querySelector("[data-subject-card]");
-  const code = fragment.querySelector(".subject-code");
-  const title = fragment.querySelector(".subject-title");
-  const semester = fragment.querySelector(".subject-semester");
-  const chip = fragment.querySelector(".subject-chip");
-  const links = fragment.querySelector("[data-links]");
-  const input = fragment.querySelector(".task-input");
-  const list = fragment.querySelector(".task-list");
-  const count = fragment.querySelector(".task-count");
-  const notes = fragment.querySelector(".notes-area");
+  const card = document.createElement("article");
+  card.className = "subject-card";
+  card.style.setProperty("--accent", subject.accent);
+  card.innerHTML = `
+    <div class="subject-head">
+      <div class="min-w-0">
+        <p class="subject-code">${escapeHtml(subject.code)}</p>
+        <h2 class="subject-name">${escapeHtml(subject.name)}</h2>
+        <p class="subject-semester">${escapeHtml(subject.semester)}</p>
+      </div>
+      <span class="subject-chip">${escapeHtml(subject.code.slice(2))}</span>
+    </div>
+    <div class="section-label">Quick Links</div>
+    <div class="quick-link-row"></div>
+    <div class="section-label">To-Do / Task Tracker</div>
+    <input class="task-input" type="text" autocomplete="off" placeholder="Type a task and press Enter" />
+    <ul class="task-list"></ul>
+    <div class="section-label">Notes & Snippets</div>
+    <textarea class="notes-area" rows="4" placeholder="Paste exam dates, links, commands, or reminders..."></textarea>
+  `;
 
-  shell.style.setProperty("--accent", subject.accent);
-  code.textContent = subject.code;
-  title.textContent = subject.name;
-  semester.textContent = subject.semester;
-  chip.setAttribute("aria-hidden", "true");
-
-  Object.entries(subject.links).forEach(([type, href]) => {
+  const quickLinks = card.querySelector(".quick-link-row");
+  ["syllabus", "drive", "github"].forEach((type) => {
     const button = document.createElement("button");
-    button.className = "quick-link";
     button.type = "button";
-    button.textContent = linkLabel(type);
-    button.addEventListener("click", () => openResourceViewer(subject, type, href));
-    links.append(button);
+    button.className = "quick-link";
+    button.textContent = linkLabel(type, subject);
+    button.addEventListener("click", () => openResourceViewer(subject, linkLabel(type, subject), subject.links[type]));
+    quickLinks.append(button);
   });
 
+  const input = card.querySelector(".task-input");
+  const list = card.querySelector(".task-list");
+  const notes = card.querySelector(".notes-area");
   input.addEventListener("keydown", (event) => {
     if (event.key !== "Enter") return;
     const text = input.value.trim();
     if (!text) return;
-
-    const nextTasks = [
+    saveTasks(subject.code, [
       ...getTasks(subject.code),
-      {
-        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        text,
-        done: false,
-      },
-    ];
-    saveTasks(subject.code, nextTasks);
+      { id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, text, done: false },
+    ]);
     input.value = "";
-    renderTaskList(list, subject, count);
+    renderTaskList(list, subject);
   });
-
   notes.value = getNotes(subject.code);
   notes.addEventListener("input", () => saveNotes(subject.code, notes.value));
-  renderTaskList(list, subject, count);
-
-  requestAnimationFrame(() => shell.classList.add("is-visible"));
-  return fragment;
+  renderTaskList(list, subject);
+  return card;
 }
 
-function renderDashboard() {
-  const view = views.find((item) => item.id === activeView) ?? views[0];
-  const visibleSubjects = subjects.filter(view.filter);
+function renderTaskList(list, subject) {
+  const tasks = getTasks(subject.code);
+  list.innerHTML = "";
+  if (tasks.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "resource-note";
+    empty.textContent = "No tasks yet.";
+    list.append(empty);
+    return;
+  }
+  tasks.forEach((task) => {
+    const taskText = escapeHtml(task.text);
+    const row = document.createElement("li");
+    row.className = `task-row ${task.done ? "is-complete" : ""}`;
+    row.innerHTML = `
+      <input class="task-checkbox" type="checkbox" ${task.done ? "checked" : ""} aria-label="Mark ${taskText} complete" />
+      <span class="task-text">${taskText}</span>
+      <button class="delete-task" type="button" aria-label="Delete ${taskText}">x</button>
+    `;
+    row.querySelector("input").addEventListener("change", (event) => {
+      const next = getTasks(subject.code).map((item) => (item.id === task.id ? { ...item, done: event.target.checked } : item));
+      saveTasks(subject.code, next);
+      renderTaskList(list, subject);
+    });
+    row.querySelector("button").addEventListener("click", () => {
+      saveTasks(subject.code, getTasks(subject.code).filter((item) => item.id !== task.id));
+      renderTaskList(list, subject);
+    });
+    list.append(row);
+  });
+}
 
-  viewEyebrow.textContent = view.label;
-  viewTitle.textContent = view.title;
-  subjectGrid.innerHTML = "";
-  visibleSubjects.forEach((subject) => subjectGrid.append(renderSubjectCard(subject)));
+function renderMessenger() {
+  renderPortalView("facebook", "Facebook / Messenger", "Add your class group chat or instructor page for each subject.");
+}
 
-  renderNav(desktopNav);
-  renderNav(mobileNav);
-  updateProgress();
+function renderMeetings() {
+  renderPortalView("meeting", "Meet / Zoom", "Add the meeting room your instructor uses for each subject.");
+}
+
+function renderPortalView(linkType, title, description) {
+  const grid = document.createElement("section");
+  grid.className = "portal-grid";
+  filteredSubjects().forEach((subject) => {
+    const settings = getPortalSettings(subject);
+    const isMeeting = linkType === "meeting";
+    const savedHref = isMeeting ? settings.meeting : settings.facebook;
+    const savedPlatform = settings.meetingPlatform || subject.meetingPlatform;
+    const card = document.createElement("article");
+    card.className = "portal-card";
+    card.style.setProperty("--accent", subject.accent);
+    const label = isMeeting ? savedPlatform : title;
+    card.innerHTML = `
+      <p class="subject-code">${escapeHtml(subject.code)}</p>
+      <h3>${escapeHtml(subject.name)}</h3>
+      <p class="portal-label">${escapeHtml(description)}</p>
+      <form class="portal-form">
+        ${
+          isMeeting
+            ? `<select class="folder-select" aria-label="Meeting platform">
+                ${["Google Meet", "Zoom", "Microsoft Teams", "Other"]
+                  .map((platform) => `<option value="${platform}" ${platform === savedPlatform ? "selected" : ""}>${platform}</option>`)
+                  .join("")}
+              </select>`
+            : ""
+        }
+        <input class="folder-input" name="portalUrl" autocomplete="off" placeholder="Paste link here" value="${escapeHtml(savedHref)}" />
+        <button class="soft-button" type="submit">Save Link</button>
+      </form>
+      <button class="primary-button" type="button">Open ${escapeHtml(label)}</button>
+      <p class="portal-label">Saved locally in this browser.</p>
+    `;
+    card.querySelector("form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const next = getPortalSettings(subject);
+      const form = event.currentTarget;
+      const url = form.querySelector('input[name="portalUrl"]').value.trim();
+      if (isMeeting) {
+        next.meeting = url;
+        next.meetingPlatform = form.querySelector("select").value;
+      } else {
+        next.facebook = url;
+      }
+      savePortalSettings(subject, next);
+      renderPortalView(linkType, title, description);
+    });
+    card.querySelector(".primary-button").addEventListener("click", () => {
+      const latest = getPortalSettings(subject);
+      const latestLabel = isMeeting ? latest.meetingPlatform : title;
+      const latestHref = isMeeting ? latest.meeting : latest.facebook;
+      openResourceViewer(subject, latestLabel, latestHref || subject.links[linkType]);
+    });
+    grid.append(card);
+  });
+  appContent.innerHTML = "";
+  appContent.append(grid);
+}
+
+function renderFolders() {
+  const grid = document.createElement("section");
+  grid.className = "folder-grid";
+  filteredSubjects().forEach((subject) => grid.append(renderFolderCard(subject)));
+  appContent.innerHTML = "";
+  appContent.append(grid);
+}
+
+function renderFolderCard(subject) {
+  const card = document.createElement("article");
+  card.className = "folder-card";
+  card.dataset.folder = subject.code;
+  card.style.setProperty("--accent", subject.accent);
+  card.innerHTML = `
+    <p class="subject-code">${escapeHtml(subject.code)}</p>
+    <h3>${escapeHtml(subject.name)}</h3>
+    <p class="panel-muted">Store assignments, projects, modules, lectures, links, and related notes for this subject.</p>
+    <form class="folder-form">
+      <select class="folder-select" aria-label="Resource category">
+        ${folderCategories.map((category) => `<option value="${category}">${category}</option>`).join("")}
+      </select>
+      <input class="folder-input" name="title" autocomplete="off" placeholder="Title, file name, or topic" required />
+      <input class="folder-input" name="url" autocomplete="off" placeholder="Optional URL" />
+      <textarea class="folder-textarea" name="note" rows="3" placeholder="Optional note, deadline, instruction, or description"></textarea>
+      <button class="primary-button" type="submit">Add to Folder</button>
+    </form>
+    <ul class="resource-list"></ul>
+  `;
+  const form = card.querySelector("form");
+  const list = card.querySelector(".resource-list");
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const title = String(data.get("title") ?? "").trim();
+    if (!title) return;
+    const resources = [
+      ...getResources(subject.code),
+      {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        category: card.querySelector(".folder-select").value,
+        title,
+        url: String(data.get("url") ?? "").trim(),
+        note: String(data.get("note") ?? "").trim(),
+      },
+    ];
+    saveResources(subject.code, resources);
+    form.reset();
+    renderResourceList(list, subject);
+  });
+  renderResourceList(list, subject);
+  return card;
+}
+
+function renderResourceList(list, subject) {
+  const resources = getResources(subject.code);
+  list.innerHTML = "";
+  if (resources.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "resource-note";
+    empty.textContent = "No folder items yet.";
+    list.append(empty);
+    return;
+  }
+  resources.forEach((resource) => {
+    const category = escapeHtml(resource.category);
+    const title = escapeHtml(resource.title);
+    const note = escapeHtml(resource.note || resource.url || "Saved in this subject folder.");
+    const row = document.createElement("li");
+    row.className = "resource-row";
+    row.innerHTML = `
+      <span class="metric-orb">▣</span>
+      <div class="resource-main">
+        <span class="resource-category">${category}</span>
+        <p class="resource-title-small">${title}</p>
+        <p class="resource-note">${note}</p>
+      </div>
+      <button class="delete-task" type="button" aria-label="Delete ${title}">x</button>
+    `;
+    row.querySelector(".resource-main").addEventListener("click", () => {
+      if (resource.url) openResourceViewer(subject, resource.title, resource.url);
+    });
+    row.querySelector("button").addEventListener("click", () => {
+      saveResources(subject.code, resources.filter((item) => item.id !== resource.id));
+      renderResourceList(list, subject);
+    });
+    list.append(row);
+  });
 }
 
 function updateProgress() {
   const allTasks = subjects.flatMap((subject) => getTasks(subject.code));
   const completed = allTasks.filter((task) => task.done).length;
   const percent = allTasks.length === 0 ? 0 : Math.round((completed / allTasks.length) * 100);
-
   progressPercent.textContent = `${percent}%`;
   progressFill.style.width = `${percent}%`;
   progressBarA11y.setAttribute("aria-valuenow", String(percent));
@@ -282,7 +580,6 @@ function updateProgress() {
 function openMobileMenu() {
   mobileMenu.classList.remove("hidden");
   mobileMenu.setAttribute("aria-hidden", "false");
-  menuToggle.classList.add("is-open");
   menuToggle.setAttribute("aria-expanded", "true");
   document.body.style.overflow = "hidden";
 }
@@ -290,15 +587,12 @@ function openMobileMenu() {
 function closeMobileMenu() {
   mobileMenu.classList.add("hidden");
   mobileMenu.setAttribute("aria-hidden", "true");
-  menuToggle.classList.remove("is-open");
   menuToggle.setAttribute("aria-expanded", "false");
   document.body.style.overflow = "";
 }
 
-function openResourceViewer(subject, type, href) {
-  const label = linkLabel(type);
+function openResourceViewer(subject, label, href) {
   const hasLink = href && href !== "#";
-
   resourceSubject.textContent = `${subject.code} - ${subject.name}`;
   resourceTitle.textContent = label;
   resourceExternal.href = hasLink ? href : "#";
@@ -306,13 +600,8 @@ function openResourceViewer(subject, type, href) {
   resourceEmpty.classList.toggle("hidden", hasLink);
   resourceFrame.classList.toggle("hidden", !hasLink);
   resourceFallback.classList.toggle("hidden", !hasLink);
-
-  if (hasLink) {
-    resourceFrame.src = href;
-  } else {
-    resourceFrame.removeAttribute("src");
-  }
-
+  if (hasLink) resourceFrame.src = href;
+  else resourceFrame.removeAttribute("src");
   resourceViewer.classList.remove("hidden");
   resourceViewer.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
@@ -331,8 +620,9 @@ resourceClose.addEventListener("click", closeResourceViewer);
 resourceViewer.addEventListener("click", (event) => {
   if (event.target === resourceViewer) closeResourceViewer();
 });
-mobileMenu.addEventListener("click", (event) => {
-  if (event.target === mobileMenu) closeMobileMenu();
+searchInput.addEventListener("input", (event) => {
+  searchQuery = event.target.value;
+  renderApp();
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
@@ -341,4 +631,5 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-renderDashboard();
+todayPill.textContent = new Intl.DateTimeFormat("en", { day: "2-digit", month: "short" }).format(new Date());
+renderApp();
