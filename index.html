@@ -3,125 +3,639 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="A personal subject dashboard for managing coursework, links, meetings, notes, and subject folders."
-    />
-    <title>Nexus Subject Dashboard</title>
+    <meta name="description" content="SemStack is a private IT university coursework dashboard." />
+    <title>SemStack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        --motion: cubic-bezier(0.32, 0.72, 0, 1);
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-width: 0;
+        overflow-x: hidden;
+      }
+
+      body {
+        min-height: 100dvh;
+        margin: 0;
+        background:
+          radial-gradient(circle at 10% 0%, rgba(79, 70, 229, 0.22), transparent 28rem),
+          radial-gradient(circle at 90% 8%, rgba(16, 185, 129, 0.12), transparent 24rem),
+          linear-gradient(135deg, #0f172a 0%, #111827 50%, #1e293b 100%);
+        color: #e5edf8;
+        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      }
+
+      button,
+      input,
+      textarea,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .glass-panel {
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(15, 23, 42, 0.78);
+        box-shadow: 0 24px 80px rgba(2, 6, 23, 0.34);
+      }
+
+      .tap-target {
+        min-height: 44px;
+        min-width: 44px;
+      }
+
+      .subject-card {
+        border-color: color-mix(in srgb, var(--accent) 42%, rgba(148, 163, 184, 0.18));
+      }
+
+      .subject-glow {
+        background: radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 22%, transparent), transparent 15rem);
+      }
+
+      .progress-fill {
+        width: 0;
+        transition: width 650ms var(--motion);
+      }
+
+      .filter-button[aria-pressed="true"] {
+        border-color: rgba(125, 211, 252, 0.52);
+        background: rgba(14, 165, 233, 0.16);
+        color: white;
+      }
+
+      .task-row.is-complete .task-label {
+        color: #64748b;
+        text-decoration: line-through;
+      }
+
+      .mobile-drawer {
+        transform: translateX(-110%);
+        transition: transform 500ms var(--motion);
+      }
+
+      .mobile-drawer.is-open {
+        transform: translateX(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 1ms !important;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="Main navigation">
-        <div class="brand-row">
-          <div class="brand-mark">N</div>
-          <div>
-            <p class="brand-name">Nexus</p>
-            <p class="brand-subtitle">Course Hub</p>
-          </div>
+    <div id="authOverlay" class="fixed inset-0 z-50 hidden place-items-center bg-slate-950/90 p-4 backdrop-blur-xl">
+      <section class="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+        <div class="mb-6">
+          <p class="text-xs font-bold uppercase tracking-[0.24em] text-sky-300">SemStack</p>
+          <h1 class="mt-2 text-3xl font-extrabold text-white">Sign in to your stack</h1>
+          <p class="mt-2 text-sm leading-6 text-slate-400">Your tasks and scratchpads sync through your private API account.</p>
         </div>
 
-        <nav id="desktopNav" class="nav-list"></nav>
-
-        <div class="sidebar-stat">
-          <p class="sidebar-stat-value">5</p>
-          <p class="sidebar-stat-label">subjects this term</p>
+        <div class="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-950 p-1">
+          <button id="loginTab" class="tap-target rounded-lg bg-sky-500 text-sm font-bold text-white" type="button">Login</button>
+          <button id="registerTab" class="tap-target rounded-lg text-sm font-bold text-slate-300" type="button">Register</button>
         </div>
-      </aside>
 
-      <header class="mobile-header">
-        <button id="menuToggle" class="icon-button" type="button" aria-label="Open menu" aria-expanded="false">
-          <span class="menu-line"></span>
-          <span class="menu-line"></span>
-        </button>
-        <div>
-          <p class="brand-name">Nexus</p>
-          <p class="brand-subtitle">Course Hub</p>
-        </div>
-      </header>
-
-      <div id="mobileMenu" class="mobile-menu hidden" aria-hidden="true">
-        <div class="mobile-menu-top">
-          <p class="brand-name">Nexus Menu</p>
-          <button id="menuClose" class="icon-button is-open" type="button" aria-label="Close menu">
-            <span class="menu-line"></span>
-            <span class="menu-line"></span>
-          </button>
-        </div>
-        <nav id="mobileNav" class="nav-list"></nav>
-      </div>
-
-      <main class="main-panel">
-        <section class="topbar">
-          <div class="date-pill" id="todayPill">Today</div>
-          <label class="search-box">
-            <span>Search</span>
-            <input id="searchInput" type="search" placeholder="Search subjects or folders" autocomplete="off" />
+        <form id="authForm" class="space-y-3">
+          <label class="block">
+            <span class="mb-1 block text-sm font-semibold text-slate-300">Email</span>
+            <input id="authEmail" class="tap-target w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-white outline-none focus:border-sky-400" type="email" autocomplete="email" required />
           </label>
-          <div class="profile-chip">
-            <div class="profile-avatar">K</div>
-            <div>
-              <p class="profile-name">Kiiing025</p>
-              <p class="profile-role">Student</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="hero-row">
-          <div>
-            <p id="viewEyebrow" class="eyebrow">Overview</p>
-            <h1 id="viewTitle">Subject Dashboard</h1>
-          </div>
-          <div class="progress-card" aria-label="Global task progress">
-            <div>
-              <p>Overall completion</p>
-              <strong id="progressPercent">0%</strong>
-            </div>
-            <div id="progressBarA11y" class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-              <div id="progressFill" class="progress-fill"></div>
-            </div>
-          </div>
-        </section>
-
-        <section id="appContent" class="content-stack" aria-live="polite"></section>
-      </main>
+          <label class="block">
+            <span class="mb-1 block text-sm font-semibold text-slate-300">Password</span>
+            <input id="authPassword" class="tap-target w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-white outline-none focus:border-sky-400" type="password" autocomplete="current-password" minlength="8" required />
+          </label>
+          <p id="authError" class="hidden rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200"></p>
+          <button id="authSubmit" class="tap-target w-full rounded-xl bg-sky-500 px-4 font-extrabold text-white transition hover:bg-sky-400" type="submit">
+            Login
+          </button>
+        </form>
+      </section>
     </div>
 
-    <section id="resourceViewer" class="resource-viewer hidden" aria-hidden="true" aria-label="Embedded resource viewer">
-      <div class="resource-panel" role="dialog" aria-modal="true" aria-labelledby="resourceTitle">
-        <div class="resource-header">
-          <div class="min-w-0">
-            <p id="resourceSubject" class="resource-kicker">Resource</p>
-            <h2 id="resourceTitle" class="resource-title">Quick Link</h2>
-          </div>
-          <div class="resource-actions">
-            <a id="resourceExternal" class="resource-action" href="#" target="_blank" rel="noreferrer">Open</a>
-            <button id="resourceClose" class="resource-action" type="button">Close</button>
-          </div>
-        </div>
-        <div id="resourceEmpty" class="resource-empty hidden">
-          Add this URL in <code>script.js</code>, then tap the card again.
-        </div>
-        <iframe
-          id="resourceFrame"
-          class="resource-frame"
-          title="Embedded resource"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
-        <p id="resourceFallback" class="resource-fallback hidden">
-          If Facebook, Messenger, Google Meet, or Zoom blocks the embedded view, tap Open.
-        </p>
+    <div id="loadingOverlay" class="fixed inset-0 z-40 hidden place-items-center bg-slate-950/70 p-4 backdrop-blur-md">
+      <div class="rounded-2xl border border-slate-700 bg-slate-900 px-5 py-4 text-sm font-bold text-slate-200">
+        <i class="fa-solid fa-circle-notch mr-2 animate-spin text-sky-300"></i>
+        Loading SemStack...
       </div>
-    </section>
+    </div>
 
-    <script src="script.js"></script>
+    <header class="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/86 backdrop-blur-xl lg:hidden">
+      <div class="flex min-h-16 items-center justify-between px-4">
+        <div>
+          <p class="text-xs font-extrabold uppercase tracking-[0.24em] text-sky-300">SemStack</p>
+          <p class="text-sm font-semibold text-slate-400">IT coursework hub</p>
+        </div>
+        <button id="mobileMenuButton" class="tap-target rounded-xl border border-slate-700 bg-slate-900 text-slate-100" type="button" aria-label="Open filters">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <aside class="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-slate-800 bg-slate-950/88 p-5 backdrop-blur-xl lg:block">
+      <div class="mb-8">
+        <p class="text-xs font-extrabold uppercase tracking-[0.24em] text-sky-300">SemStack</p>
+        <h2 class="mt-2 text-2xl font-extrabold text-white">Education Dashboard</h2>
+      </div>
+      <nav class="space-y-2" id="desktopFilters"></nav>
+      <button id="desktopLogout" class="tap-target mt-8 w-full rounded-xl border border-slate-700 px-4 text-left text-sm font-bold text-slate-300 hover:bg-slate-900" type="button">
+        <i class="fa-solid fa-right-from-bracket mr-2 text-rose-300"></i>
+        Logout
+      </button>
+    </aside>
+
+    <div id="mobileDrawer" class="mobile-drawer fixed inset-y-0 left-0 z-40 w-[min(19rem,calc(100vw-2rem))] border-r border-slate-800 bg-slate-950 p-5 shadow-2xl lg:hidden">
+      <div class="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-extrabold uppercase tracking-[0.24em] text-sky-300">Filters</p>
+          <h2 class="mt-2 text-xl font-extrabold text-white">SemStack</h2>
+        </div>
+        <button id="mobileCloseButton" class="tap-target rounded-xl border border-slate-700 text-slate-100" type="button" aria-label="Close filters">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <nav class="space-y-2" id="mobileFilters"></nav>
+      <button id="mobileLogout" class="tap-target mt-8 w-full rounded-xl border border-slate-700 px-4 text-left text-sm font-bold text-slate-300" type="button">
+        <i class="fa-solid fa-right-from-bracket mr-2 text-rose-300"></i>
+        Logout
+      </button>
+    </div>
+    <button id="drawerBackdrop" class="fixed inset-0 z-30 hidden bg-slate-950/70 lg:hidden" type="button" aria-label="Close menu"></button>
+
+    <main class="min-h-screen px-4 py-5 sm:px-6 lg:ml-72 lg:px-8 lg:py-8">
+      <section class="mx-auto max-w-7xl">
+        <section class="glass-panel rounded-3xl p-5 sm:p-6">
+          <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
+            <div>
+              <p id="currentDate" class="text-sm font-bold text-sky-300"></p>
+              <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">SemStack</h1>
+              <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+                Dark-mode control center for IT coursework, milestones, tasks, and scratchpad notes.
+              </p>
+            </div>
+            <div class="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
+              <div class="mb-3 flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-slate-400">Global Progress</p>
+                  <p class="text-sm text-slate-400">Completed tasks across all subjects</p>
+                </div>
+                <strong id="progressText" class="text-3xl font-extrabold text-white">0%</strong>
+              </div>
+              <div class="h-3 overflow-hidden rounded-full bg-slate-800" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+                <div id="progressFill" class="progress-fill h-full rounded-full bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-300"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="mt-5 grid gap-3 md:grid-cols-3" id="milestones"></section>
+        <section id="subjectGrid" class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"></section>
+      </section>
+    </main>
+
+    <script>
+      const filters = [
+        { id: "all", label: "All Semesters", icon: "fa-layer-group" },
+        { id: "3rd Year", label: "3rd Year", icon: "fa-code" },
+        { id: "4th Year", label: "4th Year", icon: "fa-user-graduate" },
+      ];
+
+      const milestones = [
+        { subjectId: "IT314", title: "System Prototype Defense", tag: "Major" },
+        { subjectId: "IT313", title: "App Deployment / APK Submission", tag: "Lab" },
+        { subjectId: "IT311", title: "Penetration Testing Exam", tag: "Exam" },
+      ];
+
+      const state = {
+        authMode: "login",
+        token: sessionStorage.getItem("semstackToken"),
+        user: null,
+        subjects: [],
+        tasks: [],
+        notes: {},
+        filter: "all",
+      };
+
+      const authOverlay = document.querySelector("#authOverlay");
+      const loadingOverlay = document.querySelector("#loadingOverlay");
+      const authForm = document.querySelector("#authForm");
+      const authEmail = document.querySelector("#authEmail");
+      const authPassword = document.querySelector("#authPassword");
+      const authError = document.querySelector("#authError");
+      const authSubmit = document.querySelector("#authSubmit");
+      const loginTab = document.querySelector("#loginTab");
+      const registerTab = document.querySelector("#registerTab");
+      const desktopFilters = document.querySelector("#desktopFilters");
+      const mobileFilters = document.querySelector("#mobileFilters");
+      const subjectGrid = document.querySelector("#subjectGrid");
+      const milestonesEl = document.querySelector("#milestones");
+      const progressText = document.querySelector("#progressText");
+      const progressFill = document.querySelector("#progressFill");
+      const progressBar = document.querySelector("#progressBar");
+      const mobileDrawer = document.querySelector("#mobileDrawer");
+      const drawerBackdrop = document.querySelector("#drawerBackdrop");
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function setLoading(isLoading) {
+        loadingOverlay.classList.toggle("hidden", !isLoading);
+        loadingOverlay.classList.toggle("grid", isLoading);
+      }
+
+      function setAuthMode(mode) {
+        state.authMode = mode;
+        authError.classList.add("hidden");
+        authSubmit.textContent = mode === "login" ? "Login" : "Create Account";
+        loginTab.className = mode === "login"
+          ? "tap-target rounded-lg bg-sky-500 text-sm font-bold text-white"
+          : "tap-target rounded-lg text-sm font-bold text-slate-300";
+        registerTab.className = mode === "register"
+          ? "tap-target rounded-lg bg-sky-500 text-sm font-bold text-white"
+          : "tap-target rounded-lg text-sm font-bold text-slate-300";
+      }
+
+      function showAuth(message = "") {
+        authOverlay.classList.remove("hidden");
+        authOverlay.classList.add("grid");
+        if (message) {
+          authError.textContent = message;
+          authError.classList.remove("hidden");
+        }
+      }
+
+      function hideAuth() {
+        authOverlay.classList.add("hidden");
+        authOverlay.classList.remove("grid");
+      }
+
+      async function api(path, options = {}) {
+        const headers = {
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
+        };
+
+        if (state.token) {
+          headers.Authorization = `Bearer ${state.token}`;
+        }
+
+        const response = await fetch(path, { ...options, headers });
+        if (response.status === 401) {
+          logout("Your session expired. Please log in again.");
+          throw new Error("Unauthorized");
+        }
+        if (response.status === 204) return null;
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "Request failed.");
+        }
+        return payload;
+      }
+
+      async function authenticate(event) {
+        event.preventDefault();
+        authError.classList.add("hidden");
+        setLoading(true);
+        try {
+          const payload = await api(`/api/auth/${state.authMode}`, {
+            method: "POST",
+            body: JSON.stringify({
+              email: authEmail.value,
+              password: authPassword.value,
+            }),
+          });
+          state.token = payload.token;
+          state.user = payload.user;
+          sessionStorage.setItem("semstackToken", payload.token);
+          hideAuth();
+          await loadDashboard();
+        } catch (error) {
+          authError.textContent = error.message;
+          authError.classList.remove("hidden");
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function logout(message = "") {
+        state.token = null;
+        state.user = null;
+        state.subjects = [];
+        state.tasks = [];
+        state.notes = {};
+        sessionStorage.removeItem("semstackToken");
+        render();
+        showAuth(message);
+      }
+
+      async function loadDashboard() {
+        setLoading(true);
+        try {
+          const payload = await api("/api/dashboard");
+          state.user = payload.user;
+          state.subjects = payload.subjects;
+          state.tasks = payload.tasks.map((task) => ({ ...task, completed: Boolean(task.completed) }));
+          state.notes = Object.fromEntries(payload.notes.map((note) => [note.subjectId, note.content]));
+          render();
+        } catch (error) {
+          if (error.message !== "Unauthorized") showAuth(error.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function visibleSubjects() {
+        if (state.filter === "all") return state.subjects;
+        return state.subjects.filter((subject) => subject.year === state.filter);
+      }
+
+      function subjectTasks(subjectId) {
+        return state.tasks.filter((task) => task.subjectId === subjectId);
+      }
+
+      function renderFilters(target) {
+        target.innerHTML = filters
+          .map((filter) => `
+            <button
+              type="button"
+              class="filter-button tap-target flex w-full items-center gap-3 rounded-xl border border-slate-800 px-4 text-left text-sm font-bold text-slate-300 transition hover:bg-slate-900"
+              data-filter="${filter.id}"
+              aria-pressed="${filter.id === state.filter}"
+            >
+              <i class="fa-solid ${filter.icon} w-5 text-sky-300"></i>
+              <span>${filter.label}</span>
+            </button>
+          `)
+          .join("");
+
+        target.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.filter = button.dataset.filter;
+            closeDrawer();
+            render();
+          });
+        });
+      }
+
+      function renderMilestones() {
+        milestonesEl.innerHTML = milestones
+          .map((milestone) => {
+            const subject = state.subjects.find((item) => item.id === milestone.subjectId);
+            return `
+              <article class="glass-panel rounded-2xl p-4 subject-card" style="--accent: ${subject?.accent || "#38bdf8"}">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                  <span class="rounded-full px-3 py-1 text-xs font-extrabold" style="background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent);">${milestone.tag}</span>
+                  <i class="fa-solid fa-flag-checkered text-slate-500"></i>
+                </div>
+                <p class="text-xs font-extrabold uppercase tracking-[0.18em]" style="color: var(--accent);">${milestone.subjectId}</p>
+                <h3 class="mt-2 text-base font-extrabold text-white">${milestone.title}</h3>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      function renderSubjects() {
+        subjectGrid.innerHTML = visibleSubjects()
+          .map((subject) => {
+            const tasks = subjectTasks(subject.id);
+            const completed = tasks.filter((task) => task.completed).length;
+            const note = state.notes[subject.id] || "";
+
+            return `
+              <article class="subject-card subject-glow glass-panel overflow-hidden rounded-2xl p-4" style="--accent: ${subject.accent}" data-subject-card="${subject.id}">
+                <header class="mb-4 flex items-start justify-between gap-4">
+                  <div class="min-w-0">
+                    <p class="text-xs font-extrabold uppercase tracking-[0.18em]" style="color: var(--accent)">${subject.code}</p>
+                    <h2 class="mt-2 break-words text-lg font-extrabold leading-snug text-white">${subject.name}</h2>
+                    <p class="mt-2 text-sm text-slate-400">${subject.semester}</p>
+                  </div>
+                  <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-sm font-extrabold" style="background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent);">
+                    ${subject.code.slice(2)}
+                  </div>
+                </header>
+
+                <section class="mb-5">
+                  <h3 class="mb-3 text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Resource Hub</h3>
+                  <div class="grid grid-cols-3 gap-2">
+                    ${resourceButton(subject, "syllabus", "fa-regular fa-file-lines", "Syllabus")}
+                    ${resourceButton(subject, "drive", "fa-brands fa-google-drive", "Drive")}
+                    ${resourceButton(subject, "github", "fa-brands fa-github", "Repos")}
+                  </div>
+                </section>
+
+                <section class="mb-5">
+                  <div class="mb-3 flex items-center justify-between gap-3">
+                    <h3 class="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Tasks</h3>
+                    <span class="text-xs font-bold text-slate-500">${completed}/${tasks.length} done</span>
+                  </div>
+                  <form class="task-form mb-3 flex gap-2" data-subject="${subject.id}">
+                    <input class="tap-target min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-950/80 px-3 text-sm text-white outline-none focus:border-sky-400" name="task" placeholder="Add task..." autocomplete="off" />
+                    <button class="tap-target rounded-xl px-4 font-extrabold text-white" style="background: var(--accent)" type="submit" aria-label="Add task">
+                      <i class="fa-solid fa-plus"></i>
+                    </button>
+                  </form>
+                  <ul class="space-y-2">${tasks.length ? tasks.map(taskRow).join("") : `<li class="rounded-xl border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-500">No tasks yet.</li>`}</ul>
+                </section>
+
+                <section>
+                  <h3 class="mb-3 text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Auto-saving Scratchpad</h3>
+                  <textarea
+                    class="notes-field min-h-36 w-full resize-y rounded-xl border border-slate-700 bg-slate-950/80 p-3 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-sky-400"
+                    data-subject="${subject.id}"
+                    placeholder="Paste terminal commands, API URLs, configs, exam dates..."
+                  >${escapeHtml(note)}</textarea>
+                  <p class="save-state mt-2 text-xs text-slate-500" data-save-state="${subject.id}">Saved automatically</p>
+                </section>
+              </article>
+            `;
+          })
+          .join("");
+
+        bindSubjectEvents();
+      }
+
+      function resourceButton(subject, type, icon, label) {
+        const href = subject.links[type] || "#";
+        const disabled = href === "#";
+        return `
+          <a
+            class="tap-target grid place-items-center rounded-xl border border-slate-700 bg-slate-950/70 text-center text-sm font-bold text-slate-200 transition hover:border-sky-400 hover:text-white ${disabled ? "pointer-events-none opacity-50" : ""}"
+            href="${escapeHtml(href)}"
+            target="_blank"
+            rel="noreferrer"
+            title="${label}"
+          >
+            <i class="${icon} text-lg"></i>
+            <span class="mt-1 text-[11px]">${label}</span>
+          </a>
+        `;
+      }
+
+      function taskRow(task) {
+        return `
+          <li class="task-row ${task.completed ? "is-complete" : ""} grid min-h-12 grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-2 rounded-xl bg-slate-950/70" data-task-id="${task.id}">
+            <input class="task-toggle h-5 w-5 justify-self-center accent-sky-400" type="checkbox" ${task.completed ? "checked" : ""} aria-label="Toggle ${escapeHtml(task.text)}" />
+            <span class="task-label min-w-0 break-words py-3 text-sm text-slate-200">${escapeHtml(task.text)}</span>
+            <button class="delete-task tap-target rounded-xl text-slate-500 hover:text-rose-300" type="button" aria-label="Delete task">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </li>
+        `;
+      }
+
+      function bindSubjectEvents() {
+        document.querySelectorAll(".task-form").forEach((form) => {
+          form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const input = form.elements.task;
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = "";
+            const payload = await api("/api/tasks", {
+              method: "POST",
+              body: JSON.stringify({ subjectId: form.dataset.subject, text }),
+            });
+            state.tasks.push({ ...payload.task, completed: Boolean(payload.task.completed) });
+            render();
+          });
+        });
+
+        document.querySelectorAll(".task-row").forEach((row) => {
+          const id = Number(row.dataset.taskId);
+          row.querySelector(".task-toggle").addEventListener("change", async (event) => {
+            const payload = await api(`/api/tasks/${id}`, {
+              method: "PUT",
+              body: JSON.stringify({ completed: event.target.checked }),
+            });
+            state.tasks = state.tasks.map((task) => (task.id === id ? { ...payload.task, completed: Boolean(payload.task.completed) } : task));
+            render();
+          });
+
+          row.querySelector(".delete-task").addEventListener("click", async () => {
+            await api(`/api/tasks/${id}`, { method: "DELETE" });
+            state.tasks = state.tasks.filter((task) => task.id !== id);
+            render();
+          });
+        });
+
+        document.querySelectorAll(".notes-field").forEach((field) => {
+          field.addEventListener("input", () => {
+            const subjectId = field.dataset.subject;
+            state.notes[subjectId] = field.value;
+            const label = document.querySelector(`[data-save-state="${subjectId}"]`);
+            label.textContent = "Saving...";
+            debounceNoteSave(subjectId, field.value, label);
+          });
+          field.addEventListener("blur", () => {
+            const subjectId = field.dataset.subject;
+            const label = document.querySelector(`[data-save-state="${subjectId}"]`);
+            saveNoteNow(subjectId, field.value, label);
+          });
+        });
+      }
+
+      const noteTimers = new Map();
+      function debounceNoteSave(subjectId, content, label) {
+        clearTimeout(noteTimers.get(subjectId));
+        noteTimers.set(subjectId, setTimeout(() => saveNoteNow(subjectId, content, label), 400));
+      }
+
+      async function saveNoteNow(subjectId, content, label) {
+        clearTimeout(noteTimers.get(subjectId));
+        try {
+          await api(`/api/notes/${subjectId}`, {
+            method: "PUT",
+            body: JSON.stringify({ content }),
+          });
+          label.textContent = "Saved automatically";
+        } catch (error) {
+          label.textContent = error.message;
+        }
+      }
+
+      function updateProgress() {
+        const total = state.tasks.length;
+        const completed = state.tasks.filter((task) => task.completed).length;
+        const percent = total ? Math.round((completed / total) * 100) : 0;
+        progressText.textContent = `${percent}%`;
+        progressFill.style.width = `${percent}%`;
+        progressBar.setAttribute("aria-valuenow", String(percent));
+      }
+
+      function render() {
+        renderFilters(desktopFilters);
+        renderFilters(mobileFilters);
+        renderMilestones();
+        renderSubjects();
+        updateProgress();
+      }
+
+      function openDrawer() {
+        mobileDrawer.classList.add("is-open");
+        drawerBackdrop.classList.remove("hidden");
+      }
+
+      function closeDrawer() {
+        mobileDrawer.classList.remove("is-open");
+        drawerBackdrop.classList.add("hidden");
+      }
+
+      document.querySelector("#currentDate").textContent = new Intl.DateTimeFormat("en", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }).format(new Date());
+
+      document.querySelector("#mobileMenuButton").addEventListener("click", openDrawer);
+      document.querySelector("#mobileCloseButton").addEventListener("click", closeDrawer);
+      drawerBackdrop.addEventListener("click", closeDrawer);
+      document.querySelector("#desktopLogout").addEventListener("click", () => logout());
+      document.querySelector("#mobileLogout").addEventListener("click", () => logout());
+      loginTab.addEventListener("click", () => setAuthMode("login"));
+      registerTab.addEventListener("click", () => setAuthMode("register"));
+      authForm.addEventListener("submit", authenticate);
+
+      if (state.token) {
+        loadDashboard();
+      } else {
+        showAuth();
+      }
+    </script>
   </body>
 </html>
