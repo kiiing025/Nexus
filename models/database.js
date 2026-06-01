@@ -1,8 +1,7 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const sqlite3 = require("sqlite3");
-const { open } = require("sqlite");
+const initSqlJs = require("sql.js");
 
 const dataDir = path.join(__dirname, "..", "data");
 const defaultDbPath = process.env.VERCEL
@@ -12,13 +11,68 @@ const dbPath = process.env.DB_FILE || defaultDbPath;
 
 let dbPromise;
 
+function normalizeParams(params) {
+  return params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
+}
+
+function persist(sqlDb) {
+  fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+  fs.writeFileSync(dbPath, Buffer.from(sqlDb.export()));
+}
+
+function makeStatementResult(sqlDb) {
+  const lastID = sqlDb.exec("SELECT last_insert_rowid() AS id")[0]?.values?.[0]?.[0] ?? 0;
+  const changes = sqlDb.exec("SELECT changes() AS changes")[0]?.values?.[0]?.[0] ?? 0;
+  return { lastID, changes };
+}
+
+function makeDbWrapper(sqlDb) {
+  return {
+    exec(sql) {
+      sqlDb.exec(sql);
+      persist(sqlDb);
+    },
+
+    run(sql, ...params) {
+      sqlDb.run(sql, normalizeParams(params));
+      const result = makeStatementResult(sqlDb);
+      persist(sqlDb);
+      return result;
+    },
+
+    get(sql, ...params) {
+      const stmt = sqlDb.prepare(sql);
+      try {
+        stmt.bind(normalizeParams(params));
+        return stmt.step() ? stmt.getAsObject() : undefined;
+      } finally {
+        stmt.free();
+      }
+    },
+
+    all(sql, ...params) {
+      const stmt = sqlDb.prepare(sql);
+      const rows = [];
+      try {
+        stmt.bind(normalizeParams(params));
+        while (stmt.step()) rows.push(stmt.getAsObject());
+        return rows;
+      } finally {
+        stmt.free();
+      }
+    },
+  };
+}
+
 async function getDb() {
   if (!dbPromise) {
-    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-    dbPromise = open({
-      filename: dbPath,
-      driver: sqlite3.Database,
-    });
+    dbPromise = (async () => {
+      const SQL = await initSqlJs();
+      fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+      const fileBuffer = fs.existsSync(dbPath) ? fs.readFileSync(dbPath) : null;
+      const sqlDb = fileBuffer ? new SQL.Database(fileBuffer) : new SQL.Database();
+      return makeDbWrapper(sqlDb);
+    })();
   }
 
   return dbPromise;
