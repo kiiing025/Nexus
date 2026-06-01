@@ -93,6 +93,34 @@
       <nav class="mt-10 space-y-3" id="mobileNav"></nav>
     </div>
 
+    <section id="resourceViewer" class="resource-viewer hidden" aria-hidden="true" aria-label="Quick link viewer">
+      <div class="resource-panel" role="dialog" aria-modal="true" aria-labelledby="resourceTitle">
+        <div class="resource-header">
+          <div class="min-w-0">
+            <p id="resourceSubject" class="resource-kicker">Quick Link</p>
+            <h2 id="resourceTitle" class="resource-title">Resource</h2>
+          </div>
+          <div class="resource-actions">
+            <a id="resourceExternal" class="resource-action" href="#" target="_blank" rel="noreferrer">Open</a>
+            <button id="resourceClose" class="resource-action" type="button">Close</button>
+          </div>
+        </div>
+        <div id="resourceEmpty" class="resource-empty hidden">
+          Add this link in <code>script.js</code>, then tap it again to open it here.
+        </div>
+        <iframe
+          id="resourceFrame"
+          class="resource-frame"
+          title="Embedded quick link resource"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+        <p id="resourceFallback" class="resource-fallback hidden">
+          If this resource refuses to load here, tap Open. Some sites block embedded viewing.
+        </p>
+      </div>
+    </section>
+
     <main class="min-h-screen lg:ml-72">
       <section class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <div class="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">

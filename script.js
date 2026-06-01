@@ -83,6 +83,14 @@ const progressBarA11y = document.querySelector("#progressBarA11y");
 const menuToggle = document.querySelector("#menuToggle");
 const menuClose = document.querySelector("#menuClose");
 const mobileMenu = document.querySelector("#mobileMenu");
+const resourceViewer = document.querySelector("#resourceViewer");
+const resourceSubject = document.querySelector("#resourceSubject");
+const resourceTitle = document.querySelector("#resourceTitle");
+const resourceExternal = document.querySelector("#resourceExternal");
+const resourceClose = document.querySelector("#resourceClose");
+const resourceFrame = document.querySelector("#resourceFrame");
+const resourceEmpty = document.querySelector("#resourceEmpty");
+const resourceFallback = document.querySelector("#resourceFallback");
 
 function storageKey(code, type) {
   return `${storagePrefix}.${code}.${type}`;
@@ -180,7 +188,7 @@ function renderTaskList(list, subject, count) {
     const remove = document.createElement("button");
     remove.className = "delete-task";
     remove.type = "button";
-    remove.textContent = "×";
+    remove.textContent = "x";
     remove.setAttribute("aria-label", `Delete ${task.text}`);
     remove.addEventListener("click", () => {
       const nextTasks = getTasks(subject.code).filter((item) => item.id !== task.id);
@@ -213,15 +221,12 @@ function renderSubjectCard(subject) {
   chip.setAttribute("aria-hidden", "true");
 
   Object.entries(subject.links).forEach(([type, href]) => {
-    const anchor = document.createElement("a");
-    anchor.className = "quick-link";
-    anchor.href = href;
-    anchor.textContent = linkLabel(type);
-    if (href !== "#") {
-      anchor.target = "_blank";
-      anchor.rel = "noreferrer";
-    }
-    links.append(anchor);
+    const button = document.createElement("button");
+    button.className = "quick-link";
+    button.type = "button";
+    button.textContent = linkLabel(type);
+    button.addEventListener("click", () => openResourceViewer(subject, type, href));
+    links.append(button);
   });
 
   input.addEventListener("keydown", (event) => {
@@ -290,13 +295,50 @@ function closeMobileMenu() {
   document.body.style.overflow = "";
 }
 
+function openResourceViewer(subject, type, href) {
+  const label = linkLabel(type);
+  const hasLink = href && href !== "#";
+
+  resourceSubject.textContent = `${subject.code} - ${subject.name}`;
+  resourceTitle.textContent = label;
+  resourceExternal.href = hasLink ? href : "#";
+  resourceExternal.classList.toggle("hidden", !hasLink);
+  resourceEmpty.classList.toggle("hidden", hasLink);
+  resourceFrame.classList.toggle("hidden", !hasLink);
+  resourceFallback.classList.toggle("hidden", !hasLink);
+
+  if (hasLink) {
+    resourceFrame.src = href;
+  } else {
+    resourceFrame.removeAttribute("src");
+  }
+
+  resourceViewer.classList.remove("hidden");
+  resourceViewer.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeResourceViewer() {
+  resourceViewer.classList.add("hidden");
+  resourceViewer.setAttribute("aria-hidden", "true");
+  resourceFrame.removeAttribute("src");
+  document.body.style.overflow = "";
+}
+
 menuToggle.addEventListener("click", openMobileMenu);
 menuClose.addEventListener("click", closeMobileMenu);
+resourceClose.addEventListener("click", closeResourceViewer);
+resourceViewer.addEventListener("click", (event) => {
+  if (event.target === resourceViewer) closeResourceViewer();
+});
 mobileMenu.addEventListener("click", (event) => {
   if (event.target === mobileMenu) closeMobileMenu();
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeMobileMenu();
+  if (event.key === "Escape") {
+    closeMobileMenu();
+    closeResourceViewer();
+  }
 });
 
 renderDashboard();
