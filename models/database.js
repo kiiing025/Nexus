@@ -3,6 +3,7 @@ const os = require("os");
 const path = require("path");
 const initSqlJs = require("sql.js");
 
+const wasmPath = require.resolve("sql.js/dist/sql-wasm.wasm");
 const dataDir = path.join(__dirname, "..", "data");
 const defaultDbPath = process.env.VERCEL
   ? path.join(os.tmpdir(), "semstack.sqlite")
@@ -67,7 +68,9 @@ function makeDbWrapper(sqlDb) {
 async function getDb() {
   if (!dbPromise) {
     dbPromise = (async () => {
-      const SQL = await initSqlJs();
+      const SQL = await initSqlJs({
+        locateFile: () => wasmPath,
+      });
       fs.mkdirSync(path.dirname(dbPath), { recursive: true });
       const fileBuffer = fs.existsSync(dbPath) ? fs.readFileSync(dbPath) : null;
       const sqlDb = fileBuffer ? new SQL.Database(fileBuffer) : new SQL.Database();
