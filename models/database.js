@@ -1,10 +1,14 @@
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const sqlite3 = require("sqlite3");
 const { open } = require("sqlite");
 
 const dataDir = path.join(__dirname, "..", "data");
-const dbPath = process.env.DB_FILE || path.join(dataDir, "semstack.sqlite");
+const defaultDbPath = process.env.VERCEL
+  ? path.join(os.tmpdir(), "semstack.sqlite")
+  : path.join(dataDir, "semstack.sqlite");
+const dbPath = process.env.DB_FILE || defaultDbPath;
 
 let dbPromise;
 
