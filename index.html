@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A personal subject dashboard for managing university coursework, tasks, links, and notes."
+    />
+    <title>Subject Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
+            },
+            colors: {
+              ink: "#06101f",
+              panel: "#0b1220",
+              panel2: "#111827",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="min-h-screen overflow-x-hidden bg-ink font-sans text-slate-100 antialiased">
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.95),transparent_38%),linear-gradient(135deg,#06101f_0%,#0b1220_48%,#101827_100%)]"></div>
+
+    <aside
+      class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-72 lg:flex-col lg:border-r lg:border-white/10 lg:bg-slate-950/80 lg:px-5 lg:py-6"
+      aria-label="Desktop navigation"
+    >
+      <div class="mb-8">
+        <p class="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">Coursework</p>
+        <h1 class="text-2xl font-extrabold tracking-tight text-white">Subject Dashboard</h1>
+      </div>
+
+      <nav class="space-y-2" id="desktopNav"></nav>
+
+      <div class="mt-auto rounded-lg border border-white/10 bg-white/[0.03] p-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Current Load</p>
+        <p class="mt-2 text-sm leading-6 text-slate-300">5 subjects across 2 semesters</p>
+      </div>
+    </aside>
+
+    <header class="sticky top-0 z-30 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl lg:hidden">
+      <div class="flex min-h-16 items-center justify-between px-4">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-300/80">Coursework</p>
+          <h1 class="text-lg font-extrabold tracking-tight text-white">Subject Dashboard</h1>
+        </div>
+        <button
+          id="menuToggle"
+          class="hamburger-button"
+          type="button"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="mobileMenu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <div
+      id="mobileMenu"
+      class="fixed inset-0 z-40 hidden bg-slate-950/95 px-4 py-5 backdrop-blur-2xl lg:hidden"
+      aria-hidden="true"
+    >
+      <div class="flex min-h-16 items-center justify-between">
+        <div>
+          <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-300/80">Navigate</p>
+          <p class="text-xl font-extrabold text-white">Dashboard Views</p>
+        </div>
+        <button id="menuClose" class="hamburger-button is-open" type="button" aria-label="Close navigation menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <nav class="mt-10 space-y-3" id="mobileNav"></nav>
+    </div>
+
+    <main class="min-h-screen lg:ml-72">
+      <section class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <div class="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
+          <div>
+            <p id="viewEyebrow" class="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
+              Overview
+            </p>
+            <h2 id="viewTitle" class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              All Subjects
+            </h2>
+          </div>
+
+          <section class="rounded-lg border border-white/10 bg-white/[0.04] p-4" aria-label="Global progress">
+            <div class="mb-3 flex items-center justify-between gap-4">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Global Progress</p>
+                <p class="mt-1 text-sm text-slate-300">Completed tasks across all subjects</p>
+              </div>
+              <strong id="progressPercent" class="text-2xl font-extrabold text-white">0%</strong>
+            </div>
+            <div class="h-3 overflow-hidden rounded-full bg-slate-800" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBarA11y">
+              <div id="progressFill" class="h-full w-0 rounded-full bg-cyan-300 transition-[width] duration-700 progress-ease"></div>
+            </div>
+          </section>
+        </div>
+
+        <section
+          id="subjectGrid"
+          class="grid w-full grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+          aria-live="polite"
+        ></section>
+      </section>
+    </main>
+
+    <template id="subjectCardTemplate">
+      <article class="subject-shell reveal-card" data-subject-card>
+        <div class="subject-core">
+          <div class="mb-5 flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <p class="subject-code"></p>
+              <h3 class="subject-title"></h3>
+              <p class="subject-semester"></p>
+            </div>
+            <div class="subject-chip"></div>
+          </div>
+
+          <section class="mb-5">
+            <h4 class="section-label">Quick Links</h4>
+            <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3" data-links></div>
+          </section>
+
+          <section class="mb-5">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <h4 class="section-label">To-Do / Task Tracker</h4>
+              <span class="task-count"></span>
+            </div>
+            <label class="sr-only">Add task</label>
+            <input class="task-input" type="text" autocomplete="off" placeholder="Type a task and press Enter" />
+            <ul class="task-list mt-3 space-y-2"></ul>
+          </section>
+
+          <section>
+            <h4 class="section-label">Notes & Snippets</h4>
+            <label class="sr-only">Notes</label>
+            <textarea class="notes-area mt-3" rows="5" placeholder="Paste exam dates, links, code commands, or reminders..."></textarea>
+          </section>
+        </div>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
