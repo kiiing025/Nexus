@@ -176,6 +176,9 @@
       .icon-button,
       .filter-button,
       .resource-button,
+      .edit-links-button,
+      .folder-button,
+      .inline-action,
       .delete-task,
       .drawer-close {
         border: 0;
@@ -230,7 +233,10 @@
       .soft-button:hover,
       .icon-button:hover,
       .filter-button:hover,
-      .resource-button:hover {
+      .resource-button:hover,
+      .edit-links-button:hover,
+      .folder-button:hover,
+      .inline-action:hover {
         transform: translateY(-2px);
       }
 
@@ -238,6 +244,9 @@
       .icon-button:active,
       .filter-button:active,
       .resource-button:active,
+      .edit-links-button:active,
+      .folder-button:active,
+      .inline-action:active,
       .delete-task:active {
         transform: scale(0.98);
       }
@@ -813,6 +822,70 @@
         opacity: 0.48;
       }
 
+      .resource-button span,
+      .folder-button span,
+      .inline-action span {
+        overflow-wrap: anywhere;
+      }
+
+      .edit-links-button,
+      .inline-action {
+        display: inline-flex;
+        min-height: 2.5rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.62);
+        color: #28313a;
+        padding: 0 0.75rem;
+        font-size: 0.78rem;
+        font-weight: 900;
+        transition: transform 220ms var(--motion), background 220ms var(--motion);
+      }
+
+      .edit-links-button {
+        color: var(--soft-strong);
+      }
+
+      .folder-strip {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+
+      .folder-button {
+        display: grid;
+        min-height: 3.2rem;
+        grid-template-columns: 2rem minmax(0, 1fr);
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.58);
+        color: #21272d;
+        padding: 0.55rem 0.7rem;
+        text-align: left;
+        transition: transform 220ms var(--motion), background 220ms var(--motion);
+      }
+
+      .folder-button strong {
+        display: block;
+        overflow: hidden;
+        font-size: 0.78rem;
+        font-weight: 900;
+        line-height: 1.1;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .folder-button small {
+        display: block;
+        margin-top: 0.12rem;
+        color: #68717d;
+        font-size: 0.68rem;
+        font-weight: 800;
+      }
+
       .task-form {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 3rem;
@@ -1017,6 +1090,107 @@
         background: white;
       }
 
+      .embed-help {
+        margin-top: 0.75rem;
+        color: #68717d;
+        font-size: 0.82rem;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .coursework-card {
+        width: min(100%, 52rem);
+      }
+
+      .coursework-body {
+        max-height: min(72dvh, 45rem);
+        overflow-y: auto;
+        padding-right: 0.15rem;
+      }
+
+      .panel-form,
+      .event-form {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+      }
+
+      .panel-field {
+        min-width: 0;
+      }
+
+      .panel-input,
+      .panel-textarea,
+      .panel-select {
+        width: 100%;
+        min-width: 0;
+        min-height: 2.9rem;
+        border: 1px solid rgba(17, 19, 21, 0.09);
+        border-radius: 1rem;
+        background: #eef6fb;
+        color: var(--ink);
+        padding: 0 0.9rem;
+        font: inherit;
+        font-weight: 650;
+        outline: 0;
+      }
+
+      .panel-textarea {
+        min-height: 5rem;
+        resize: vertical;
+        padding: 0.85rem 0.9rem;
+        line-height: 1.45;
+      }
+
+      .folder-item-card,
+      .schedule-item {
+        min-width: 0;
+        border: 1px solid rgba(17, 19, 21, 0.08);
+        border-radius: 1.05rem;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 0.85rem;
+      }
+
+      .folder-item-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.7rem;
+        align-items: start;
+      }
+
+      .panel-empty {
+        border: 1px dashed rgba(17, 19, 21, 0.14);
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.45);
+        color: #68717d;
+        padding: 1rem;
+        font-size: 0.9rem;
+        font-weight: 800;
+      }
+
+      .schedule-panel {
+        margin-top: 1rem;
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .schedule-list {
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      .schedule-item {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.55rem;
+        align-items: center;
+      }
+
       .error-text {
         border: 1px solid rgba(201, 75, 95, 0.22);
         border-radius: 1rem;
@@ -1146,7 +1320,9 @@
 
       @media (max-width: 520px) {
         .stat-grid,
-        .resource-grid {
+        .resource-grid,
+        .folder-strip,
+        .panel-grid {
           grid-template-columns: minmax(0, 1fr);
         }
 
@@ -1155,6 +1331,22 @@
           grid-template-columns: 2rem minmax(0, 1fr);
           justify-items: start;
           padding: 0 0.9rem;
+        }
+
+        .folder-button,
+        .inline-action,
+        .panel-input,
+        .panel-select {
+          min-height: 44px;
+        }
+
+        .coursework-card,
+        .resource-card {
+          border-radius: 1.4rem;
+        }
+
+        .coursework-body {
+          max-height: 68dvh;
         }
 
         .calendar-day {
@@ -1241,6 +1433,24 @@
             </div>
           </div>
           <iframe id="resourceFrame" class="resource-frame" title="Embedded subject resource"></iframe>
+          <p class="embed-help">Some services block embedded views. If a page stays blank, use Open to continue with the same saved link.</p>
+        </div>
+      </section>
+    </div>
+
+    <div id="courseworkPanel" class="resource-overlay hidden">
+      <section class="resource-card coursework-card" aria-labelledby="courseworkTitle">
+        <div class="resource-card-inner">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0">
+              <p id="courseworkEyebrow" class="eyebrow">Coursework</p>
+              <h2 id="courseworkTitle" class="mt-1 break-words text-2xl font-black tracking-[-0.04em]">Panel</h2>
+            </div>
+            <button id="courseworkClose" class="drawer-close tap-target" type="button" aria-label="Close coursework panel">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div id="courseworkBody" class="coursework-body"></div>
         </div>
       </section>
     </div>
@@ -1395,6 +1605,7 @@
               <span class="arrow-circle bg-[#111315] text-white" id="calendarArrow" aria-hidden="true"></span>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="schedule-panel" id="schedulePanel"></div>
           </article>
         </aside>
       </section>
@@ -1427,6 +1638,19 @@
         Exam: { bg: "#fff4b8", ink: "#9c7a00" },
       };
 
+      const linkFields = [
+        { key: "syllabus", label: "Syllabus", icon: "file", placeholder: "https://..." },
+        { key: "drive", label: "Drive", icon: "drive", placeholder: "Google Drive folder URL" },
+        { key: "github", label: "Repos", icon: "repo", placeholder: "GitHub repository URL" },
+        { key: "messenger", label: "Messenger", icon: "chat", placeholder: "Messenger or Facebook group URL" },
+        { key: "meeting", label: "Meet / Zoom", icon: "calendar", placeholder: "Google Meet, Zoom, or class call URL" },
+        { key: "instructor", label: "Instructor", icon: "users", placeholder: "Faculty portal, email, or profile URL" },
+        { key: "custom", label: "Extra Link", icon: "link", placeholder: "Any subject resource URL" },
+      ];
+
+      const folderItemTypes = ["Assignment", "Project", "Module", "Lecture", "Link", "Reading", "Other"];
+      const eventTypes = ["Class", "Deadline", "Exam", "Defense", "Meeting", "Study"];
+
       const state = {
         authMode: "login",
         token: sessionStorage.getItem("semstackToken"),
@@ -1434,7 +1658,10 @@
         subjects: [],
         tasks: [],
         notes: {},
+        folders: [],
+        events: [],
         filter: "all",
+        activePanel: null,
       };
 
       const authOverlay = document.querySelector("#authOverlay");
@@ -1466,6 +1693,11 @@
       const resourceTitle = document.querySelector("#resourceTitle");
       const resourceFrame = document.querySelector("#resourceFrame");
       const resourceOpenExternal = document.querySelector("#resourceOpenExternal");
+      const courseworkPanel = document.querySelector("#courseworkPanel");
+      const courseworkTitle = document.querySelector("#courseworkTitle");
+      const courseworkEyebrow = document.querySelector("#courseworkEyebrow");
+      const courseworkBody = document.querySelector("#courseworkBody");
+      const schedulePanel = document.querySelector("#schedulePanel");
 
       function icon(name, size = 20) {
         const attrs = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" aria-hidden="true"`;
@@ -1485,6 +1717,10 @@
           file: `<svg ${attrs}><path ${common} d="M7 4h7l4 4v12H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path ${common} d="M14 4v5h5"/></svg>`,
           drive: `<svg ${attrs}><path ${common} d="m9 4-6 10 3 5h12l3-5-6-10H9Z"/><path ${common} d="m9 4 6 10M15 4 9 14M3 14h18"/></svg>`,
           repo: `<svg ${attrs}><path ${common} d="M7 4h8a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V6a2 2 0 0 1 2-2Z"/><path ${common} d="M8 17h10M9 8h5"/></svg>`,
+          folder: `<svg ${attrs}><path ${common} d="M4 7.5A2.5 2.5 0 0 1 6.5 5H10l2 2h5.5A2.5 2.5 0 0 1 20 9.5v8A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-10Z"/></svg>`,
+          link: `<svg ${attrs}><path ${common} d="M10 13a5 5 0 0 0 7.1 0l1.4-1.4a5 5 0 0 0-7.1-7.1L10.7 5"/><path ${common} d="M14 11a5 5 0 0 0-7.1 0L5.5 12.4a5 5 0 0 0 7.1 7.1l.7-.7"/></svg>`,
+          edit: `<svg ${attrs}><path ${common} d="m4 16.5-.5 4 4-.5 10-10-3-3-10 10Z"/><path ${common} d="m13.5 7.5 3 3"/></svg>`,
+          clock: `<svg ${attrs}><path ${common} d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"/><path ${common} d="M12 7v5l3 2"/></svg>`,
           arrow: `<svg ${attrs}><path ${common} d="M7 17 17 7M9 7h8v8"/></svg>`,
           plus: `<svg ${attrs}><path ${common} d="M12 5v14M5 12h14"/></svg>`,
           trash: `<svg ${attrs}><path ${common} d="M5 7h14M10 11v6M14 11v6M8 7l1-3h6l1 3M7 7l1 13h8l1-13"/></svg>`,
@@ -1589,7 +1825,12 @@
         state.subjects = [];
         state.tasks = [];
         state.notes = {};
+        state.folders = [];
+        state.events = [];
+        state.activePanel = null;
         sessionStorage.removeItem("semstackToken");
+        closeResource();
+        closeCourseworkPanel();
         render();
         showAuth(message);
       }
@@ -1602,6 +1843,8 @@
           state.subjects = payload.subjects;
           state.tasks = payload.tasks.map((task) => ({ ...task, completed: Boolean(task.completed) }));
           state.notes = Object.fromEntries(payload.notes.map((note) => [note.subjectId, note.content]));
+          state.folders = payload.folders || [];
+          state.events = payload.events || [];
           render();
         } catch (error) {
           if (error.message !== "Unauthorized") showAuth(error.message);
@@ -1623,6 +1866,41 @@
         const tasks = subjectTasks(subjectId);
         if (!tasks.length) return 0;
         return Math.round((tasks.filter((task) => task.completed).length / tasks.length) * 100);
+      }
+
+      function subjectById(subjectId) {
+        return state.subjects.find((subject) => subject.id === subjectId);
+      }
+
+      function foldersForSubject(subjectId) {
+        return state.folders.filter((folder) => folder.subjectId === subjectId);
+      }
+
+      function folderById(folderId) {
+        return state.folders.find((folder) => folder.id === Number(folderId));
+      }
+
+      function formatDateTime(value) {
+        if (!value) return "No date";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "No date";
+        return new Intl.DateTimeFormat("en", {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        }).format(date);
+      }
+
+      function defaultDateTimeLocal() {
+        const date = new Date(Date.now() + 60 * 60 * 1000);
+        date.setMinutes(0, 0, 0);
+        const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+        return local.toISOString().slice(0, 16);
+      }
+
+      function renderOptions(options, selected = "") {
+        return options.map((option) => `<option value="${escapeHtml(option)}" ${option === selected ? "selected" : ""}>${escapeHtml(option)}</option>`).join("");
       }
 
       function renderFilters(target) {
@@ -1721,19 +1999,33 @@
                     <div class="mt-4 grid gap-2">
                       <div class="flex items-center justify-between gap-3">
                         <p class="text-sm font-black">Resource hub</p>
-                        <p class="text-xs font-bold text-[#68717d]">${completed}/${tasks.length} done</p>
+                        <button class="edit-links-button tap-target" type="button" data-edit-links="${subject.id}">
+                          ${icon("edit", 15)}
+                          <span>Edit links</span>
+                        </button>
                       </div>
                       <div class="resource-grid">
-                        ${resourceButton(subject, "syllabus", "file", "Syllabus")}
-                        ${resourceButton(subject, "drive", "drive", "Drive")}
-                        ${resourceButton(subject, "github", "repo", "Repos")}
+                        ${linkFields.map((field) => resourceButton(subject, field)).join("")}
                       </div>
                     </div>
 
                     <section class="mt-5">
                       <div class="mb-2 flex items-center justify-between gap-3">
+                        <p class="text-sm font-black">Subject folders</p>
+                        <p class="text-xs font-bold text-[#68717d]">${foldersForSubject(subject.id).length} hubs</p>
+                      </div>
+                      <div class="folder-strip">
+                        ${foldersForSubject(subject.id).map((folder) => folderButton(subject, folder)).join("")}
+                      </div>
+                    </section>
+
+                    <section class="mt-5">
+                      <div class="mb-2 flex items-center justify-between gap-3">
                         <p class="text-sm font-black">Tasks</p>
-                        <div class="mini-progress w-24"><span style="width: ${completion}%; background: ${meta.strong}"></span></div>
+                        <div class="flex items-center gap-2">
+                          <p class="text-xs font-bold text-[#68717d]">${completed}/${tasks.length} done</p>
+                          <div class="mini-progress w-20"><span style="width: ${completion}%; background: ${meta.strong}"></span></div>
+                        </div>
                       </div>
                       <form class="task-form mb-3" data-subject="${subject.id}">
                         <input class="task-input tap-target" name="task" placeholder="Add task..." autocomplete="off" />
@@ -1762,20 +2054,40 @@
         bindSubjectEvents();
       }
 
-      function resourceButton(subject, type, iconName, label) {
-        const href = subject.links[type] || "#";
+      function resourceButton(subject, field) {
+        const href = subject.links?.[field.key] || "#";
         const disabled = href === "#";
         return `
           <button
             class="resource-button tap-target"
             type="button"
             data-resource-url="${escapeHtml(href)}"
-            data-resource-title="${escapeHtml(`${subject.code} ${label}`)}"
+            data-resource-title="${escapeHtml(`${subject.code} ${field.label}`)}"
             ${disabled ? "disabled" : ""}
-            title="${disabled ? "Paste your URL in server.js to enable this" : label}"
+            title="${disabled ? "Use Edit links to add this URL" : field.label}"
           >
-            ${icon(iconName, 19)}
-            <span>${label}</span>
+            ${icon(field.icon, 19)}
+            <span>${field.label}</span>
+          </button>
+        `;
+      }
+
+      function folderButton(subject, folder) {
+        const meta = subjectMeta(subject.id);
+        const itemCount = folder.items?.length || 0;
+        return `
+          <button
+            class="folder-button tap-target"
+            type="button"
+            data-folder-button="${folder.id}"
+            data-subject="${subject.id}"
+            style="--soft-strong: ${meta.strong}"
+          >
+            <span class="round-icon h-8 w-8" style="background: ${meta.soft}; color: ${meta.strong}">${icon("folder", 16)}</span>
+            <span class="min-w-0">
+              <strong>${escapeHtml(folder.name)}</strong>
+              <small>${itemCount} ${itemCount === 1 ? "item" : "items"}</small>
+            </span>
           </button>
         `;
       }
@@ -1845,6 +2157,14 @@
         document.querySelectorAll(".resource-button:not([disabled])").forEach((button) => {
           button.addEventListener("click", () => openResource(button.dataset.resourceUrl, button.dataset.resourceTitle));
         });
+
+        document.querySelectorAll("[data-edit-links]").forEach((button) => {
+          button.addEventListener("click", () => openLinksPanel(button.dataset.editLinks));
+        });
+
+        document.querySelectorAll("[data-folder-button]").forEach((button) => {
+          button.addEventListener("click", () => openFolderPanel(button.dataset.subject, button.dataset.folderButton));
+        });
       }
 
       const noteTimers = new Map();
@@ -1864,6 +2184,276 @@
         } catch (error) {
           label.textContent = error.message;
         }
+      }
+
+      function openCourseworkPanel({ eyebrow, title, body }) {
+        courseworkEyebrow.textContent = eyebrow;
+        courseworkTitle.textContent = title;
+        courseworkBody.innerHTML = body;
+        courseworkPanel.classList.remove("hidden");
+        courseworkPanel.classList.add("grid");
+      }
+
+      function closeCourseworkPanel() {
+        courseworkPanel.classList.add("hidden");
+        courseworkPanel.classList.remove("grid");
+        courseworkBody.innerHTML = "";
+        state.activePanel = null;
+      }
+
+      function openLinksPanel(subjectId) {
+        const subject = subjectById(subjectId);
+        if (!subject) return;
+        state.activePanel = { type: "links", subjectId };
+        openCourseworkPanel({
+          eyebrow: `${subject.code} resources`,
+          title: "Quick links",
+          body: `
+            <form id="linksForm" class="panel-form">
+              <div class="panel-grid">
+                ${linkFields
+                  .map((field) => `
+                    <label class="panel-field">
+                      <span class="field-label">${field.label}</span>
+                      <input
+                        class="panel-input tap-target"
+                        name="${field.key}"
+                        type="url"
+                        inputmode="url"
+                        placeholder="${escapeHtml(field.placeholder)}"
+                        value="${escapeHtml(subject.links?.[field.key] || "")}"
+                      />
+                    </label>
+                  `)
+                  .join("")}
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm font-bold text-[#68717d]">These links are private to your account and open in the embedded SemStack viewer when possible.</p>
+                <button class="soft-button tap-target" type="submit">${icon("link", 17)} Save links</button>
+              </div>
+            </form>
+          `,
+        });
+
+        document.querySelector("#linksForm").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const links = Object.fromEntries(linkFields.map((field) => [field.key, form.elements[field.key].value.trim()]));
+          const button = form.querySelector("button[type='submit']");
+          button.disabled = true;
+          button.textContent = "Saving...";
+          try {
+            const payload = await api(`/api/subjects/${subjectId}/links`, {
+              method: "PUT",
+              body: JSON.stringify({ links }),
+            });
+            state.subjects = state.subjects.map((item) => (item.id === subjectId ? { ...item, links: payload.links } : item));
+            render();
+            closeCourseworkPanel();
+          } catch (error) {
+            button.disabled = false;
+            button.textContent = "Try again";
+            courseworkBody.insertAdjacentHTML("afterbegin", `<p class="error-text mb-3">${escapeHtml(error.message)}</p>`);
+          }
+        });
+      }
+
+      function openFolderPanel(subjectId, folderId) {
+        const subject = subjectById(subjectId);
+        const folder = folderById(folderId);
+        if (!subject || !folder) return;
+        state.activePanel = { type: "folder", subjectId, folderId: Number(folderId) };
+        openCourseworkPanel({
+          eyebrow: `${subject.code} folder`,
+          title: folder.name,
+          body: renderFolderPanel(subject, folder),
+        });
+        bindFolderPanel(subjectId, Number(folderId));
+      }
+
+      function renderFolderPanel(subject, folder) {
+        const items = [...(folder.items || [])].sort((a, b) => String(a.dueAt || "").localeCompare(String(b.dueAt || "")));
+        return `
+          <div class="grid gap-5">
+            <section>
+              <div class="mb-3 flex items-center justify-between gap-3">
+                <p class="text-sm font-black">Saved items</p>
+                <span class="status-pill" style="--status-bg: ${subjectMeta(subject.id).soft}; --status-ink: ${subjectMeta(subject.id).strong}">${items.length} total</span>
+              </div>
+              <div class="grid gap-2">
+                ${
+                  items.length
+                    ? items.map((item) => folderItemRow(subject, item)).join("")
+                    : `<div class="panel-empty">Add assignments, modules, lectures, project files, or useful links for this subject.</div>`
+                }
+              </div>
+            </section>
+
+            <form id="folderItemForm" class="panel-form">
+              <div class="panel-grid">
+                <label class="panel-field">
+                  <span class="field-label">Title</span>
+                  <input class="panel-input tap-target" name="title" placeholder="Prototype checklist" required />
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Type</span>
+                  <select class="panel-select tap-target" name="type">${renderOptions(folderItemTypes, folder.name)}</select>
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">URL</span>
+                  <input class="panel-input tap-target" name="url" type="url" inputmode="url" placeholder="https://..." />
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Due date</span>
+                  <input class="panel-input tap-target" name="dueAt" type="datetime-local" />
+                </label>
+              </div>
+              <label class="panel-field">
+                <span class="field-label">Description</span>
+                <textarea class="panel-textarea" name="description" placeholder="What needs to be done or remembered?"></textarea>
+              </label>
+              <div class="flex flex-wrap items-center justify-end gap-3">
+                <button class="soft-button tap-target" type="submit">${icon("plus", 17)} Add item</button>
+              </div>
+            </form>
+          </div>
+        `;
+      }
+
+      function folderItemRow(subject, item) {
+        return `
+          <article class="folder-item-card" data-folder-item="${item.id}">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="status-pill" style="--status-bg: ${subjectMeta(subject.id).soft}; --status-ink: ${subjectMeta(subject.id).strong}">${escapeHtml(item.type || "Item")}</span>
+                <strong class="break-words text-sm">${escapeHtml(item.title)}</strong>
+              </div>
+              ${item.description ? `<p class="mt-2 break-words text-sm font-semibold text-[#68717d]">${escapeHtml(item.description)}</p>` : ""}
+              <p class="mt-2 text-xs font-bold text-[#68717d]">${item.dueAt ? `Due ${formatDateTime(item.dueAt)}` : "No due date"}</p>
+              ${item.url ? `<button class="inline-action tap-target mt-3" type="button" data-folder-resource="${escapeHtml(item.url)}" data-folder-resource-title="${escapeHtml(`${subject.code} ${item.title}`)}">${icon("link", 15)} <span>Open link</span></button>` : ""}
+            </div>
+            <button class="delete-task tap-target" type="button" data-delete-folder-item="${item.id}" aria-label="Delete ${escapeHtml(item.title)}">${icon("trash", 17)}</button>
+          </article>
+        `;
+      }
+
+      function bindFolderPanel(subjectId, folderId) {
+        document.querySelector("#folderItemForm").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const data = new FormData(form);
+          const title = data.get("title").trim();
+          if (!title) return;
+          const payload = await api("/api/folder-items", {
+            method: "POST",
+            body: JSON.stringify({
+              folderId,
+              title,
+              type: data.get("type"),
+              url: data.get("url").trim(),
+              dueAt: data.get("dueAt"),
+              description: data.get("description").trim(),
+            }),
+          });
+          state.folders = state.folders.map((folder) =>
+            folder.id === folderId ? { ...folder, items: [...(folder.items || []), payload.item] } : folder
+          );
+          render();
+          openFolderPanel(subjectId, folderId);
+        });
+
+        document.querySelectorAll("[data-delete-folder-item]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const itemId = Number(button.dataset.deleteFolderItem);
+            await api(`/api/folder-items/${itemId}`, { method: "DELETE" });
+            state.folders = state.folders.map((folder) =>
+              folder.id === folderId ? { ...folder, items: (folder.items || []).filter((item) => item.id !== itemId) } : folder
+            );
+            render();
+            openFolderPanel(subjectId, folderId);
+          });
+        });
+
+        document.querySelectorAll("[data-folder-resource]").forEach((button) => {
+          button.addEventListener("click", () => openResource(button.dataset.folderResource, button.dataset.folderResourceTitle));
+        });
+      }
+
+      function renderSchedule() {
+        if (!state.subjects.length) {
+          schedulePanel.innerHTML = "";
+          return;
+        }
+
+        const upcoming = [...state.events]
+          .sort((a, b) => new Date(a.startsAt || 0) - new Date(b.startsAt || 0))
+          .slice(0, 4);
+
+        schedulePanel.innerHTML = `
+          <form id="eventForm" class="event-form" aria-label="Add schedule item">
+            <input class="panel-input tap-target" name="title" placeholder="Add deadline or meeting..." required />
+            <select class="panel-select tap-target" name="subjectId">
+              ${state.subjects.map((subject) => `<option value="${subject.id}">${subject.code}</option>`).join("")}
+            </select>
+            <div class="panel-grid">
+              <input class="panel-input tap-target" name="startsAt" type="datetime-local" value="${defaultDateTimeLocal()}" required />
+              <select class="panel-select tap-target" name="type">${renderOptions(eventTypes, "Deadline")}</select>
+            </div>
+            <button class="soft-button tap-target w-full" type="submit">${icon("plus", 16)} Add schedule</button>
+          </form>
+          <div class="schedule-list" aria-live="polite">
+            ${
+              upcoming.length
+                ? upcoming.map(scheduleRow).join("")
+                : `<div class="panel-empty">Add Google Meet sessions, Zoom calls, exam dates, or submission deadlines.</div>`
+            }
+          </div>
+        `;
+
+        document.querySelector("#eventForm").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const data = new FormData(form);
+          const payload = await api("/api/events", {
+            method: "POST",
+            body: JSON.stringify({
+              subjectId: data.get("subjectId"),
+              title: data.get("title").trim(),
+              startsAt: data.get("startsAt"),
+              type: data.get("type"),
+            }),
+          });
+          state.events.push(payload.event);
+          renderCalendar();
+          renderSchedule();
+        });
+
+        document.querySelectorAll("[data-delete-event]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const eventId = Number(button.dataset.deleteEvent);
+            await api(`/api/events/${eventId}`, { method: "DELETE" });
+            state.events = state.events.filter((item) => item.id !== eventId);
+            renderCalendar();
+            renderSchedule();
+          });
+        });
+      }
+
+      function scheduleRow(item) {
+        const subject = subjectById(item.subjectId);
+        const meta = subjectMeta(item.subjectId);
+        return `
+          <article class="schedule-item">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="status-pill" style="--status-bg: ${meta.soft}; --status-ink: ${meta.strong}">${escapeHtml(subject?.code || item.subjectId)}</span>
+                <strong class="break-words text-sm">${escapeHtml(item.title)}</strong>
+              </div>
+              <p class="mt-1 text-xs font-bold text-[#68717d]">${escapeHtml(item.type || "Event")} - ${formatDateTime(item.startsAt)}</p>
+            </div>
+            <button class="delete-task tap-target" type="button" data-delete-event="${item.id}" aria-label="Delete ${escapeHtml(item.title)}">${icon("trash", 16)}</button>
+          </article>
+        `;
       }
 
       function updateProgress() {
@@ -1972,6 +2562,7 @@
         renderSubjectProgress();
         renderActivity();
         renderCalendar();
+        renderSchedule();
         updateProgress();
       }
 
@@ -2017,8 +2608,12 @@
       document.querySelector("#desktopLogout").addEventListener("click", () => logout());
       document.querySelector("#mobileLogout").addEventListener("click", () => logout());
       document.querySelector("#resourceClose").addEventListener("click", closeResource);
+      document.querySelector("#courseworkClose").addEventListener("click", closeCourseworkPanel);
       resourceOverlay.addEventListener("click", (event) => {
         if (event.target === resourceOverlay) closeResource();
+      });
+      courseworkPanel.addEventListener("click", (event) => {
+        if (event.target === courseworkPanel) closeCourseworkPanel();
       });
       document.querySelector("#jumpToSubjects").addEventListener("click", () => subjectGrid.scrollIntoView({ behavior: "smooth", block: "start" }));
       document.querySelector("#showAllButton").addEventListener("click", () => subjectGrid.scrollIntoView({ behavior: "smooth", block: "start" }));

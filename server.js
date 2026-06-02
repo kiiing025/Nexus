@@ -230,10 +230,11 @@ app.put("/api/subjects/:subjectId/links", requireAuth, async (req, res, next) =>
       return res.status(404).json({ error: "Subject not found." });
     }
 
+    const linksBody = req.body?.links && typeof req.body.links === "object" ? req.body.links : req.body || {};
     const links = await Subject.updateLinksForUser({
       userId: req.user.id,
       subjectId,
-      links: req.body || {},
+      links: linksBody,
     });
     return res.json({ links });
   } catch (error) {

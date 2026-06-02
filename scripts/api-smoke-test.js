@@ -42,13 +42,15 @@ async function request(path, options = {}) {
     method: "PUT",
     headers,
     body: JSON.stringify({
-      syllabus: "https://example.com/syllabus",
-      drive: "https://example.com/drive",
-      github: "https://github.com/example/repo",
-      messenger: "https://m.me/example",
-      meeting: "https://meet.google.com/abc-defg-hij",
-      instructor: "mailto:instructor@example.com",
-      custom: "https://example.com/custom",
+      links: {
+        syllabus: "https://example.com/syllabus",
+        drive: "https://example.com/drive",
+        github: "https://github.com/example/repo",
+        messenger: "https://m.me/example",
+        meeting: "https://meet.google.com/abc-defg-hij",
+        instructor: "mailto:instructor@example.com",
+        custom: "https://example.com/custom",
+      },
     }),
   });
   assert.equal(links.links.github, "https://github.com/example/repo");
