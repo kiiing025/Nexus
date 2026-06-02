@@ -42,8 +42,13 @@
         box-sizing: border-box;
       }
 
+      .hidden {
+        display: none !important;
+      }
+
       html,
       body {
+        height: 100%;
         min-width: 0;
         overflow-x: hidden;
       }
@@ -53,7 +58,8 @@
       }
 
       body {
-        min-height: 100dvh;
+        height: 100dvh;
+        overflow: hidden;
         margin: 0;
         color: var(--ink);
         font-family: "Outfit", system-ui, sans-serif;
@@ -262,6 +268,7 @@
         position: relative;
         z-index: 1;
         width: min(100%, 78rem);
+        height: 100dvh;
         margin: 0 auto;
         padding: clamp(0.75rem, 2vw, 2rem);
       }
@@ -270,7 +277,9 @@
         display: grid;
         grid-template-columns: minmax(12.5rem, 15rem) minmax(0, 1fr) minmax(16rem, 19rem);
         gap: 1rem;
-        min-height: min(49rem, calc(100dvh - 3rem));
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.82);
         border-radius: clamp(1.5rem, 4vw, 2.4rem);
         background:
@@ -311,6 +320,9 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         background: rgba(238, 248, 250, 0.78);
       }
 
@@ -471,6 +483,37 @@
 
       .workspace {
         display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 1rem;
+        min-width: 0;
+        min-height: 0;
+      }
+
+      .workspace-content {
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-right: 0.2rem;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(17, 19, 21, 0.24) transparent;
+      }
+
+      .workspace-content::-webkit-scrollbar,
+      .left-rail::-webkit-scrollbar,
+      .right-rail::-webkit-scrollbar {
+        width: 0.45rem;
+      }
+
+      .workspace-content::-webkit-scrollbar-thumb,
+      .left-rail::-webkit-scrollbar-thumb,
+      .right-rail::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(17, 19, 21, 0.2);
+      }
+
+      .tab-view,
+      .tab-panel {
+        display: grid;
         gap: 1rem;
         min-width: 0;
       }
@@ -499,20 +542,34 @@
       }
 
       .icon-button {
-        display: grid;
-        width: 3rem;
+        display: inline-flex;
+        width: auto;
+        min-width: 3rem;
         height: 3rem;
         flex: 0 0 auto;
-        place-items: center;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.72);
         color: #6b7480;
+        padding: 0 0.85rem;
         box-shadow: 0 10px 22px rgba(105, 119, 135, 0.11);
+      }
+
+      .icon-button span {
+        display: none;
+        font-size: 0.8rem;
+        font-weight: 900;
       }
 
       .icon-button.is-active {
         background: var(--ink);
         color: white;
+      }
+
+      .icon-button.is-active span {
+        display: inline;
       }
 
       .avatar-button {
@@ -660,6 +717,35 @@
         padding: 0.95rem;
       }
 
+      .menu-panel {
+        min-width: 0;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 1.55rem;
+        background: rgba(255, 255, 255, 0.68);
+        padding: 1rem;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.78),
+          0 20px 44px rgba(112, 128, 144, 0.14);
+      }
+
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+      }
+
+      .menu-card {
+        min-width: 0;
+        border-radius: 1.25rem;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 0.9rem;
+      }
+
+      .compact-list {
+        display: grid;
+        gap: 0.55rem;
+      }
+
       .assignment-list {
         display: grid;
         gap: 0.65rem;
@@ -690,6 +776,9 @@
         display: grid;
         align-content: start;
         gap: 0.9rem;
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
         background: transparent;
         border: 0;
         box-shadow: none;
@@ -1269,6 +1358,7 @@
         }
 
         .page-shell {
+          height: calc(100dvh - 6.2rem);
           padding: 0.6rem;
         }
 
@@ -1285,16 +1375,32 @@
         .top-dock {
           align-items: stretch;
           flex-direction: column;
+          gap: 0.6rem;
+        }
+
+        .top-dock > .flex {
+          display: none;
         }
 
         .pill-nav {
           width: 100%;
         }
 
+        .icon-button {
+          height: 2.75rem;
+          min-width: 2.75rem;
+          padding: 0 0.72rem;
+        }
+
         .hero-grid,
         .subject-grid,
+        .menu-grid,
         .right-rail {
           grid-template-columns: minmax(0, 1fr);
+        }
+
+        .right-rail {
+          display: none;
         }
 
         .premium-card {
@@ -1329,8 +1435,13 @@
         .stat-grid,
         .resource-grid,
         .folder-strip,
+        .menu-grid,
         .panel-grid {
           grid-template-columns: minmax(0, 1fr);
+        }
+
+        .icon-button span {
+          display: none !important;
         }
 
         .resource-button {
@@ -1533,48 +1644,53 @@
             </div>
           </div>
 
-          <section class="hero-grid">
-            <article class="premium-card">
-              <div class="premium-content">
-                <div class="logo-lockup text-white">
-                  <span class="brand-mark border-white" aria-hidden="true"></span>
-                  <span>SemStack</span>
-                </div>
-                <p class="mt-5 text-2xl font-black leading-none tracking-[-0.05em]">Heavy IT semester, lighter control.</p>
-                <p class="mt-3 text-sm font-semibold leading-5 text-white/70">Track defenses, lab submissions, notes, links, and tasks in one calm desk.</p>
-                <button class="soft-button tap-target mt-4 bg-[#ff8b4a] text-white" type="button" id="jumpToSubjects">
-                  Manage work
-                  <span class="mini-icon bg-white text-[#ff8b4a]" aria-hidden="true"></span>
-                </button>
-              </div>
-              <div class="book-stack" aria-hidden="true">
-                <span class="book one"></span>
-                <span class="book two"></span>
-                <span class="book three"></span>
-              </div>
-            </article>
+          <div id="workspaceContent" class="workspace-content">
+            <div id="overviewView" class="tab-view">
+              <section class="hero-grid">
+                <article class="premium-card">
+                  <div class="premium-content">
+                    <div class="logo-lockup text-white">
+                      <span class="brand-mark border-white" aria-hidden="true"></span>
+                      <span>SemStack</span>
+                    </div>
+                    <p class="mt-5 text-2xl font-black leading-none tracking-[-0.05em]">Heavy IT semester, lighter control.</p>
+                    <p class="mt-3 text-sm font-semibold leading-5 text-white/70">Track defenses, lab submissions, notes, links, and tasks in one calm desk.</p>
+                    <button class="soft-button tap-target mt-4 bg-[#ff8b4a] text-white" type="button" id="jumpToSubjects">
+                      Manage work
+                      <span class="mini-icon bg-white text-[#ff8b4a]" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                  <div class="book-stack" aria-hidden="true">
+                    <span class="book one"></span>
+                    <span class="book two"></span>
+                    <span class="book three"></span>
+                  </div>
+                </article>
 
-            <article class="activity-card">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <h2 class="text-lg font-black tracking-[-0.03em]">Hours activity</h2>
-                  <p class="text-sm font-semibold text-[#68717d]">Study rhythm this week</p>
-                </div>
-                <span class="round-icon" id="activityIcon" aria-hidden="true"></span>
-              </div>
-              <div class="activity-bars" id="activityBars"></div>
-            </article>
-          </section>
+                <article class="activity-card">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <h2 class="text-lg font-black tracking-[-0.03em]">Hours activity</h2>
+                      <p class="text-sm font-semibold text-[#68717d]">Study rhythm this week</p>
+                    </div>
+                    <span class="round-icon" id="activityIcon" aria-hidden="true"></span>
+                  </div>
+                  <div class="activity-bars" id="activityBars"></div>
+                </article>
+              </section>
 
-          <section class="assignment-panel">
-            <div class="mb-3 flex items-center justify-between gap-3">
-              <h2 class="text-lg font-black tracking-[-0.03em]">Assignments</h2>
-              <button class="text-sm font-black text-[#68717d]" type="button" id="showAllButton">View all</button>
+              <section class="assignment-panel">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                  <h2 class="text-lg font-black tracking-[-0.03em]">Assignments</h2>
+                  <button class="text-sm font-black text-[#68717d]" type="button" id="showAllButton">View all</button>
+                </div>
+                <div class="assignment-list" id="milestones"></div>
+              </section>
+
+              <section id="subjectGrid" class="subject-grid" aria-label="Subject cards"></section>
             </div>
-            <div class="assignment-list" id="milestones"></div>
-          </section>
-
-          <section id="subjectGrid" class="subject-grid" aria-label="Subject cards"></section>
+            <section id="tabPanel" class="tab-panel hidden" aria-live="polite"></section>
+          </div>
         </section>
 
         <aside class="right-rail">
@@ -1625,6 +1741,16 @@
         { id: "4th Year", label: "4th Year", icon: "calendar" },
       ];
 
+      const tabs = [
+        { id: "overview", label: "Overview", icon: "grid" },
+        { id: "courses", label: "Courses", icon: "cap" },
+        { id: "notes", label: "Notes", icon: "note" },
+        { id: "messages", label: "Messages", icon: "chat" },
+        { id: "calendar", label: "Calendar", icon: "calendar" },
+        { id: "team", label: "Team", icon: "users" },
+        { id: "settings", label: "Settings", icon: "settings" },
+      ];
+
       const milestones = [
         { subjectId: "IT314", title: "System Prototype Defense", tag: "Major", date: "2 July, 10:30 AM" },
         { subjectId: "IT313", title: "App Deployment / APK Submission", tag: "Lab", date: "14 June, 12:45 AM" },
@@ -1668,6 +1794,7 @@
         folders: [],
         events: [],
         filter: "all",
+        activeTab: "overview",
         activePanel: null,
       };
 
@@ -1685,6 +1812,9 @@
       const desktopSubjectRail = document.querySelector("#desktopSubjectRail");
       const mobileSubjectRail = document.querySelector("#mobileSubjectRail");
       const subjectGrid = document.querySelector("#subjectGrid");
+      const overviewView = document.querySelector("#overviewView");
+      const tabPanel = document.querySelector("#tabPanel");
+      const workspaceContent = document.querySelector("#workspaceContent");
       const milestonesEl = document.querySelector("#milestones");
       const progressText = document.querySelector("#progressText");
       const progressFill = document.querySelector("#progressFill");
@@ -1834,6 +1964,7 @@
         state.notes = {};
         state.folders = [];
         state.events = [];
+        state.activeTab = "overview";
         state.activePanel = null;
         sessionStorage.removeItem("semstackToken");
         closeResource();
@@ -1980,85 +2111,88 @@
 
       function renderSubjects() {
         const subjects = visibleSubjects();
-        subjectGrid.innerHTML = subjects.length
-          ? subjects
-              .map((subject) => {
-                const meta = subjectMeta(subject.id);
-                const tasks = subjectTasks(subject.id);
-                const completed = tasks.filter((task) => task.completed).length;
-                const note = state.notes[subject.id] || "";
-                const completion = subjectCompletion(subject.id);
+        subjectGrid.innerHTML = subjectCardsMarkup(subjects);
+        bindSubjectEvents(subjectGrid);
+      }
 
-                return `
-                  <article
-                    class="subject-card reveal"
-                    style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}"
-                    data-subject-card="${subject.id}"
-                  >
-                    <header class="subject-head">
-                      <div class="min-w-0">
-                        <p class="text-xs font-black text-[#68717d]">${subject.semester}</p>
-                        <h3 class="mt-1 break-words text-xl font-black leading-tight">${subject.code}: ${subject.name}</h3>
-                      </div>
-                      <span class="round-icon" style="color: ${meta.strong}">${icon(meta.icon, 20)}</span>
-                    </header>
-
-                    <div class="mt-4 grid gap-2">
-                      <div class="flex items-center justify-between gap-3">
-                        <p class="text-sm font-black">Resource hub</p>
-                        <button class="edit-links-button tap-target" type="button" data-edit-links="${subject.id}">
-                          ${icon("edit", 15)}
-                          <span>Edit links</span>
-                        </button>
-                      </div>
-                      <div class="resource-grid">
-                        ${linkFields.map((field) => resourceButton(subject, field)).join("")}
-                      </div>
-                    </div>
-
-                    <section class="mt-5">
-                      <div class="mb-2 flex items-center justify-between gap-3">
-                        <p class="text-sm font-black">Subject folders</p>
-                        <p class="text-xs font-bold text-[#68717d]">${foldersForSubject(subject.id).length} hubs</p>
-                      </div>
-                      <div class="folder-strip">
-                        ${foldersForSubject(subject.id).map((folder) => folderButton(subject, folder)).join("")}
-                      </div>
-                    </section>
-
-                    <section class="mt-5">
-                      <div class="mb-2 flex items-center justify-between gap-3">
-                        <p class="text-sm font-black">Tasks</p>
-                        <div class="flex items-center gap-2">
-                          <p class="text-xs font-bold text-[#68717d]">${completed}/${tasks.length} done</p>
-                          <div class="mini-progress w-20"><span style="width: ${completion}%; background: ${meta.strong}"></span></div>
-                        </div>
-                      </div>
-                      <form class="task-form mb-3" data-subject="${subject.id}">
-                        <input class="task-input tap-target" name="task" placeholder="Add task..." autocomplete="off" />
-                        <button class="add-task tap-target" type="submit" aria-label="Add task">${icon("plus", 18)}</button>
-                      </form>
-                      <ul class="task-list">${tasks.length ? tasks.map(taskRow).join("") : `<li class="rounded-[1rem] bg-white/55 px-3 py-3 text-sm font-bold text-[#68717d]">No tasks in this lane yet.</li>`}</ul>
-                    </section>
-
-                    <section class="mt-5">
-                      <div class="mb-2 flex items-center justify-between gap-3">
-                        <p class="text-sm font-black">Scratchpad</p>
-                        <p class="save-state" data-save-state="${subject.id}">Saved automatically</p>
-                      </div>
-                      <textarea
-                        class="notes-field notes-field-${subject.id}"
-                        data-subject="${subject.id}"
-                        placeholder="Paste commands, module links, exam dates, or project notes..."
-                      >${escapeHtml(note)}</textarea>
-                    </section>
-                  </article>
-                `;
-              })
-              .join("")
+      function subjectCardsMarkup(subjects) {
+        return subjects.length
+          ? subjects.map(subjectCard).join("")
           : `<article class="subject-card"><h3 class="text-xl font-black">No subjects here</h3><p class="mt-2 text-sm font-semibold text-[#68717d]">Try another semester filter.</p></article>`;
+      }
 
-        bindSubjectEvents();
+      function subjectCard(subject) {
+        const meta = subjectMeta(subject.id);
+        const tasks = subjectTasks(subject.id);
+        const completed = tasks.filter((task) => task.completed).length;
+        const note = state.notes[subject.id] || "";
+        const completion = subjectCompletion(subject.id);
+
+        return `
+          <article
+            class="subject-card reveal"
+            style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}"
+            data-subject-card="${subject.id}"
+          >
+            <header class="subject-head">
+              <div class="min-w-0">
+                <p class="text-xs font-black text-[#68717d]">${subject.semester}</p>
+                <h3 class="mt-1 break-words text-xl font-black leading-tight">${subject.code}: ${subject.name}</h3>
+              </div>
+              <span class="round-icon" style="color: ${meta.strong}">${icon(meta.icon, 20)}</span>
+            </header>
+
+            <div class="mt-4 grid gap-2">
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-sm font-black">Resource hub</p>
+                <button class="edit-links-button tap-target" type="button" data-edit-links="${subject.id}">
+                  ${icon("edit", 15)}
+                  <span>Edit links</span>
+                </button>
+              </div>
+              <div class="resource-grid">
+                ${linkFields.map((field) => resourceButton(subject, field)).join("")}
+              </div>
+            </div>
+
+            <section class="mt-5">
+              <div class="mb-2 flex items-center justify-between gap-3">
+                <p class="text-sm font-black">Subject folders</p>
+                <p class="text-xs font-bold text-[#68717d]">${foldersForSubject(subject.id).length} hubs</p>
+              </div>
+              <div class="folder-strip">
+                ${foldersForSubject(subject.id).map((folder) => folderButton(subject, folder)).join("")}
+              </div>
+            </section>
+
+            <section class="mt-5">
+              <div class="mb-2 flex items-center justify-between gap-3">
+                <p class="text-sm font-black">Tasks</p>
+                <div class="flex items-center gap-2">
+                  <p class="text-xs font-bold text-[#68717d]">${completed}/${tasks.length} done</p>
+                  <div class="mini-progress w-20"><span style="width: ${completion}%; background: ${meta.strong}"></span></div>
+                </div>
+              </div>
+              <form class="task-form mb-3" data-subject="${subject.id}">
+                <input class="task-input tap-target" name="task" placeholder="Add task..." autocomplete="off" />
+                <button class="add-task tap-target" type="submit" aria-label="Add task">${icon("plus", 18)}</button>
+              </form>
+              <ul class="task-list">${tasks.length ? tasks.map(taskRow).join("") : `<li class="rounded-[1rem] bg-white/55 px-3 py-3 text-sm font-bold text-[#68717d]">No tasks in this lane yet.</li>`}</ul>
+            </section>
+
+            <section class="mt-5" data-note-shell>
+              <div class="mb-2 flex items-center justify-between gap-3">
+                <p class="text-sm font-black">Scratchpad</p>
+                <p class="save-state" data-save-state="${subject.id}">Saved automatically</p>
+              </div>
+              <textarea
+                class="notes-field notes-field-${subject.id}"
+                data-subject="${subject.id}"
+                placeholder="Paste commands, module links, exam dates, or project notes..."
+              >${escapeHtml(note)}</textarea>
+            </section>
+          </article>
+        `;
       }
 
       function resourceButton(subject, field) {
@@ -2111,8 +2245,8 @@
         `;
       }
 
-      function bindSubjectEvents() {
-        document.querySelectorAll(".task-form").forEach((form) => {
+      function bindSubjectEvents(root = document) {
+        root.querySelectorAll(".task-form").forEach((form) => {
           form.addEventListener("submit", async (event) => {
             event.preventDefault();
             const input = form.elements.task;
@@ -2128,7 +2262,7 @@
           });
         });
 
-        document.querySelectorAll(".task-row").forEach((row) => {
+        root.querySelectorAll(".task-row").forEach((row) => {
           const id = Number(row.dataset.taskId);
           row.querySelector(".task-toggle").addEventListener("change", async (event) => {
             const payload = await api(`/api/tasks/${id}`, {
@@ -2146,30 +2280,30 @@
           });
         });
 
-        document.querySelectorAll(".notes-field").forEach((field) => {
+        root.querySelectorAll(".notes-field").forEach((field) => {
           field.addEventListener("input", () => {
             const subjectId = field.dataset.subject;
             state.notes[subjectId] = field.value;
-            const label = document.querySelector(`[data-save-state="${subjectId}"]`);
-            label.textContent = "Saving...";
+            const label = field.closest("[data-note-shell]")?.querySelector("[data-save-state]") || document.querySelector(`[data-save-state="${subjectId}"]`);
+            if (label) label.textContent = "Saving...";
             debounceNoteSave(subjectId, field.value, label);
           });
           field.addEventListener("blur", () => {
             const subjectId = field.dataset.subject;
-            const label = document.querySelector(`[data-save-state="${subjectId}"]`);
+            const label = field.closest("[data-note-shell]")?.querySelector("[data-save-state]") || document.querySelector(`[data-save-state="${subjectId}"]`);
             saveNoteNow(subjectId, field.value, label);
           });
         });
 
-        document.querySelectorAll(".resource-button:not([disabled])").forEach((button) => {
+        root.querySelectorAll(".resource-button:not([disabled])").forEach((button) => {
           button.addEventListener("click", () => openResource(button.dataset.resourceUrl, button.dataset.resourceTitle));
         });
 
-        document.querySelectorAll("[data-edit-links]").forEach((button) => {
+        root.querySelectorAll("[data-edit-links]").forEach((button) => {
           button.addEventListener("click", () => openLinksPanel(button.dataset.editLinks));
         });
 
-        document.querySelectorAll("[data-folder-button]").forEach((button) => {
+        root.querySelectorAll("[data-folder-button]").forEach((button) => {
           button.addEventListener("click", () => openFolderPanel(button.dataset.subject, button.dataset.folderButton));
         });
       }
@@ -2187,9 +2321,9 @@
             method: "PUT",
             body: JSON.stringify({ content }),
           });
-          label.textContent = "Saved automatically";
+          if (label) label.textContent = "Saved automatically";
         } catch (error) {
-          label.textContent = error.message;
+          if (label) label.textContent = error.message;
         }
       }
 
@@ -2463,6 +2597,240 @@
         `;
       }
 
+      function renderTabButtons() {
+        document.querySelectorAll("[data-tab]").forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.tab === state.activeTab);
+          button.setAttribute("aria-pressed", String(button.dataset.tab === state.activeTab));
+        });
+      }
+
+      function setActiveTab(tabId) {
+        state.activeTab = tabId;
+        render();
+        workspaceContent.scrollTop = 0;
+      }
+
+      function panelIntro(title, text) {
+        return `
+          <article class="menu-panel">
+            <p class="eyebrow">SemStack menu</p>
+            <h2 class="mt-1 text-2xl font-black tracking-[-0.04em]">${title}</h2>
+            <p class="mt-2 max-w-[62ch] text-sm font-semibold leading-6 text-[#68717d]">${text}</p>
+          </article>
+        `;
+      }
+
+      function renderActiveTab() {
+        const isOverview = state.activeTab === "overview";
+        overviewView.classList.toggle("hidden", !isOverview);
+        tabPanel.classList.toggle("hidden", isOverview);
+        renderTabButtons();
+        if (isOverview) {
+          tabPanel.innerHTML = "";
+          return;
+        }
+
+        const renderers = {
+          courses: renderCoursesTab,
+          notes: renderNotesTab,
+          messages: renderMessagesTab,
+          calendar: renderCalendarTab,
+          team: renderTeamTab,
+          settings: renderSettingsTab,
+        };
+        (renderers[state.activeTab] || renderCoursesTab)();
+      }
+
+      function renderCoursesTab() {
+        tabPanel.innerHTML = `
+          ${panelIntro("Courses", "Browse every subject without leaving the dashboard frame. Use filters from the sidebar to narrow the cards.")}
+          <section class="subject-grid" aria-label="Filtered course cards">
+            ${subjectCardsMarkup(visibleSubjects())}
+          </section>
+        `;
+        bindSubjectEvents(tabPanel);
+      }
+
+      function renderNotesTab() {
+        tabPanel.innerHTML = `
+          ${panelIntro("Notes desk", "A single place for terminal commands, exam dates, module links, and subject-specific reminders.")}
+          <section class="menu-grid" aria-label="Subject notes">
+            ${state.subjects
+              .map((subject) => {
+                const meta = subjectMeta(subject.id);
+                return `
+                  <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}" data-note-shell>
+                    <div class="mb-3 flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="text-xs font-black text-[#68717d]">${subject.code}</p>
+                        <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.name}</h3>
+                      </div>
+                      <span class="round-icon" style="background: ${meta.soft}; color: ${meta.strong}">${icon("note", 18)}</span>
+                    </div>
+                    <textarea
+                      class="notes-field"
+                      data-subject="${subject.id}"
+                      placeholder="Paste commands, links, exam dates, or reminders..."
+                    >${escapeHtml(state.notes[subject.id] || "")}</textarea>
+                    <p class="save-state mt-2" data-save-state="notes-${subject.id}">Saved automatically</p>
+                  </article>
+                `;
+              })
+              .join("")}
+          </section>
+        `;
+        bindSubjectEvents(tabPanel);
+      }
+
+      function renderMessagesTab() {
+        const fields = linkFields.filter((field) => ["messenger", "meeting", "instructor"].includes(field.key));
+        tabPanel.innerHTML = `
+          ${panelIntro("Class channels", "Keep Messenger, Facebook groups, Meet, Zoom, and instructor contact links one tap away.")}
+          <section class="menu-grid" aria-label="Class communication links">
+            ${state.subjects
+              .map((subject) => {
+                const meta = subjectMeta(subject.id);
+                return `
+                  <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}">
+                    <div class="mb-3 flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="text-xs font-black text-[#68717d]">${subject.code}</p>
+                        <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.name}</h3>
+                      </div>
+                      <button class="edit-links-button tap-target" type="button" data-edit-links="${subject.id}">${icon("edit", 15)} <span>Edit</span></button>
+                    </div>
+                    <div class="resource-grid">${fields.map((field) => resourceButton(subject, field)).join("")}</div>
+                  </article>
+                `;
+              })
+              .join("")}
+          </section>
+        `;
+        bindSubjectEvents(tabPanel);
+      }
+
+      function renderCalendarTab() {
+        const events = [...state.events].sort((a, b) => new Date(a.startsAt || 0) - new Date(b.startsAt || 0));
+        tabPanel.innerHTML = `
+          ${panelIntro("Schedule", "Add class calls, exams, defenses, and submission dates. The right rail mini calendar mirrors this list on desktop.")}
+          <section class="menu-grid">
+            <article class="menu-panel">
+              <h3 class="text-lg font-black tracking-[-0.03em]">Add schedule item</h3>
+              <form id="calendarEventForm" class="event-form mt-4">
+                <input class="panel-input tap-target" name="title" placeholder="Defense rehearsal" required />
+                <select class="panel-select tap-target" name="subjectId">
+                  ${state.subjects.map((subject) => `<option value="${subject.id}">${subject.code} - ${escapeHtml(subject.name)}</option>`).join("")}
+                </select>
+                <div class="panel-grid">
+                  <input class="panel-input tap-target" name="startsAt" type="datetime-local" value="${defaultDateTimeLocal()}" required />
+                  <select class="panel-select tap-target" name="type">${renderOptions(eventTypes, "Deadline")}</select>
+                </div>
+                <button class="soft-button tap-target" type="submit">${icon("plus", 16)} Add to calendar</button>
+              </form>
+            </article>
+            <article class="menu-panel">
+              <h3 class="text-lg font-black tracking-[-0.03em]">Upcoming</h3>
+              <div class="compact-list mt-4">
+                ${
+                  events.length
+                    ? events.map((item) => scheduleRow(item)).join("")
+                    : `<div class="panel-empty">No scheduled items yet.</div>`
+                }
+              </div>
+            </article>
+          </section>
+        `;
+        bindCalendarTab();
+      }
+
+      function bindCalendarTab() {
+        const form = document.querySelector("#calendarEventForm");
+        form?.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const data = new FormData(form);
+          const payload = await api("/api/events", {
+            method: "POST",
+            body: JSON.stringify({
+              subjectId: data.get("subjectId"),
+              title: data.get("title").trim(),
+              startsAt: data.get("startsAt"),
+              type: data.get("type"),
+            }),
+          });
+          state.events.push(payload.event);
+          render();
+        });
+
+        tabPanel.querySelectorAll("[data-delete-event]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const eventId = Number(button.dataset.deleteEvent);
+            await api(`/api/events/${eventId}`, { method: "DELETE" });
+            state.events = state.events.filter((item) => item.id !== eventId);
+            render();
+          });
+        });
+      }
+
+      function renderTeamTab() {
+        tabPanel.innerHTML = `
+          ${panelIntro("Instructor board", "Use this as your quick contact and class-room map for each subject. Add the exact links your instructor uses.")}
+          <section class="menu-grid">
+            ${state.subjects
+              .map((subject) => {
+                const meta = subjectMeta(subject.id);
+                return `
+                  <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}">
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                      <div class="min-w-0">
+                        <p class="text-xs font-black text-[#68717d]">${subject.semester}</p>
+                        <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.code}</h3>
+                      </div>
+                      <span class="round-icon" style="background: ${meta.soft}; color: ${meta.strong}">${icon("users", 18)}</span>
+                    </div>
+                    <div class="resource-grid">
+                      ${resourceButton(subject, linkFields.find((field) => field.key === "instructor"))}
+                      ${resourceButton(subject, linkFields.find((field) => field.key === "meeting"))}
+                      ${resourceButton(subject, linkFields.find((field) => field.key === "custom"))}
+                    </div>
+                    <button class="edit-links-button tap-target mt-3" type="button" data-edit-links="${subject.id}">${icon("edit", 15)} <span>Update contact links</span></button>
+                  </article>
+                `;
+              })
+              .join("")}
+          </section>
+        `;
+        bindSubjectEvents(tabPanel);
+      }
+
+      function renderSettingsTab() {
+        tabPanel.innerHTML = `
+          ${panelIntro("Settings", "Account, app install, and data status for this dashboard.")}
+          <section class="menu-grid">
+            <article class="menu-panel">
+              <p class="eyebrow">Signed in as</p>
+              <h3 class="mt-2 break-words text-xl font-black tracking-[-0.03em]">${escapeHtml(state.user?.email || "Not signed in")}</h3>
+              <button id="settingsLogout" class="soft-button tap-target mt-4" type="button">Logout</button>
+            </article>
+            <article class="menu-panel">
+              <p class="eyebrow">Phone setup</p>
+              <h3 class="mt-2 text-xl font-black tracking-[-0.03em]">Install SemStack</h3>
+              <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">On iPhone, open the share menu and choose Add to Home Screen. The app shell is cached, while private API data stays online-only.</p>
+            </article>
+            <article class="menu-panel">
+              <p class="eyebrow">Data</p>
+              <h3 class="mt-2 text-xl font-black tracking-[-0.03em]">${state.subjects.length} subjects</h3>
+              <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">${state.tasks.length} tasks, ${state.folders.length} folders, ${state.events.length} scheduled items.</p>
+            </article>
+            <article class="menu-panel">
+              <p class="eyebrow">Layout</p>
+              <h3 class="mt-2 text-xl font-black tracking-[-0.03em]">Fixed dashboard shell</h3>
+              <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">The browser page stays still. Only this workspace panel scrolls when the content is longer than the screen.</p>
+            </article>
+          </section>
+        `;
+        document.querySelector("#settingsLogout")?.addEventListener("click", () => logout());
+      }
+
       function updateProgress() {
         const total = state.tasks.length;
         const completed = state.tasks.filter((task) => task.completed).length;
@@ -2570,6 +2938,7 @@
         renderActivity();
         renderCalendar();
         renderSchedule();
+        renderActiveTab();
         updateProgress();
       }
 
@@ -2598,15 +2967,9 @@
       document.querySelector("#notifyButton").innerHTML = icon("bell", 19);
       document.querySelector("#jumpToSubjects .mini-icon").innerHTML = icon("arrow", 16);
       document.querySelectorAll("[data-tab]").forEach((button) => {
-        button.innerHTML = icon({
-          overview: "grid",
-          courses: "cap",
-          notes: "note",
-          messages: "chat",
-          calendar: "calendar",
-          team: "users",
-          settings: "settings",
-        }[button.dataset.tab], 19);
+        const tab = tabs.find((item) => item.id === button.dataset.tab);
+        button.innerHTML = `${icon(tab?.icon || "grid", 19)}<span>${tab?.label || "Menu"}</span>`;
+        button.addEventListener("click", () => setActiveTab(button.dataset.tab));
       });
 
       document.querySelector("#mobileMenuButton").addEventListener("click", openDrawer);
@@ -2622,8 +2985,9 @@
       courseworkPanel.addEventListener("click", (event) => {
         if (event.target === courseworkPanel) closeCourseworkPanel();
       });
-      document.querySelector("#jumpToSubjects").addEventListener("click", () => subjectGrid.scrollIntoView({ behavior: "smooth", block: "start" }));
-      document.querySelector("#showAllButton").addEventListener("click", () => subjectGrid.scrollIntoView({ behavior: "smooth", block: "start" }));
+      document.querySelector("#jumpToSubjects").addEventListener("click", () => setActiveTab("courses"));
+      document.querySelector("#showAllButton").addEventListener("click", () => setActiveTab("courses"));
+      document.querySelector("#notifyButton").addEventListener("click", () => setActiveTab("messages"));
       loginTab.addEventListener("click", () => setAuthMode("login"));
       registerTab.addEventListener("click", () => setAuthMode("register"));
       authForm.addEventListener("submit", authenticate);
