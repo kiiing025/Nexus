@@ -34,6 +34,9 @@ async function request(path, options = {}) {
   const headers = { Authorization: `Bearer ${registered.token}` };
   const dashboard = await request("/api/dashboard", { headers });
   assert.equal(dashboard.subjects.length, 5);
+  assert.ok(Array.isArray(dashboard.folders));
+  assert.ok(Array.isArray(dashboard.events));
+  assert.ok(dashboard.folders.length >= 30);
 
   const links = await request("/api/subjects/IT314/links", {
     method: "PUT",
@@ -70,6 +73,66 @@ async function request(path, options = {}) {
     body: JSON.stringify({ content: "Smoke note" }),
   });
   assert.equal(note.note.content, "Smoke note");
+
+  const folder = await request("/api/folders", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ subjectId: "IT314", name: "Defense Prep" }),
+  });
+  assert.ok(folder.folder.id);
+
+  const updatedFolder = await request(`/api/folders/${folder.folder.id}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ name: "Defense Prep Updated" }),
+  });
+  assert.equal(updatedFolder.folder.name, "Defense Prep Updated");
+
+  const item = await request("/api/folder-items", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      folderId: folder.folder.id,
+      title: "Prototype checklist",
+      description: "Screens, API, and demo script",
+      url: "https://example.com/prototype",
+      type: "project",
+      dueAt: "2026-07-02T10:30:00.000Z",
+      completed: false,
+    }),
+  });
+  assert.ok(item.item.id);
+
+  const updatedItem = await request(`/api/folder-items/${item.item.id}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ completed: true }),
+  });
+  assert.equal(updatedItem.item.completed, true);
+
+  const event = await request("/api/events", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      subjectId: "IT314",
+      title: "System Prototype Defense",
+      startsAt: "2026-07-02T10:30:00.000Z",
+      type: "Major",
+      folderItemId: item.item.id,
+    }),
+  });
+  assert.ok(event.event.id);
+
+  const updatedEvent = await request(`/api/events/${event.event.id}`, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ title: "System Prototype Defense Updated" }),
+  });
+  assert.equal(updatedEvent.event.title, "System Prototype Defense Updated");
+
+  await request(`/api/events/${event.event.id}`, { method: "DELETE", headers });
+  await request(`/api/folder-items/${item.item.id}`, { method: "DELETE", headers });
+  await request(`/api/folders/${folder.folder.id}`, { method: "DELETE", headers });
 
   console.log(JSON.stringify({ ok: true, email, subjects: dashboard.subjects.length }));
 })().catch((error) => {

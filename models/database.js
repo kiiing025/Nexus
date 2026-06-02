@@ -217,6 +217,7 @@ function schemaSql(dialect) {
       name TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, subject_id, name),
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
