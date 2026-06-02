@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "migrate": "node scripts/migrate.js",
+    "test:api": "node scripts/api-smoke-test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
