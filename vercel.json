@@ -6,7 +6,11 @@
       "use": "@vercel/node",
       "config": {
         "includeFiles": [
-          "node_modules/sql.js/dist/sql-wasm.wasm"
+          "node_modules/sql.js/dist/sql-wasm.wasm",
+          "index.html",
+          "manifest.webmanifest",
+          "sw.js",
+          "icons/**"
         ]
       }
     }
