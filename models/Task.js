@@ -4,7 +4,7 @@ class Task {
   static async allForUser(userId) {
     const db = await getDb();
     return db.all(
-      `SELECT id, subject_id AS subjectId, text, completed, created_at AS createdAt, updated_at AS updatedAt
+      `SELECT id, subject_id AS "subjectId", text, completed, created_at AS "createdAt", updated_at AS "updatedAt"
        FROM tasks
        WHERE user_id = ?
        ORDER BY created_at ASC`,
@@ -27,7 +27,7 @@ class Task {
   static async findByIdForUser(id, userId) {
     const db = await getDb();
     return db.get(
-      `SELECT id, subject_id AS subjectId, text, completed, created_at AS createdAt, updated_at AS updatedAt
+      `SELECT id, subject_id AS "subjectId", text, completed, created_at AS "createdAt", updated_at AS "updatedAt"
        FROM tasks
        WHERE id = ? AND user_id = ?`,
       id,

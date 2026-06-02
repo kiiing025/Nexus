@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 
 const { initDb } = require("./models/database");
 const User = require("./models/User");
+const Subject = require("./models/Subject");
 const Task = require("./models/Task");
 const Note = require("./models/Note");
 
@@ -16,76 +17,6 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "semstack-dev-secret-change-me";
 const TOKEN_TTL = "7d";
 
-const subjects = [
-  {
-    id: "IT311",
-    year: "3rd Year",
-    semester: "3rd Year - 1st Semester",
-    code: "IT311",
-    name: "Information Assurance and Security",
-    accent: "#fb7185",
-    links: {
-      // Paste your real resource URLs here later.
-      syllabus: "#",
-      drive: "#",
-      github: "#",
-    },
-  },
-  {
-    id: "IT313",
-    year: "3rd Year",
-    semester: "3rd Year - 1st Semester",
-    code: "IT313",
-    name: "Mobile Programming",
-    accent: "#34d399",
-    links: {
-      syllabus: "#",
-      drive: "#",
-      github: "#",
-    },
-  },
-  {
-    id: "IT314",
-    year: "3rd Year",
-    semester: "3rd Year - 1st Semester",
-    code: "IT314",
-    name: "Software Engineering",
-    accent: "#818cf8",
-    links: {
-      syllabus: "#",
-      drive: "#",
-      github: "#",
-    },
-  },
-  {
-    id: "IT315",
-    year: "3rd Year",
-    semester: "3rd Year - 1st Semester",
-    code: "IT315",
-    name: "IT Elective 1",
-    accent: "#c084fc",
-    links: {
-      syllabus: "#",
-      drive: "#",
-      github: "#",
-    },
-  },
-  {
-    id: "IT413",
-    year: "4th Year",
-    semester: "4th Year - 1st Semester",
-    code: "IT413",
-    name: "Social and Professional Issues",
-    accent: "#f59e0b",
-    links: {
-      syllabus: "#",
-      drive: "#",
-      github: "#",
-    },
-  },
-];
-
-const subjectIds = new Set(subjects.map((subject) => subject.id));
 const dbReady = initDb();
 
 app.use(cors());
@@ -109,8 +40,10 @@ function publicUser(user) {
   return { id: user.id, email: user.email };
 }
 
-function validateSubject(subjectId) {
-  return typeof subjectId === "string" && subjectIds.has(subjectId);
+async function findUserSubject(userId, subjectId) {
+  if (typeof subjectId !== "string" || !subjectId.trim()) return null;
+  await Subject.ensureDefaultsForUser(userId);
+  return Subject.findForUser({ userId, subjectId: subjectId.trim() });
 }
 
 async function requireAuth(req, res, next) {
@@ -153,6 +86,7 @@ app.post("/api/auth/register", async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, 12);
     const user = await User.create({ email, passwordHash });
+    await Subject.ensureDefaultsForUser(user.id);
     return res.status(201).json({ token: signToken(user), user: publicUser(user) });
   } catch (error) {
     return next(error);
@@ -180,6 +114,8 @@ app.post("/api/auth/login", async (req, res, next) => {
 
 app.get("/api/dashboard", requireAuth, async (req, res, next) => {
   try {
+    await Subject.ensureDefaultsForUser(req.user.id);
+    const subjects = await Subject.allForUser(req.user.id);
     const tasks = await Task.allForUser(req.user.id);
     const notes = await Note.allForUser(req.user.id);
     return res.json({ user: publicUser(req.user), subjects, tasks, notes });
@@ -193,7 +129,7 @@ app.post("/api/tasks", requireAuth, async (req, res, next) => {
     const subjectId = String(req.body.subjectId || "").trim();
     const text = String(req.body.text || "").trim();
 
-    if (!validateSubject(subjectId)) {
+    if (!(await findUserSubject(req.user.id, subjectId))) {
       return res.status(400).json({ error: "Invalid subject." });
     }
     if (!text) {
@@ -242,12 +178,44 @@ app.put("/api/notes/:subjectId", requireAuth, async (req, res, next) => {
     const subjectId = String(req.params.subjectId || "").trim();
     const content = String(req.body.content || "");
 
-    if (!validateSubject(subjectId)) {
+    if (!(await findUserSubject(req.user.id, subjectId))) {
       return res.status(400).json({ error: "Invalid subject." });
     }
 
     const note = await Note.upsert({ userId: req.user.id, subjectId, content });
     return res.json({ note });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get("/api/subjects/:subjectId/links", requireAuth, async (req, res, next) => {
+  try {
+    const subjectId = String(req.params.subjectId || "").trim();
+    if (!(await findUserSubject(req.user.id, subjectId))) {
+      return res.status(404).json({ error: "Subject not found." });
+    }
+
+    const links = await Subject.linksForUserSubject({ userId: req.user.id, subjectId });
+    return res.json({ links });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put("/api/subjects/:subjectId/links", requireAuth, async (req, res, next) => {
+  try {
+    const subjectId = String(req.params.subjectId || "").trim();
+    if (!(await findUserSubject(req.user.id, subjectId))) {
+      return res.status(404).json({ error: "Subject not found." });
+    }
+
+    const links = await Subject.updateLinksForUser({
+      userId: req.user.id,
+      subjectId,
+      links: req.body || {},
+    });
+    return res.json({ links });
   } catch (error) {
     return next(error);
   }

@@ -35,6 +35,21 @@ async function request(path, options = {}) {
   const dashboard = await request("/api/dashboard", { headers });
   assert.equal(dashboard.subjects.length, 5);
 
+  const links = await request("/api/subjects/IT314/links", {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({
+      syllabus: "https://example.com/syllabus",
+      drive: "https://example.com/drive",
+      github: "https://github.com/example/repo",
+      messenger: "https://m.me/example",
+      meeting: "https://meet.google.com/abc-defg-hij",
+      instructor: "mailto:instructor@example.com",
+      custom: "https://example.com/custom",
+    }),
+  });
+  assert.equal(links.links.github, "https://github.com/example/repo");
+
   const createdTask = await request("/api/tasks", {
     method: "POST",
     headers,

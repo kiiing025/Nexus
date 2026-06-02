@@ -4,7 +4,7 @@ class Note {
   static async allForUser(userId) {
     const db = await getDb();
     return db.all(
-      `SELECT subject_id AS subjectId, content, updated_at AS updatedAt
+      `SELECT subject_id AS "subjectId", content, updated_at AS "updatedAt"
        FROM notes
        WHERE user_id = ?`,
       userId,
@@ -24,7 +24,7 @@ class Note {
     );
 
     return db.get(
-      `SELECT subject_id AS subjectId, content, updated_at AS updatedAt
+      `SELECT subject_id AS "subjectId", content, updated_at AS "updatedAt"
        FROM notes
        WHERE user_id = ? AND subject_id = ?`,
       userId,
