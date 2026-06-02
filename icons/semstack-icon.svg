@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">SemStack app icon</title>
+  <desc id="desc">A dark circular monogram with stacked coursework lines.</desc>
+  <rect width="512" height="512" rx="112" fill="#d7e6ef"/>
+  <circle cx="256" cy="256" r="152" fill="#111315"/>
+  <circle cx="256" cy="256" r="128" fill="none" stroke="#f8fcff" stroke-width="22"/>
+  <path d="M170 214h172M170 256h172M170 298h172" fill="none" stroke="#f8fcff" stroke-linecap="round" stroke-width="26"/>
+  <path d="M348 154 404 98" fill="none" stroke="#ff8b4a" stroke-linecap="round" stroke-width="28"/>
+  <circle cx="404" cy="98" r="18" fill="#ff8b4a"/>
+</svg>

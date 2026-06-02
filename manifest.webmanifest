@@ -1,0 +1,19 @@
+{
+  "name": "SemStack Coursework Dashboard",
+  "short_name": "SemStack",
+  "description": "A private IT university coursework dashboard for subjects, tasks, notes, folders, and schedule planning.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#d7e6ef",
+  "theme_color": "#111315",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/semstack-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
