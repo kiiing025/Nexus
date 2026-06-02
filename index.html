@@ -8,14 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
+              sans: ["Outfit", "system-ui", "sans-serif"],
             },
           },
         },
@@ -23,8 +22,13 @@
     </script>
     <style>
       :root {
+        --ink: #111315;
+        --muted: #68717d;
+        --paper: #f7fbff;
+        --panel: #edf6fb;
+        --line: rgba(17, 19, 21, 0.09);
         --motion: cubic-bezier(0.32, 0.72, 0, 1);
-        color-scheme: dark;
+        color-scheme: light;
       }
 
       * {
@@ -37,15 +41,33 @@
         overflow-x: hidden;
       }
 
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
         min-height: 100dvh;
         margin: 0;
+        color: var(--ink);
+        font-family: "Outfit", system-ui, sans-serif;
         background:
-          radial-gradient(circle at 10% 0%, rgba(79, 70, 229, 0.22), transparent 28rem),
-          radial-gradient(circle at 90% 8%, rgba(16, 185, 129, 0.12), transparent 24rem),
-          linear-gradient(135deg, #0f172a 0%, #111827 50%, #1e293b 100%);
-        color: #e5edf8;
-        font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+          radial-gradient(circle at 16% 10%, rgba(255, 255, 255, 0.82), transparent 19rem),
+          radial-gradient(circle at 80% 14%, rgba(208, 236, 244, 0.72), transparent 24rem),
+          linear-gradient(135deg, #c7ced9 0%, #d7e6ef 55%, #c8d6e1 100%);
+      }
+
+      body::before {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        content: "";
+        opacity: 0.22;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(circle at center, black, transparent 72%);
       }
 
       button,
@@ -55,48 +77,1091 @@
         -webkit-tap-highlight-color: transparent;
       }
 
-      .glass-panel {
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        background: rgba(15, 23, 42, 0.78);
-        box-shadow: 0 24px 80px rgba(2, 6, 23, 0.34);
+      button,
+      a,
+      input,
+      textarea {
+        transition:
+          transform 480ms var(--motion),
+          background 480ms var(--motion),
+          border-color 480ms var(--motion),
+          box-shadow 480ms var(--motion),
+          color 480ms var(--motion),
+          opacity 480ms var(--motion);
+      }
+
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid rgba(17, 19, 21, 0.28);
+        outline-offset: 3px;
+      }
+
+      .hidden {
+        display: none !important;
       }
 
       .tap-target {
-        min-height: 44px;
         min-width: 44px;
+        min-height: 44px;
       }
 
-      .subject-card {
-        border-color: color-mix(in srgb, var(--accent) 42%, rgba(148, 163, 184, 0.18));
+      .skip-link {
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 60;
+        transform: translateY(-140%);
+        border-radius: 999px;
+        background: var(--ink);
+        color: white;
+        padding: 0.8rem 1rem;
+        font-weight: 800;
       }
 
-      .subject-glow {
-        background: radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 22%, transparent), transparent 15rem);
+      .skip-link:focus {
+        transform: translateY(0);
       }
 
-      .progress-fill {
-        width: 0;
-        transition: width 650ms var(--motion);
+      .auth-overlay,
+      .loading-overlay,
+      .resource-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: none;
+        place-items: center;
+        padding: 1rem;
+        background: rgba(202, 213, 225, 0.72);
+        backdrop-filter: blur(28px);
+      }
+
+      .auth-overlay.grid,
+      .loading-overlay.grid,
+      .resource-overlay.grid {
+        display: grid;
+      }
+
+      .auth-card,
+      .resource-card {
+        width: min(100%, 28rem);
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 2.1rem;
+        background: rgba(247, 251, 255, 0.92);
+        padding: 0.55rem;
+        box-shadow: 0 30px 80px rgba(86, 101, 119, 0.28);
+      }
+
+      .auth-card-inner,
+      .resource-card-inner {
+        border: 1px solid rgba(17, 19, 21, 0.08);
+        border-radius: 1.7rem;
+        background: #f8fcff;
+        padding: 1.35rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      }
+
+      .auth-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.4rem;
+        border-radius: 999px;
+        background: #e7f0f6;
+        padding: 0.35rem;
+      }
+
+      .auth-tab,
+      .soft-button,
+      .icon-button,
+      .filter-button,
+      .resource-button,
+      .delete-task,
+      .drawer-close {
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .auth-tab {
+        border-radius: 999px;
+        color: #64707b;
+        background: transparent;
+        font-size: 0.92rem;
+        font-weight: 800;
+      }
+
+      .auth-tab.is-active {
+        color: white;
+        background: var(--ink);
+        box-shadow: 0 10px 24px rgba(17, 19, 21, 0.16);
+      }
+
+      .field-label {
+        display: block;
+        margin-bottom: 0.4rem;
+        color: #6b7480;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
+      .form-field {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 1.1rem;
+        background: #eef6fb;
+        color: var(--ink);
+        padding: 0 1rem;
+        font: inherit;
+      }
+
+      .soft-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        border-radius: 999px;
+        background: var(--ink);
+        color: white;
+        padding: 0.75rem 1rem;
+        font-weight: 900;
+      }
+
+      .soft-button:hover,
+      .icon-button:hover,
+      .filter-button:hover,
+      .resource-button:hover {
+        transform: translateY(-2px);
+      }
+
+      .soft-button:active,
+      .icon-button:active,
+      .filter-button:active,
+      .resource-button:active,
+      .delete-task:active {
+        transform: scale(0.98);
+      }
+
+      .page-shell {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 78rem);
+        margin: 0 auto;
+        padding: clamp(0.75rem, 2vw, 2rem);
+      }
+
+      .dashboard-shell {
+        display: grid;
+        grid-template-columns: minmax(12.5rem, 15rem) minmax(0, 1fr) minmax(16rem, 19rem);
+        gap: 1rem;
+        min-height: min(49rem, calc(100dvh - 3rem));
+        border: 1px solid rgba(255, 255, 255, 0.82);
+        border-radius: clamp(1.5rem, 4vw, 2.4rem);
+        background:
+          linear-gradient(135deg, rgba(248, 252, 255, 0.96), rgba(231, 242, 248, 0.96)),
+          var(--paper);
+        padding: clamp(0.85rem, 1.5vw, 1.25rem);
+        box-shadow:
+          0 34px 90px rgba(81, 93, 111, 0.34),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+
+      .left-rail,
+      .right-rail,
+      .workspace-panel,
+      .premium-card,
+      .activity-card,
+      .assignment-panel,
+      .progress-stack,
+      .calendar-panel,
+      .subject-card,
+      .stat-card {
+        min-width: 0;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        background: rgba(255, 255, 255, 0.62);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.78),
+          0 20px 44px rgba(112, 128, 144, 0.14);
+      }
+
+      .left-rail,
+      .right-rail,
+      .workspace-panel {
+        border-radius: 1.8rem;
+        padding: 1rem;
+      }
+
+      .left-rail {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: rgba(238, 248, 250, 0.78);
+      }
+
+      .logo-lockup {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-size: 1.25rem;
+        font-weight: 900;
+      }
+
+      .brand-mark {
+        position: relative;
+        display: grid;
+        width: 2.3rem;
+        height: 2.3rem;
+        place-items: center;
+        border-radius: 999px;
+        border: 2px solid var(--ink);
+      }
+
+      .brand-mark::before,
+      .brand-mark::after {
+        position: absolute;
+        content: "";
+        border-radius: 999px;
+        border: 2px solid var(--ink);
+      }
+
+      .brand-mark::before {
+        inset: 0.42rem;
+        border-top-color: transparent;
+      }
+
+      .brand-mark::after {
+        inset: -0.28rem;
+        border-top-color: transparent;
+        border-right-color: transparent;
+      }
+
+      .welcome-title {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(1.85rem, 2.6vw, 2.45rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        text-wrap: balance;
+      }
+
+      .eyebrow {
+        color: #0d1114;
+        font-size: 0.84rem;
+        font-weight: 900;
+        letter-spacing: 0.01em;
+      }
+
+      .subject-rail {
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .rail-course {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(17, 19, 21, 0.08);
+        border-radius: 1.5rem;
+        padding: 0.85rem;
+        background: var(--soft);
+      }
+
+      .rail-course::after {
+        position: absolute;
+        right: -2rem;
+        bottom: -2.2rem;
+        width: 6rem;
+        height: 6rem;
+        content: "";
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.28);
+      }
+
+      .course-orbit {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      .round-icon {
+        display: grid;
+        width: 2.75rem;
+        height: 2.75rem;
+        place-items: center;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.74);
+        color: var(--ink);
+      }
+
+      .arrow-circle {
+        display: grid;
+        width: 2.75rem;
+        height: 2.75rem;
+        place-items: center;
+        border: 1px solid rgba(17, 19, 21, 0.42);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        color: var(--ink);
+      }
+
+      .rail-course h3,
+      .subject-card h3,
+      .assignment-item h3 {
+        margin: 0;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+      }
+
+      .filter-stack {
+        display: grid;
+        gap: 0.5rem;
+        margin-top: auto;
+      }
+
+      .filter-button {
+        display: flex;
+        align-items: center;
+        gap: 0.72rem;
+        width: 100%;
+        min-height: 3rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.48);
+        color: #55606b;
+        padding: 0.45rem 0.55rem;
+        text-align: left;
+        font-weight: 800;
       }
 
       .filter-button[aria-pressed="true"] {
-        border-color: rgba(125, 211, 252, 0.52);
-        background: rgba(14, 165, 233, 0.16);
+        background: var(--ink);
+        color: white;
+        box-shadow: 0 16px 30px rgba(17, 19, 21, 0.16);
+      }
+
+      .filter-button[aria-pressed="true"] .mini-icon {
+        background: white;
+        color: var(--ink);
+      }
+
+      .mini-icon {
+        display: grid;
+        width: 2.15rem;
+        height: 2.15rem;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .workspace {
+        display: grid;
+        gap: 1rem;
+        min-width: 0;
+      }
+
+      .top-dock {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .pill-nav {
+        display: flex;
+        min-width: 0;
+        gap: 0.45rem;
+        overflow-x: auto;
+        border-radius: 999px;
+        background: rgba(225, 235, 242, 0.78);
+        padding: 0.35rem;
+        scrollbar-width: none;
+        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.84);
+      }
+
+      .pill-nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .icon-button {
+        display: grid;
+        width: 3rem;
+        height: 3rem;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.72);
+        color: #6b7480;
+        box-shadow: 0 10px 22px rgba(105, 119, 135, 0.11);
+      }
+
+      .icon-button.is-active {
+        background: var(--ink);
         color: white;
       }
 
+      .avatar-button {
+        display: grid;
+        width: 3.05rem;
+        height: 3.05rem;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 999px;
+        background: #151515;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 15px 26px rgba(17, 19, 21, 0.2);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(16rem, 18rem);
+        gap: 1rem;
+      }
+
+      .premium-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 10rem;
+        border-radius: 1.6rem;
+        background:
+          radial-gradient(circle at 78% 58%, rgba(87, 211, 176, 0.48), transparent 7rem),
+          radial-gradient(circle at 90% 25%, rgba(255, 196, 91, 0.3), transparent 7rem),
+          linear-gradient(135deg, #151820, #222536);
+        color: white;
+        padding: 1rem;
+      }
+
+      .premium-card::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        opacity: 0.15;
+        background-image:
+          linear-gradient(30deg, transparent 48%, rgba(255, 255, 255, 0.72) 49%, transparent 51%),
+          linear-gradient(150deg, transparent 48%, rgba(255, 255, 255, 0.72) 49%, transparent 51%);
+        background-size: 1.2rem 1.2rem;
+      }
+
+      .premium-content {
+        position: relative;
+        z-index: 1;
+        width: min(14rem, 70%);
+      }
+
+      .book-stack {
+        position: absolute;
+        right: clamp(0.6rem, 4vw, 2.1rem);
+        bottom: 1rem;
+        z-index: 1;
+        width: 8.2rem;
+        height: 7.2rem;
+        transform: rotate(-5deg);
+      }
+
+      .book {
+        position: absolute;
+        border-radius: 0.3rem;
+        box-shadow: 0 18px 24px rgba(0, 0, 0, 0.24);
+      }
+
+      .book.one {
+        right: 1.1rem;
+        bottom: 0.3rem;
+        width: 3.4rem;
+        height: 5.9rem;
+        background: linear-gradient(90deg, #16c4b4, #f5d85d);
+        border: 0.32rem solid #262b35;
+      }
+
+      .book.two {
+        right: 0;
+        bottom: 1.2rem;
+        width: 3rem;
+        height: 4.9rem;
+        background: linear-gradient(90deg, #ffbb43, #5477fb);
+        border: 0.3rem solid #232936;
+        transform: rotate(9deg);
+      }
+
+      .book.three {
+        right: 4.2rem;
+        bottom: 0.2rem;
+        width: 2.7rem;
+        height: 4rem;
+        background: #faf8ef;
+        transform: rotate(76deg);
+      }
+
+      .activity-card {
+        border-radius: 1.6rem;
+        background: #fbfdff;
+        padding: 1rem;
+      }
+
+      .activity-bars {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        align-items: end;
+        gap: 0.45rem;
+        height: 8.25rem;
+        padding-top: 1rem;
+      }
+
+      .bar-wrap {
+        display: grid;
+        align-items: end;
+        height: 6.7rem;
+        border-radius: 999px;
+        background: #edf1f4;
+      }
+
+      .bar {
+        min-height: 1rem;
+        border-radius: 999px;
+        background: var(--ink);
+        transform-origin: bottom;
+        animation: rise 900ms var(--motion) both;
+      }
+
+      .bar.is-soft {
+        background: repeating-linear-gradient(135deg, #d7d7d7 0 0.32rem, #f4f4f4 0.32rem 0.64rem);
+      }
+
+      @keyframes rise {
+        from {
+          transform: scaleY(0.24);
+          opacity: 0;
+        }
+        to {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+      }
+
+      .assignment-panel {
+        border-radius: 1.6rem;
+        background: rgba(255, 255, 255, 0.68);
+        padding: 0.95rem;
+      }
+
+      .assignment-list {
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .assignment-item {
+        display: grid;
+        grid-template-columns: 3rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+        border-radius: 1.2rem;
+        background: rgba(255, 255, 255, 0.74);
+        padding: 0.65rem;
+      }
+
+      .status-pill {
+        border-radius: 999px;
+        background: var(--status-bg);
+        color: var(--status-ink);
+        padding: 0.45rem 0.65rem;
+        font-size: 0.72rem;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .right-rail {
+        display: grid;
+        align-content: start;
+        gap: 0.9rem;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.9rem;
+      }
+
+      .stat-card {
+        border-radius: 1.45rem;
+        background: #fbfdff;
+        padding: 1rem;
+      }
+
+      .stat-card strong {
+        display: block;
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .progress-stack,
+      .calendar-panel {
+        border-radius: 1.55rem;
+        background: #fbfdff;
+        padding: 1rem;
+      }
+
+      .progress-track {
+        height: 0.7rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #dde8ed;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #95dad0, #f7a8b3, #b8aecb);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 700ms var(--motion);
+      }
+
+      .mini-progress {
+        height: 0.35rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(17, 19, 21, 0.1);
+      }
+
+      .mini-progress span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--soft-strong);
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 0.35rem;
+      }
+
+      .calendar-day {
+        display: grid;
+        min-height: 2.1rem;
+        place-items: center;
+        border: 1px solid rgba(17, 19, 21, 0.08);
+        border-radius: 0.75rem;
+        background: white;
+        color: #30363d;
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .calendar-day.is-muted {
+        color: #b5bec7;
+      }
+
+      .calendar-day.is-today {
+        background: #ff904f;
+        color: white;
+        box-shadow: 0 12px 22px rgba(255, 144, 79, 0.3);
+      }
+
+      .subject-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .subject-card {
+        border-color: color-mix(in srgb, var(--soft-strong) 30%, white);
+        border-radius: 1.7rem;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--soft) 80%, white), rgba(255, 255, 255, 0.72));
+        padding: 1rem;
+      }
+
+      .subject-card:nth-child(3n + 1) {
+        transform: translateY(-0.2rem);
+      }
+
+      .subject-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.8rem;
+        align-items: start;
+      }
+
+      .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+
+      .resource-button {
+        display: grid;
+        min-width: 0;
+        min-height: 4.1rem;
+        place-items: center;
+        border-radius: 1.15rem;
+        background: rgba(255, 255, 255, 0.62);
+        color: #21272d;
+        font-size: 0.74rem;
+        font-weight: 900;
+      }
+
+      .resource-button[disabled] {
+        cursor: not-allowed;
+        opacity: 0.48;
+      }
+
+      .task-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 3rem;
+        gap: 0.5rem;
+      }
+
+      .task-input,
+      .notes-field {
+        width: 100%;
+        min-width: 0;
+        border: 1px solid rgba(17, 19, 21, 0.08);
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--ink);
+        font: inherit;
+        outline: 0;
+      }
+
+      .task-input {
+        padding: 0 0.85rem;
+      }
+
+      .add-task {
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 999px;
+        background: var(--ink);
+        color: white;
+        cursor: pointer;
+      }
+
+      .task-list {
+        display: grid;
+        gap: 0.45rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .task-row {
+        display: grid;
+        grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+        align-items: center;
+        min-height: 3rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.64);
+      }
+
+      .task-toggle {
+        width: 1.25rem;
+        height: 1.25rem;
+        justify-self: center;
+        accent-color: var(--ink);
+      }
+
+      .task-label {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        padding: 0.75rem 0;
+        color: #252b31;
+        font-size: 0.88rem;
+        font-weight: 650;
+      }
+
       .task-row.is-complete .task-label {
-        color: #64748b;
+        color: #7d8791;
         text-decoration: line-through;
       }
 
+      .delete-task {
+        display: grid;
+        width: 2.25rem;
+        height: 2.25rem;
+        place-items: center;
+        border-radius: 999px;
+        background: transparent;
+        color: #74808b;
+      }
+
+      .delete-task:hover {
+        color: #c94b5f;
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .notes-field {
+        min-height: 8.75rem;
+        resize: vertical;
+        padding: 0.85rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.82rem;
+        line-height: 1.55;
+      }
+
+      .save-state {
+        color: #75808a;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .mobile-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0.65rem;
+        border: 1px solid rgba(255, 255, 255, 0.82);
+        border-radius: 999px;
+        background: rgba(246, 251, 255, 0.86);
+        padding: 0.45rem 0.55rem 0.45rem 0.85rem;
+        backdrop-filter: blur(22px);
+        box-shadow: 0 18px 44px rgba(82, 96, 114, 0.18);
+      }
+
+      .hamburger {
+        position: relative;
+        display: grid;
+        width: 3rem;
+        height: 3rem;
+        place-items: center;
+        border: 0;
+        border-radius: 999px;
+        background: var(--ink);
+        cursor: pointer;
+      }
+
+      .hamburger span {
+        position: absolute;
+        width: 1.15rem;
+        height: 2px;
+        border-radius: 999px;
+        background: white;
+        transition: transform 500ms var(--motion), opacity 500ms var(--motion);
+      }
+
+      .hamburger span:first-child {
+        transform: translateY(-0.25rem);
+      }
+
+      .hamburger span:last-child {
+        transform: translateY(0.25rem);
+      }
+
+      .hamburger.is-active span:first-child {
+        transform: rotate(45deg);
+      }
+
+      .hamburger.is-active span:last-child {
+        transform: rotate(-45deg);
+      }
+
       .mobile-drawer {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 40;
+        width: min(22rem, calc(100vw - 1.25rem));
+        overflow-y: auto;
+        border-right: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 0 2rem 2rem 0;
+        background: rgba(241, 248, 252, 0.94);
+        padding: 1rem;
         transform: translateX(-110%);
-        transition: transform 500ms var(--motion);
+        transition: transform 520ms var(--motion);
+        box-shadow: 24px 0 60px rgba(82, 96, 114, 0.24);
       }
 
       .mobile-drawer.is-open {
         transform: translateX(0);
+      }
+
+      .drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 35;
+        border: 0;
+        background: rgba(105, 118, 134, 0.42);
+        backdrop-filter: blur(16px);
+      }
+
+      .drawer-close {
+        display: grid;
+        width: 3rem;
+        height: 3rem;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--ink);
+        color: white;
+      }
+
+      .resource-card {
+        width: min(100%, 62rem);
+      }
+
+      .resource-frame {
+        width: 100%;
+        min-height: min(70dvh, 42rem);
+        border: 0;
+        border-radius: 1.15rem;
+        background: white;
+      }
+
+      .error-text {
+        border: 1px solid rgba(201, 75, 95, 0.22);
+        border-radius: 1rem;
+        background: rgba(255, 224, 229, 0.72);
+        color: #9d2f44;
+        padding: 0.7rem 0.85rem;
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .skeleton {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.86);
+        padding: 0.9rem 1rem;
+        font-weight: 900;
+      }
+
+      .spinner-dot {
+        width: 0.8rem;
+        height: 0.8rem;
+        border-radius: 999px;
+        background: var(--ink);
+        animation: pulse 900ms var(--motion) infinite alternate;
+      }
+
+      @keyframes pulse {
+        to {
+          transform: scale(0.56);
+          opacity: 0.42;
+        }
+      }
+
+      .reveal {
+        animation: reveal 760ms var(--motion) both;
+      }
+
+      @keyframes reveal {
+        from {
+          transform: translateY(1.4rem);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 1180px) {
+        .dashboard-shell {
+          grid-template-columns: minmax(12rem, 14rem) minmax(0, 1fr);
+        }
+
+        .right-rail {
+          grid-column: 1 / -1;
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 860px) {
+        .mobile-topbar {
+          display: flex;
+        }
+
+        .page-shell {
+          padding: 0.6rem;
+        }
+
+        .dashboard-shell {
+          grid-template-columns: minmax(0, 1fr);
+          border-radius: 1.65rem;
+          padding: 0.65rem;
+        }
+
+        .left-rail {
+          display: none;
+        }
+
+        .top-dock {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .pill-nav {
+          width: 100%;
+        }
+
+        .hero-grid,
+        .subject-grid,
+        .right-rail {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .premium-card {
+          min-height: 12rem;
+        }
+
+        .premium-content {
+          width: min(13rem, 68%);
+        }
+
+        .book-stack {
+          right: 0.5rem;
+          width: 7rem;
+          transform: rotate(-4deg) scale(0.9);
+        }
+
+        .assignment-item {
+          grid-template-columns: 2.8rem minmax(0, 1fr);
+        }
+
+        .assignment-item .status-pill {
+          grid-column: 1 / -1;
+          justify-self: start;
+        }
+
+        .subject-card:nth-child(3n + 1) {
+          transform: none;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .stat-grid,
+        .resource-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .resource-button {
+          min-height: 3.4rem;
+          grid-template-columns: 2rem minmax(0, 1fr);
+          justify-items: start;
+          padding: 0 0.9rem;
+        }
+
+        .calendar-day {
+          min-height: 1.95rem;
+          border-radius: 0.62rem;
+          font-size: 0.78rem;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -105,133 +1170,262 @@
         *::after {
           scroll-behavior: auto !important;
           transition-duration: 1ms !important;
+          animation-duration: 1ms !important;
+          animation-iteration-count: 1 !important;
         }
       }
     </style>
   </head>
   <body>
-    <div id="authOverlay" class="fixed inset-0 z-50 hidden place-items-center bg-slate-950/90 p-4 backdrop-blur-xl">
-      <section class="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
-        <div class="mb-6">
-          <p class="text-xs font-bold uppercase tracking-[0.24em] text-sky-300">SemStack</p>
-          <h1 class="mt-2 text-3xl font-extrabold text-white">Sign in to your stack</h1>
-          <p class="mt-2 text-sm leading-6 text-slate-400">Your tasks and scratchpads sync through your private API account.</p>
-        </div>
+    <a class="skip-link" href="#mainContent">Skip to dashboard</a>
 
-        <div class="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-950 p-1">
-          <button id="loginTab" class="tap-target rounded-lg bg-sky-500 text-sm font-bold text-white" type="button">Login</button>
-          <button id="registerTab" class="tap-target rounded-lg text-sm font-bold text-slate-300" type="button">Register</button>
-        </div>
+    <div id="authOverlay" class="auth-overlay hidden">
+      <section class="auth-card" aria-labelledby="authTitle">
+        <div class="auth-card-inner">
+          <div class="logo-lockup mb-5">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>SemStack</span>
+          </div>
+          <p class="eyebrow">Private coursework desk</p>
+          <h1 id="authTitle" class="mt-2 text-4xl font-black leading-none tracking-[-0.05em]">Welcome back</h1>
+          <p class="mt-3 max-w-sm text-sm font-semibold leading-6 text-[#6b7480]">
+            Sign in to keep your IT tasks, modules, links, and scratchpads synced.
+          </p>
 
-        <form id="authForm" class="space-y-3">
-          <label class="block">
-            <span class="mb-1 block text-sm font-semibold text-slate-300">Email</span>
-            <input id="authEmail" class="tap-target w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-white outline-none focus:border-sky-400" type="email" autocomplete="email" required />
-          </label>
-          <label class="block">
-            <span class="mb-1 block text-sm font-semibold text-slate-300">Password</span>
-            <input id="authPassword" class="tap-target w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-white outline-none focus:border-sky-400" type="password" autocomplete="current-password" minlength="8" required />
-          </label>
-          <p id="authError" class="hidden rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200"></p>
-          <button id="authSubmit" class="tap-target w-full rounded-xl bg-sky-500 px-4 font-extrabold text-white transition hover:bg-sky-400" type="submit">
-            Login
-          </button>
-        </form>
+          <div class="auth-tabs mt-6">
+            <button id="loginTab" class="auth-tab tap-target is-active" type="button">Login</button>
+            <button id="registerTab" class="auth-tab tap-target" type="button">Register</button>
+          </div>
+
+          <form id="authForm" class="mt-5 grid gap-3">
+            <label>
+              <span class="field-label">Email</span>
+              <input id="authEmail" class="form-field tap-target" type="email" autocomplete="email" required />
+            </label>
+            <label>
+              <span class="field-label">Password</span>
+              <input id="authPassword" class="form-field tap-target" type="password" autocomplete="current-password" minlength="8" required />
+            </label>
+            <p id="authError" class="error-text hidden"></p>
+            <button id="authSubmit" class="soft-button tap-target w-full" type="submit">
+              Login
+              <span class="mini-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </button>
+          </form>
+        </div>
       </section>
     </div>
 
-    <div id="loadingOverlay" class="fixed inset-0 z-40 hidden place-items-center bg-slate-950/70 p-4 backdrop-blur-md">
-      <div class="rounded-2xl border border-slate-700 bg-slate-900 px-5 py-4 text-sm font-bold text-slate-200">
-        <i class="fa-solid fa-circle-notch mr-2 animate-spin text-sky-300"></i>
-        Loading SemStack...
+    <div id="loadingOverlay" class="loading-overlay hidden" aria-live="polite">
+      <div class="skeleton">
+        <span class="spinner-dot" aria-hidden="true"></span>
+        Loading SemStack
       </div>
     </div>
 
-    <header class="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/86 backdrop-blur-xl lg:hidden">
-      <div class="flex min-h-16 items-center justify-between px-4">
-        <div>
-          <p class="text-xs font-extrabold uppercase tracking-[0.24em] text-sky-300">SemStack</p>
-          <p class="text-sm font-semibold text-slate-400">IT coursework hub</p>
-        </div>
-        <button id="mobileMenuButton" class="tap-target rounded-xl border border-slate-700 bg-slate-900 text-slate-100" type="button" aria-label="Open filters">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
-    </header>
-
-    <aside class="fixed inset-y-0 left-0 z-20 hidden w-72 border-r border-slate-800 bg-slate-950/88 p-5 backdrop-blur-xl lg:block">
-      <div class="mb-8">
-        <p class="text-xs font-extrabold uppercase tracking-[0.24em] text-sky-300">SemStack</p>
-        <h2 class="mt-2 text-2xl font-extrabold text-white">Education Dashboard</h2>
-      </div>
-      <nav class="space-y-2" id="desktopFilters"></nav>
-      <button id="desktopLogout" class="tap-target mt-8 w-full rounded-xl border border-slate-700 px-4 text-left text-sm font-bold text-slate-300 hover:bg-slate-900" type="button">
-        <i class="fa-solid fa-right-from-bracket mr-2 text-rose-300"></i>
-        Logout
-      </button>
-    </aside>
-
-    <div id="mobileDrawer" class="mobile-drawer fixed inset-y-0 left-0 z-40 w-[min(19rem,calc(100vw-2rem))] border-r border-slate-800 bg-slate-950 p-5 shadow-2xl lg:hidden">
-      <div class="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <p class="text-xs font-extrabold uppercase tracking-[0.24em] text-sky-300">Filters</p>
-          <h2 class="mt-2 text-xl font-extrabold text-white">SemStack</h2>
-        </div>
-        <button id="mobileCloseButton" class="tap-target rounded-xl border border-slate-700 text-slate-100" type="button" aria-label="Close filters">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <nav class="space-y-2" id="mobileFilters"></nav>
-      <button id="mobileLogout" class="tap-target mt-8 w-full rounded-xl border border-slate-700 px-4 text-left text-sm font-bold text-slate-300" type="button">
-        <i class="fa-solid fa-right-from-bracket mr-2 text-rose-300"></i>
-        Logout
-      </button>
-    </div>
-    <button id="drawerBackdrop" class="fixed inset-0 z-30 hidden bg-slate-950/70 lg:hidden" type="button" aria-label="Close menu"></button>
-
-    <main class="min-h-screen px-4 py-5 sm:px-6 lg:ml-72 lg:px-8 lg:py-8">
-      <section class="mx-auto max-w-7xl">
-        <section class="glass-panel rounded-3xl p-5 sm:p-6">
-          <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-end">
+    <div id="resourceOverlay" class="resource-overlay hidden">
+      <section class="resource-card" aria-labelledby="resourceTitle">
+        <div class="resource-card-inner">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p id="currentDate" class="text-sm font-bold text-sky-300"></p>
-              <h1 class="mt-2 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">SemStack</h1>
-              <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-                Dark-mode control center for IT coursework, milestones, tasks, and scratchpad notes.
-              </p>
+              <p class="eyebrow">Embedded resource</p>
+              <h2 id="resourceTitle" class="mt-1 text-2xl font-black tracking-[-0.04em]">Resource</h2>
             </div>
-            <div class="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">
-              <div class="mb-3 flex items-center justify-between gap-4">
-                <div>
-                  <p class="text-xs font-extrabold uppercase tracking-[0.2em] text-slate-400">Global Progress</p>
-                  <p class="text-sm text-slate-400">Completed tasks across all subjects</p>
-                </div>
-                <strong id="progressText" class="text-3xl font-extrabold text-white">0%</strong>
-              </div>
-              <div class="h-3 overflow-hidden rounded-full bg-slate-800" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
-                <div id="progressFill" class="progress-fill h-full rounded-full bg-gradient-to-r from-sky-400 via-indigo-400 to-emerald-300"></div>
-              </div>
+            <div class="flex items-center gap-2">
+              <a id="resourceOpenExternal" class="soft-button tap-target" href="#" target="_blank" rel="noreferrer">Open</a>
+              <button id="resourceClose" class="drawer-close tap-target" type="button" aria-label="Close resource">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
             </div>
           </div>
+          <iframe id="resourceFrame" class="resource-frame" title="Embedded subject resource"></iframe>
+        </div>
+      </section>
+    </div>
+
+    <header class="mobile-topbar">
+      <div class="logo-lockup">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>SemStack</span>
+      </div>
+      <button id="mobileMenuButton" class="hamburger tap-target" type="button" aria-label="Open menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+      </button>
+    </header>
+
+    <aside id="mobileDrawer" class="mobile-drawer" aria-label="Mobile dashboard menu">
+      <div class="mb-5 flex items-center justify-between gap-3">
+        <div class="logo-lockup">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>SemStack</span>
+        </div>
+        <button id="mobileCloseButton" class="drawer-close tap-target" type="button" aria-label="Close menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <p class="eyebrow mb-3">Semester filters</p>
+      <nav class="filter-stack mb-5" id="mobileFilters"></nav>
+      <p class="eyebrow mb-3">Subjects</p>
+      <div class="subject-rail mb-5" id="mobileSubjectRail"></div>
+      <button id="mobileLogout" class="soft-button tap-target w-full" type="button">Logout</button>
+    </aside>
+    <button id="drawerBackdrop" class="drawer-backdrop hidden" type="button" aria-label="Close menu"></button>
+
+    <main id="mainContent" class="page-shell">
+      <section class="dashboard-shell reveal" aria-label="SemStack dashboard">
+        <aside class="left-rail">
+          <div class="logo-lockup">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>SemStack</span>
+          </div>
+
+          <section>
+            <p id="currentDate" class="mb-3 text-sm font-bold text-[#68717d]"></p>
+            <h1 class="welcome-title">Welcome back,<br /><span id="welcomeName">student</span></h1>
+          </section>
+
+          <section>
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <p class="eyebrow">Subjects</p>
+              <span class="text-sm font-black text-[#68717d]" id="subjectCount">0</span>
+            </div>
+            <div class="subject-rail" id="desktopSubjectRail"></div>
+          </section>
+
+          <nav class="filter-stack" id="desktopFilters" aria-label="Semester filters"></nav>
+          <button id="desktopLogout" class="soft-button tap-target w-full" type="button">Logout</button>
+        </aside>
+
+        <section class="workspace">
+          <div class="top-dock">
+            <nav class="pill-nav" aria-label="Dashboard shortcuts">
+              <button class="icon-button tap-target is-active" type="button" title="Overview" aria-label="Overview" data-tab="overview"></button>
+              <button class="icon-button tap-target" type="button" title="Courses" aria-label="Courses" data-tab="courses"></button>
+              <button class="icon-button tap-target" type="button" title="Notes" aria-label="Notes" data-tab="notes"></button>
+              <button class="icon-button tap-target" type="button" title="Messages" aria-label="Messages" data-tab="messages"></button>
+              <button class="icon-button tap-target" type="button" title="Calendar" aria-label="Calendar" data-tab="calendar"></button>
+              <button class="icon-button tap-target" type="button" title="Team" aria-label="Team" data-tab="team"></button>
+              <button class="icon-button tap-target" type="button" title="Settings" aria-label="Settings" data-tab="settings"></button>
+            </nav>
+            <div class="flex items-center gap-2">
+              <button class="icon-button tap-target" type="button" title="Notifications" aria-label="Notifications" id="notifyButton"></button>
+              <div class="avatar-button" aria-label="Profile avatar">👨🏻‍💻</div>
+            </div>
+          </div>
+
+          <section class="hero-grid">
+            <article class="premium-card">
+              <div class="premium-content">
+                <div class="logo-lockup text-white">
+                  <span class="brand-mark border-white" aria-hidden="true"></span>
+                  <span>SemStack</span>
+                </div>
+                <p class="mt-5 text-2xl font-black leading-none tracking-[-0.05em]">Heavy IT semester, lighter control.</p>
+                <p class="mt-3 text-sm font-semibold leading-5 text-white/70">Track defenses, lab submissions, notes, links, and tasks in one calm desk.</p>
+                <button class="soft-button tap-target mt-4 bg-[#ff8b4a] text-white" type="button" id="jumpToSubjects">
+                  Manage work
+                  <span class="mini-icon bg-white text-[#ff8b4a]" aria-hidden="true"></span>
+                </button>
+              </div>
+              <div class="book-stack" aria-hidden="true">
+                <span class="book one"></span>
+                <span class="book two"></span>
+                <span class="book three"></span>
+              </div>
+            </article>
+
+            <article class="activity-card">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h2 class="text-lg font-black tracking-[-0.03em]">Hours activity</h2>
+                  <p class="text-sm font-semibold text-[#68717d]">Study rhythm this week</p>
+                </div>
+                <span class="round-icon" id="activityIcon" aria-hidden="true"></span>
+              </div>
+              <div class="activity-bars" id="activityBars"></div>
+            </article>
+          </section>
+
+          <section class="assignment-panel">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <h2 class="text-lg font-black tracking-[-0.03em]">Assignments</h2>
+              <button class="text-sm font-black text-[#68717d]" type="button" id="showAllButton">View all</button>
+            </div>
+            <div class="assignment-list" id="milestones"></div>
+          </section>
+
+          <section id="subjectGrid" class="subject-grid" aria-label="Subject cards"></section>
         </section>
 
-        <section class="mt-5 grid gap-3 md:grid-cols-3" id="milestones"></section>
-        <section id="subjectGrid" class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"></section>
+        <aside class="right-rail">
+          <div class="stat-grid">
+            <article class="stat-card">
+              <strong id="completedCount">0</strong>
+              <p class="mt-2 text-sm font-semibold leading-5 text-[#68717d]">Tasks completed</p>
+            </article>
+            <article class="stat-card">
+              <strong id="activeCount">0</strong>
+              <p class="mt-2 text-sm font-semibold leading-5 text-[#68717d]">Tasks in progress</p>
+            </article>
+          </div>
+
+          <article class="progress-stack">
+            <div class="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-lg font-black tracking-[-0.03em]">Progress</h2>
+                <p class="text-sm font-semibold text-[#68717d]">Global task completion</p>
+              </div>
+              <strong id="progressText" class="text-3xl font-black tracking-[-0.06em]">0%</strong>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <div class="mt-5 grid gap-4" id="subjectProgressList"></div>
+          </article>
+
+          <article class="calendar-panel">
+            <div class="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-semibold text-[#68717d]">Task schedule</p>
+                <h2 class="text-lg font-black tracking-[-0.03em]" id="calendarTitle">Calendar</h2>
+              </div>
+              <span class="arrow-circle bg-[#111315] text-white" id="calendarArrow" aria-hidden="true"></span>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </article>
+        </aside>
       </section>
     </main>
 
     <script>
       const filters = [
-        { id: "all", label: "All Semesters", icon: "fa-layer-group" },
-        { id: "3rd Year", label: "3rd Year", icon: "fa-code" },
-        { id: "4th Year", label: "4th Year", icon: "fa-user-graduate" },
+        { id: "all", label: "All Semesters", icon: "grid" },
+        { id: "3rd Year", label: "3rd Year", icon: "cap" },
+        { id: "4th Year", label: "4th Year", icon: "calendar" },
       ];
 
       const milestones = [
-        { subjectId: "IT314", title: "System Prototype Defense", tag: "Major" },
-        { subjectId: "IT313", title: "App Deployment / APK Submission", tag: "Lab" },
-        { subjectId: "IT311", title: "Penetration Testing Exam", tag: "Exam" },
+        { subjectId: "IT314", title: "System Prototype Defense", tag: "Major", date: "2 July, 10:30 AM" },
+        { subjectId: "IT313", title: "App Deployment / APK Submission", tag: "Lab", date: "14 June, 12:45 AM" },
+        { subjectId: "IT311", title: "Penetration Testing Exam", tag: "Exam", date: "12 May, 11:00 AM" },
       ];
+
+      const subjectDesign = {
+        IT311: { soft: "#f4adb7", strong: "#d84e65", rating: "4.9", type: "Vault & risk", icon: "shield" },
+        IT313: { soft: "#93d9cd", strong: "#1f9f84", rating: "4.8", type: "Mobile build", icon: "phone" },
+        IT314: { soft: "#bad7f2", strong: "#4f71d8", rating: "5.0", type: "Systems lab", icon: "code" },
+        IT315: { soft: "#bbb3ca", strong: "#7c68a6", rating: "4.7", type: "Elective track", icon: "layers" },
+        IT413: { soft: "#f2c477", strong: "#d98a24", rating: "4.6", type: "Ethics & practice", icon: "users" },
+      };
+
+      const statusDesign = {
+        Major: { bg: "#dcecff", ink: "#4163ac" },
+        Lab: { bg: "#dff7e8", ink: "#2d8c54" },
+        Exam: { bg: "#fff4b8", ink: "#9c7a00" },
+      };
 
       const state = {
         authMode: "login",
@@ -254,13 +1448,51 @@
       const registerTab = document.querySelector("#registerTab");
       const desktopFilters = document.querySelector("#desktopFilters");
       const mobileFilters = document.querySelector("#mobileFilters");
+      const desktopSubjectRail = document.querySelector("#desktopSubjectRail");
+      const mobileSubjectRail = document.querySelector("#mobileSubjectRail");
       const subjectGrid = document.querySelector("#subjectGrid");
       const milestonesEl = document.querySelector("#milestones");
       const progressText = document.querySelector("#progressText");
       const progressFill = document.querySelector("#progressFill");
       const progressBar = document.querySelector("#progressBar");
+      const completedCount = document.querySelector("#completedCount");
+      const activeCount = document.querySelector("#activeCount");
+      const subjectProgressList = document.querySelector("#subjectProgressList");
+      const subjectCount = document.querySelector("#subjectCount");
       const mobileDrawer = document.querySelector("#mobileDrawer");
       const drawerBackdrop = document.querySelector("#drawerBackdrop");
+      const mobileMenuButton = document.querySelector("#mobileMenuButton");
+      const resourceOverlay = document.querySelector("#resourceOverlay");
+      const resourceTitle = document.querySelector("#resourceTitle");
+      const resourceFrame = document.querySelector("#resourceFrame");
+      const resourceOpenExternal = document.querySelector("#resourceOpenExternal");
+
+      function icon(name, size = 20) {
+        const attrs = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" aria-hidden="true"`;
+        const common = `stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"`;
+        const icons = {
+          grid: `<svg ${attrs}><path ${common} d="M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM14 14h5v5h-5z"/></svg>`,
+          cap: `<svg ${attrs}><path ${common} d="m3 9 9-4 9 4-9 4-9-4Z"/><path ${common} d="M7 11v4.5c2.8 2 7.2 2 10 0V11"/></svg>`,
+          calendar: `<svg ${attrs}><path ${common} d="M7 3v3M17 3v3M4.5 8h15M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></svg>`,
+          note: `<svg ${attrs}><path ${common} d="M7 4h7l4 4v12H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path ${common} d="M14 4v5h5M8 13h8M8 16h5"/></svg>`,
+          chat: `<svg ${attrs}><path ${common} d="M5 6.5A4.5 4.5 0 0 1 9.5 2h5A4.5 4.5 0 0 1 19 6.5v3A4.5 4.5 0 0 1 14.5 14H12l-4.5 3v-3A4.5 4.5 0 0 1 5 9.5v-3Z"/></svg>`,
+          users: `<svg ${attrs}><path ${common} d="M16 19c0-2.2-1.8-4-4-4s-4 1.8-4 4"/><path ${common} d="M12 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM20 18c0-1.7-1.1-3.2-2.7-3.8M17 5.3a2.8 2.8 0 0 1 0 5.4M4 18c0-1.7 1.1-3.2 2.7-3.8M7 5.3a2.8 2.8 0 0 0 0 5.4"/></svg>`,
+          settings: `<svg ${attrs}><path ${common} d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path ${common} d="M19.4 15a8 8 0 0 0 .1-1l2-1.5-2-3.5-2.4 1a7.4 7.4 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5a8 8 0 0 0 .1 2l-2 1.5 2 3.5 2.4-1c.5.4 1.1.7 1.7 1l.3 2.5h4l.3-2.5c.6-.3 1.2-.6 1.7-1l2.4 1 2-3.5-2.2-1.5Z"/></svg>`,
+          shield: `<svg ${attrs}><path ${common} d="M12 3 5.5 5.7v5.8c0 4.2 2.8 7.8 6.5 9 3.7-1.2 6.5-4.8 6.5-9V5.7L12 3Z"/><path ${common} d="m9.5 12 1.7 1.7 3.6-4"/></svg>`,
+          phone: `<svg ${attrs}><path ${common} d="M8 3.5h8a1.5 1.5 0 0 1 1.5 1.5v14a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 19V5A1.5 1.5 0 0 1 8 3.5Z"/><path ${common} d="M10.5 6h3M11 18h2"/></svg>`,
+          code: `<svg ${attrs}><path ${common} d="m8 9-3 3 3 3M16 9l3 3-3 3M13 7l-2 10"/></svg>`,
+          layers: `<svg ${attrs}><path ${common} d="m12 3 9 5-9 5-9-5 9-5Z"/><path ${common} d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>`,
+          file: `<svg ${attrs}><path ${common} d="M7 4h7l4 4v12H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path ${common} d="M14 4v5h5"/></svg>`,
+          drive: `<svg ${attrs}><path ${common} d="m9 4-6 10 3 5h12l3-5-6-10H9Z"/><path ${common} d="m9 4 6 10M15 4 9 14M3 14h18"/></svg>`,
+          repo: `<svg ${attrs}><path ${common} d="M7 4h8a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V6a2 2 0 0 1 2-2Z"/><path ${common} d="M8 17h10M9 8h5"/></svg>`,
+          arrow: `<svg ${attrs}><path ${common} d="M7 17 17 7M9 7h8v8"/></svg>`,
+          plus: `<svg ${attrs}><path ${common} d="M12 5v14M5 12h14"/></svg>`,
+          trash: `<svg ${attrs}><path ${common} d="M5 7h14M10 11v6M14 11v6M8 7l1-3h6l1 3M7 7l1 13h8l1-13"/></svg>`,
+          tune: `<svg ${attrs}><path ${common} d="M4 7h10M18 7h2M14 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0ZM4 17h2M10 17h10M6 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/></svg>`,
+          bell: `<svg ${attrs}><path ${common} d="M18 10a6 6 0 0 0-12 0c0 7-2 7-2 8h16c0-1-2-1-2-8Z"/><path ${common} d="M10 21h4"/></svg>`,
+        };
+        return icons[name] || icons.grid;
+      }
 
       function escapeHtml(value) {
         return String(value)
@@ -271,6 +1503,10 @@
           .replaceAll("'", "&#039;");
       }
 
+      function subjectMeta(subjectId) {
+        return subjectDesign[subjectId] || { soft: "#d7e6ef", strong: "#6c7a89", rating: "4.7", type: "Coursework", icon: "note" };
+      }
+
       function setLoading(isLoading) {
         loadingOverlay.classList.toggle("hidden", !isLoading);
         loadingOverlay.classList.toggle("grid", isLoading);
@@ -279,13 +1515,9 @@
       function setAuthMode(mode) {
         state.authMode = mode;
         authError.classList.add("hidden");
-        authSubmit.textContent = mode === "login" ? "Login" : "Create Account";
-        loginTab.className = mode === "login"
-          ? "tap-target rounded-lg bg-sky-500 text-sm font-bold text-white"
-          : "tap-target rounded-lg text-sm font-bold text-slate-300";
-        registerTab.className = mode === "register"
-          ? "tap-target rounded-lg bg-sky-500 text-sm font-bold text-white"
-          : "tap-target rounded-lg text-sm font-bold text-slate-300";
+        authSubmit.firstChild.textContent = mode === "login" ? "Login " : "Create account ";
+        loginTab.classList.toggle("is-active", mode === "login");
+        registerTab.classList.toggle("is-active", mode === "register");
       }
 
       function showAuth(message = "") {
@@ -387,16 +1619,22 @@
         return state.tasks.filter((task) => task.subjectId === subjectId);
       }
 
+      function subjectCompletion(subjectId) {
+        const tasks = subjectTasks(subjectId);
+        if (!tasks.length) return 0;
+        return Math.round((tasks.filter((task) => task.completed).length / tasks.length) * 100);
+      }
+
       function renderFilters(target) {
         target.innerHTML = filters
           .map((filter) => `
             <button
               type="button"
-              class="filter-button tap-target flex w-full items-center gap-3 rounded-xl border border-slate-800 px-4 text-left text-sm font-bold text-slate-300 transition hover:bg-slate-900"
+              class="filter-button tap-target"
               data-filter="${filter.id}"
               aria-pressed="${filter.id === state.filter}"
             >
-              <i class="fa-solid ${filter.icon} w-5 text-sky-300"></i>
+              <span class="mini-icon">${icon(filter.icon, 18)}</span>
               <span>${filter.label}</span>
             </button>
           `)
@@ -411,18 +1649,44 @@
         });
       }
 
+      function renderSubjectRail(target) {
+        const list = state.subjects.slice(0, target === mobileSubjectRail ? state.subjects.length : 3);
+        target.innerHTML = list
+          .map((subject) => {
+            const meta = subjectMeta(subject.id);
+            const tasks = subjectTasks(subject.id);
+            return `
+              <article class="rail-course" style="--soft: ${meta.soft}">
+                <div class="course-orbit">
+                  <span class="round-icon">${icon(meta.icon, 18)}</span>
+                  <span class="arrow-circle">${icon("arrow", 18)}</span>
+                </div>
+                <h3 class="mt-4 text-base font-black">${subject.name}</h3>
+                <p class="mt-1 text-xs font-bold text-[#3f4851]">${tasks.length} tasks</p>
+                <div class="mt-3 flex items-end justify-between gap-2">
+                  <p class="text-sm font-bold">Type : ${meta.type}</p>
+                  <span class="text-sm font-black">${meta.rating} ★</span>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
       function renderMilestones() {
         milestonesEl.innerHTML = milestones
           .map((milestone) => {
             const subject = state.subjects.find((item) => item.id === milestone.subjectId);
+            const meta = subjectMeta(milestone.subjectId);
+            const status = statusDesign[milestone.tag] || statusDesign.Major;
             return `
-              <article class="glass-panel rounded-2xl p-4 subject-card" style="--accent: ${subject?.accent || "#38bdf8"}">
-                <div class="mb-3 flex items-center justify-between gap-3">
-                  <span class="rounded-full px-3 py-1 text-xs font-extrabold" style="background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent);">${milestone.tag}</span>
-                  <i class="fa-solid fa-flag-checkered text-slate-500"></i>
+              <article class="assignment-item">
+                <span class="round-icon" style="background: ${meta.soft}; color: ${meta.strong}">${icon(meta.icon, 20)}</span>
+                <div class="min-w-0">
+                  <h3 class="truncate text-sm font-black">${milestone.title}</h3>
+                  <p class="mt-1 truncate text-xs font-semibold text-[#68717d]">${subject?.code || milestone.subjectId} · ${milestone.date}</p>
                 </div>
-                <p class="text-xs font-extrabold uppercase tracking-[0.18em]" style="color: var(--accent);">${milestone.subjectId}</p>
-                <h3 class="mt-2 text-base font-extrabold text-white">${milestone.title}</h3>
+                <span class="status-pill" style="--status-bg: ${status.bg}; --status-ink: ${status.ink}">${milestone.tag}</span>
               </article>
             `;
           })
@@ -430,89 +1694,99 @@
       }
 
       function renderSubjects() {
-        subjectGrid.innerHTML = visibleSubjects()
-          .map((subject) => {
-            const tasks = subjectTasks(subject.id);
-            const completed = tasks.filter((task) => task.completed).length;
-            const note = state.notes[subject.id] || "";
+        const subjects = visibleSubjects();
+        subjectGrid.innerHTML = subjects.length
+          ? subjects
+              .map((subject) => {
+                const meta = subjectMeta(subject.id);
+                const tasks = subjectTasks(subject.id);
+                const completed = tasks.filter((task) => task.completed).length;
+                const note = state.notes[subject.id] || "";
+                const completion = subjectCompletion(subject.id);
 
-            return `
-              <article class="subject-card subject-glow glass-panel overflow-hidden rounded-2xl p-4" style="--accent: ${subject.accent}" data-subject-card="${subject.id}">
-                <header class="mb-4 flex items-start justify-between gap-4">
-                  <div class="min-w-0">
-                    <p class="text-xs font-extrabold uppercase tracking-[0.18em]" style="color: var(--accent)">${subject.code}</p>
-                    <h2 class="mt-2 break-words text-lg font-extrabold leading-snug text-white">${subject.name}</h2>
-                    <p class="mt-2 text-sm text-slate-400">${subject.semester}</p>
-                  </div>
-                  <div class="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-sm font-extrabold" style="background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent);">
-                    ${subject.code.slice(2)}
-                  </div>
-                </header>
+                return `
+                  <article
+                    class="subject-card reveal"
+                    style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}"
+                    data-subject-card="${subject.id}"
+                  >
+                    <header class="subject-head">
+                      <div class="min-w-0">
+                        <p class="text-xs font-black text-[#68717d]">${subject.semester}</p>
+                        <h3 class="mt-1 break-words text-xl font-black leading-tight">${subject.code}: ${subject.name}</h3>
+                      </div>
+                      <span class="round-icon" style="color: ${meta.strong}">${icon(meta.icon, 20)}</span>
+                    </header>
 
-                <section class="mb-5">
-                  <h3 class="mb-3 text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Resource Hub</h3>
-                  <div class="grid grid-cols-3 gap-2">
-                    ${resourceButton(subject, "syllabus", "fa-regular fa-file-lines", "Syllabus")}
-                    ${resourceButton(subject, "drive", "fa-brands fa-google-drive", "Drive")}
-                    ${resourceButton(subject, "github", "fa-brands fa-github", "Repos")}
-                  </div>
-                </section>
+                    <div class="mt-4 grid gap-2">
+                      <div class="flex items-center justify-between gap-3">
+                        <p class="text-sm font-black">Resource hub</p>
+                        <p class="text-xs font-bold text-[#68717d]">${completed}/${tasks.length} done</p>
+                      </div>
+                      <div class="resource-grid">
+                        ${resourceButton(subject, "syllabus", "file", "Syllabus")}
+                        ${resourceButton(subject, "drive", "drive", "Drive")}
+                        ${resourceButton(subject, "github", "repo", "Repos")}
+                      </div>
+                    </div>
 
-                <section class="mb-5">
-                  <div class="mb-3 flex items-center justify-between gap-3">
-                    <h3 class="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Tasks</h3>
-                    <span class="text-xs font-bold text-slate-500">${completed}/${tasks.length} done</span>
-                  </div>
-                  <form class="task-form mb-3 flex gap-2" data-subject="${subject.id}">
-                    <input class="tap-target min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-950/80 px-3 text-sm text-white outline-none focus:border-sky-400" name="task" placeholder="Add task..." autocomplete="off" />
-                    <button class="tap-target rounded-xl px-4 font-extrabold text-white" style="background: var(--accent)" type="submit" aria-label="Add task">
-                      <i class="fa-solid fa-plus"></i>
-                    </button>
-                  </form>
-                  <ul class="space-y-2">${tasks.length ? tasks.map(taskRow).join("") : `<li class="rounded-xl border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-500">No tasks yet.</li>`}</ul>
-                </section>
+                    <section class="mt-5">
+                      <div class="mb-2 flex items-center justify-between gap-3">
+                        <p class="text-sm font-black">Tasks</p>
+                        <div class="mini-progress w-24"><span style="width: ${completion}%; background: ${meta.strong}"></span></div>
+                      </div>
+                      <form class="task-form mb-3" data-subject="${subject.id}">
+                        <input class="task-input tap-target" name="task" placeholder="Add task..." autocomplete="off" />
+                        <button class="add-task tap-target" type="submit" aria-label="Add task">${icon("plus", 18)}</button>
+                      </form>
+                      <ul class="task-list">${tasks.length ? tasks.map(taskRow).join("") : `<li class="rounded-[1rem] bg-white/55 px-3 py-3 text-sm font-bold text-[#68717d]">No tasks in this lane yet.</li>`}</ul>
+                    </section>
 
-                <section>
-                  <h3 class="mb-3 text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">Auto-saving Scratchpad</h3>
-                  <textarea
-                    class="notes-field min-h-36 w-full resize-y rounded-xl border border-slate-700 bg-slate-950/80 p-3 font-mono text-sm leading-6 text-slate-100 outline-none focus:border-sky-400"
-                    data-subject="${subject.id}"
-                    placeholder="Paste terminal commands, API URLs, configs, exam dates..."
-                  >${escapeHtml(note)}</textarea>
-                  <p class="save-state mt-2 text-xs text-slate-500" data-save-state="${subject.id}">Saved automatically</p>
-                </section>
-              </article>
-            `;
-          })
-          .join("");
+                    <section class="mt-5">
+                      <div class="mb-2 flex items-center justify-between gap-3">
+                        <p class="text-sm font-black">Scratchpad</p>
+                        <p class="save-state" data-save-state="${subject.id}">Saved automatically</p>
+                      </div>
+                      <textarea
+                        class="notes-field notes-field-${subject.id}"
+                        data-subject="${subject.id}"
+                        placeholder="Paste commands, module links, exam dates, or project notes..."
+                      >${escapeHtml(note)}</textarea>
+                    </section>
+                  </article>
+                `;
+              })
+              .join("")
+          : `<article class="subject-card"><h3 class="text-xl font-black">No subjects here</h3><p class="mt-2 text-sm font-semibold text-[#68717d]">Try another semester filter.</p></article>`;
 
         bindSubjectEvents();
       }
 
-      function resourceButton(subject, type, icon, label) {
+      function resourceButton(subject, type, iconName, label) {
         const href = subject.links[type] || "#";
         const disabled = href === "#";
         return `
-          <a
-            class="tap-target grid place-items-center rounded-xl border border-slate-700 bg-slate-950/70 text-center text-sm font-bold text-slate-200 transition hover:border-sky-400 hover:text-white ${disabled ? "pointer-events-none opacity-50" : ""}"
-            href="${escapeHtml(href)}"
-            target="_blank"
-            rel="noreferrer"
-            title="${label}"
+          <button
+            class="resource-button tap-target"
+            type="button"
+            data-resource-url="${escapeHtml(href)}"
+            data-resource-title="${escapeHtml(`${subject.code} ${label}`)}"
+            ${disabled ? "disabled" : ""}
+            title="${disabled ? "Paste your URL in server.js to enable this" : label}"
           >
-            <i class="${icon} text-lg"></i>
-            <span class="mt-1 text-[11px]">${label}</span>
-          </a>
+            ${icon(iconName, 19)}
+            <span>${label}</span>
+          </button>
         `;
       }
 
       function taskRow(task) {
         return `
-          <li class="task-row ${task.completed ? "is-complete" : ""} grid min-h-12 grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-2 rounded-xl bg-slate-950/70" data-task-id="${task.id}">
-            <input class="task-toggle h-5 w-5 justify-self-center accent-sky-400" type="checkbox" ${task.completed ? "checked" : ""} aria-label="Toggle ${escapeHtml(task.text)}" />
-            <span class="task-label min-w-0 break-words py-3 text-sm text-slate-200">${escapeHtml(task.text)}</span>
-            <button class="delete-task tap-target rounded-xl text-slate-500 hover:text-rose-300" type="button" aria-label="Delete task">
-              <i class="fa-solid fa-trash-can"></i>
+          <li class="task-row ${task.completed ? "is-complete" : ""}" data-task-id="${task.id}">
+            <input class="task-toggle" type="checkbox" ${task.completed ? "checked" : ""} aria-label="Toggle ${escapeHtml(task.text)}" />
+            <span class="task-label">${escapeHtml(task.text)}</span>
+            <button class="delete-task tap-target" type="button" aria-label="Delete task">
+              ${icon("trash", 17)}
             </button>
           </li>
         `;
@@ -567,6 +1841,10 @@
             saveNoteNow(subjectId, field.value, label);
           });
         });
+
+        document.querySelectorAll(".resource-button:not([disabled])").forEach((button) => {
+          button.addEventListener("click", () => openResource(button.dataset.resourceUrl, button.dataset.resourceTitle));
+        });
       }
 
       const noteTimers = new Map();
@@ -591,42 +1869,159 @@
       function updateProgress() {
         const total = state.tasks.length;
         const completed = state.tasks.filter((task) => task.completed).length;
+        const active = Math.max(total - completed, 0);
         const percent = total ? Math.round((completed / total) * 100) : 0;
         progressText.textContent = `${percent}%`;
-        progressFill.style.width = `${percent}%`;
+        progressFill.style.transform = `scaleX(${percent / 100})`;
         progressBar.setAttribute("aria-valuenow", String(percent));
+        completedCount.textContent = String(completed).padStart(2, "0");
+        activeCount.textContent = String(active).padStart(2, "0");
+      }
+
+      function renderSubjectProgress() {
+        subjectProgressList.innerHTML = state.subjects
+          .slice(0, 3)
+          .map((subject) => {
+            const meta = subjectMeta(subject.id);
+            const percent = subjectCompletion(subject.id);
+            return `
+              <div>
+                <div class="mb-2 flex items-center justify-between gap-3">
+                  <div class="flex min-w-0 items-center gap-2">
+                    <span class="round-icon h-10 w-10" style="background: ${meta.soft}; color: ${meta.strong}">${icon(meta.icon, 17)}</span>
+                    <span class="truncate text-sm font-black">${subject.code}</span>
+                  </div>
+                  <span class="text-sm font-black text-[#68717d]">${percent}%</span>
+                </div>
+                <div class="mini-progress"><span style="width: ${percent}%; background: ${meta.strong}"></span></div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function renderActivity() {
+        const values = [52, 68, 26, 86, 48, 20, 62];
+        const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        document.querySelector("#activityBars").innerHTML = values
+          .map((value, index) => `
+            <div class="grid gap-2 text-center">
+              <div class="bar-wrap"><span class="bar ${index === 3 ? "is-soft" : ""}" style="height: ${value}%"></span></div>
+              <span class="text-[0.68rem] font-bold text-[#68717d]">${labels[index]}</span>
+            </div>
+          `)
+          .join("");
+      }
+
+      function renderCalendar() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const today = now.getDate();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const prevMonthDays = new Date(year, month, 0).getDate();
+        const cells = [];
+
+        document.querySelector("#calendarTitle").textContent = new Intl.DateTimeFormat("en", {
+          month: "long",
+          year: "numeric",
+        }).format(now);
+
+        for (let i = firstDay - 1; i >= 0; i--) {
+          cells.push({ day: prevMonthDays - i, muted: true });
+        }
+        for (let day = 1; day <= daysInMonth; day++) {
+          cells.push({ day, today: day === today });
+        }
+        while (cells.length < 42) {
+          cells.push({ day: cells.length - daysInMonth - firstDay + 1, muted: true });
+        }
+
+        document.querySelector("#calendarGrid").innerHTML = cells
+          .slice(0, 42)
+          .map((cell) => `<span class="calendar-day ${cell.muted ? "is-muted" : ""} ${cell.today ? "is-today" : ""}">${cell.day}</span>`)
+          .join("");
+      }
+
+      function openResource(url, title) {
+        resourceTitle.textContent = title;
+        resourceFrame.src = url;
+        resourceOpenExternal.href = url;
+        resourceOverlay.classList.remove("hidden");
+        resourceOverlay.classList.add("grid");
+      }
+
+      function closeResource() {
+        resourceFrame.src = "about:blank";
+        resourceOverlay.classList.add("hidden");
+        resourceOverlay.classList.remove("grid");
       }
 
       function render() {
+        const rawName = state.user?.email ? state.user.email.split("@")[0].split("+")[0] : "";
+        const displayName = rawName && rawName.length <= 12 && !rawName.includes("-") ? rawName : "King";
+        document.querySelector("#welcomeName").textContent = displayName;
+        subjectCount.textContent = `${state.subjects.length}`;
         renderFilters(desktopFilters);
         renderFilters(mobileFilters);
+        renderSubjectRail(desktopSubjectRail);
+        renderSubjectRail(mobileSubjectRail);
         renderMilestones();
         renderSubjects();
+        renderSubjectProgress();
+        renderActivity();
+        renderCalendar();
         updateProgress();
       }
 
       function openDrawer() {
         mobileDrawer.classList.add("is-open");
         drawerBackdrop.classList.remove("hidden");
+        mobileMenuButton.classList.add("is-active");
+        mobileMenuButton.setAttribute("aria-expanded", "true");
       }
 
       function closeDrawer() {
         mobileDrawer.classList.remove("is-open");
         drawerBackdrop.classList.add("hidden");
+        mobileMenuButton.classList.remove("is-active");
+        mobileMenuButton.setAttribute("aria-expanded", "false");
       }
 
       document.querySelector("#currentDate").textContent = new Intl.DateTimeFormat("en", {
         weekday: "long",
         month: "long",
         day: "numeric",
-        year: "numeric",
       }).format(new Date());
+
+      document.querySelector("#activityIcon").innerHTML = icon("tune", 19);
+      document.querySelector("#calendarArrow").innerHTML = icon("arrow", 18);
+      document.querySelector("#notifyButton").innerHTML = icon("bell", 19);
+      document.querySelector("#jumpToSubjects .mini-icon").innerHTML = icon("arrow", 16);
+      document.querySelectorAll("[data-tab]").forEach((button) => {
+        button.innerHTML = icon({
+          overview: "grid",
+          courses: "cap",
+          notes: "note",
+          messages: "chat",
+          calendar: "calendar",
+          team: "users",
+          settings: "settings",
+        }[button.dataset.tab], 19);
+      });
 
       document.querySelector("#mobileMenuButton").addEventListener("click", openDrawer);
       document.querySelector("#mobileCloseButton").addEventListener("click", closeDrawer);
       drawerBackdrop.addEventListener("click", closeDrawer);
       document.querySelector("#desktopLogout").addEventListener("click", () => logout());
       document.querySelector("#mobileLogout").addEventListener("click", () => logout());
+      document.querySelector("#resourceClose").addEventListener("click", closeResource);
+      resourceOverlay.addEventListener("click", (event) => {
+        if (event.target === resourceOverlay) closeResource();
+      });
+      document.querySelector("#jumpToSubjects").addEventListener("click", () => subjectGrid.scrollIntoView({ behavior: "smooth", block: "start" }));
+      document.querySelector("#showAllButton").addEventListener("click", () => subjectGrid.scrollIntoView({ behavior: "smooth", block: "start" }));
       loginTab.addEventListener("click", () => setAuthMode("login"));
       registerTab.addEventListener("click", () => setAuthMode("register"));
       authForm.addEventListener("submit", authenticate);
@@ -634,6 +2029,8 @@
       if (state.token) {
         loadDashboard();
       } else {
+        renderActivity();
+        renderCalendar();
         showAuth();
       }
     </script>
