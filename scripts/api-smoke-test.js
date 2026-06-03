@@ -4,6 +4,8 @@ const baseUrl = process.env.SMOKE_BASE_URL || "http://127.0.0.1:3000";
 const unique = Date.now().toString(36);
 const email = `smoke-${unique}@example.com`;
 const password = "Passw0rd!";
+const adminEmail = process.env.SMOKE_ADMIN_EMAIL || process.env.ADMIN_EMAIL || "admin@semstack.test";
+const adminPassword = process.env.SMOKE_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || "AdminPassw0rd!";
 
 async function request(path, options = {}) {
   const response = await fetch(`${baseUrl}${path}`, {
@@ -37,6 +39,7 @@ async function request(path, options = {}) {
 
   const headers = { Authorization: `Bearer ${registered.token}` };
   const dashboard = await request("/api/dashboard", { headers });
+  assert.equal(dashboard.user.role, "user");
   assert.equal(dashboard.subjects.length, 0);
   assert.ok(Array.isArray(dashboard.folders));
   assert.ok(Array.isArray(dashboard.events));
@@ -202,6 +205,31 @@ async function request(path, options = {}) {
   await request(`/api/events/${event.event.id}`, { method: "DELETE", headers });
   await request(`/api/folder-items/${item.item.id}`, { method: "DELETE", headers });
   await request(`/api/folders/${folder.folder.id}`, { method: "DELETE", headers });
+
+  const blockedAdmin = await fetch(`${baseUrl}/api/admin/overview`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+  });
+  assert.equal(blockedAdmin.status, 403);
+
+  const adminLogin = await request("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email: adminEmail, password: adminPassword }),
+  });
+  assert.equal(adminLogin.user.role, "admin");
+  const adminHeaders = { Authorization: `Bearer ${adminLogin.token}` };
+  const adminOverview = await request("/api/admin/overview", { headers: adminHeaders });
+  assert.ok(adminOverview.metrics.totalUsers >= 2);
+  assert.ok(adminOverview.metrics.totalSubjects >= 1);
+  assert.ok(adminOverview.metrics.totalTasks >= 1);
+  assert.ok(Array.isArray(adminOverview.recentRegistrations));
+
+  const adminUsers = await request("/api/admin/users", { headers: adminHeaders });
+  assert.ok(adminUsers.users.some((user) => user.email === email));
+  assert.ok(adminUsers.users.some((user) => user.email === adminEmail));
+  assert.ok(adminUsers.users.every((user) => user.password_hash === undefined));
 
   console.log(JSON.stringify({ ok: true, email, initialSubjects: dashboard.subjects.length }));
 })().catch((error) => {

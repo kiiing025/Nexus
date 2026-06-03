@@ -1900,6 +1900,7 @@
               <button class="icon-button tap-target" type="button" title="Messages" aria-label="Messages" data-tab="messages"></button>
               <button class="icon-button tap-target" type="button" title="Calendar" aria-label="Calendar" data-tab="calendar"></button>
               <button class="icon-button tap-target" type="button" title="Team" aria-label="Team" data-tab="team"></button>
+              <button class="icon-button tap-target hidden" type="button" title="Admin" aria-label="Admin" data-tab="admin" data-admin-only></button>
               <button class="icon-button tap-target" type="button" title="Settings" aria-label="Settings" data-tab="settings"></button>
             </nav>
             <div class="flex items-center gap-2">
@@ -2012,6 +2013,7 @@
         { id: "messages", label: "Messages", icon: "chat" },
         { id: "calendar", label: "Calendar", icon: "calendar" },
         { id: "team", label: "Team", icon: "users" },
+        { id: "admin", label: "Admin", icon: "shield" },
         { id: "settings", label: "Settings", icon: "settings" },
       ];
 
@@ -2061,6 +2063,8 @@
         activeTab: "overview",
         activeSubjectId: null,
         activePanel: null,
+        adminOverview: null,
+        adminUsers: [],
       };
 
       const authOverlay = document.querySelector("#authOverlay");
@@ -2181,6 +2185,10 @@
         authOverlay.classList.remove("grid");
       }
 
+      function isAdmin() {
+        return state.user?.role === "admin";
+      }
+
       async function api(path, options = {}) {
         const headers = {
           "Content-Type": "application/json",
@@ -2258,6 +2266,8 @@
         state.events = [];
         state.activeTab = "overview";
         state.activePanel = null;
+        state.adminOverview = null;
+        state.adminUsers = [];
         sessionStorage.removeItem("semstackToken");
         closeResource();
         closeCourseworkPanel();
@@ -2275,12 +2285,23 @@
           state.notes = Object.fromEntries(payload.notes.map((note) => [note.subjectId, note.content]));
           state.folders = payload.folders || [];
           state.events = payload.events || [];
+          state.adminOverview = null;
+          state.adminUsers = [];
+          if (isAdmin()) {
+            await loadAdminData();
+          }
           render();
         } catch (error) {
           if (error.message !== "Unauthorized") showAuth(error.message);
         } finally {
           setLoading(false);
         }
+      }
+
+      async function loadAdminData() {
+        const [overview, usersPayload] = await Promise.all([api("/api/admin/overview"), api("/api/admin/users")]);
+        state.adminOverview = overview;
+        state.adminUsers = usersPayload.users || [];
       }
 
       function visibleSubjects() {
@@ -3385,6 +3406,8 @@
 
       function renderTabButtons() {
         document.querySelectorAll("[data-tab]").forEach((button) => {
+          const adminOnly = button.hasAttribute("data-admin-only");
+          button.classList.toggle("hidden", adminOnly && !isAdmin());
           const isActive = button.dataset.tab === state.activeTab || (state.activeTab === "subject" && button.dataset.tab === "courses");
           button.classList.toggle("is-active", isActive);
           button.setAttribute("aria-pressed", String(isActive));
@@ -3392,6 +3415,9 @@
       }
 
       function setActiveTab(tabId) {
+        if (tabId === "admin" && !isAdmin()) {
+          tabId = "settings";
+        }
         state.activeTab = tabId;
         if (tabId !== "subject") state.activeSubjectId = null;
         render();
@@ -3425,6 +3451,7 @@
           messages: renderMessagesTab,
           calendar: renderCalendarTab,
           team: renderTeamTab,
+          admin: renderAdminTab,
           settings: renderSettingsTab,
           subject: renderSubjectDetailTab,
         };
@@ -3618,6 +3645,85 @@
           </section>
         `;
         bindSubjectEvents(tabPanel);
+      }
+
+      function adminMetricCard(label, value, detail, iconName = "users") {
+        return `
+          <article class="menu-card">
+            <span class="round-icon">${icon(iconName, 18)}</span>
+            <p class="eyebrow mt-4">${label}</p>
+            <h3 class="mt-1 text-3xl font-black tracking-[-0.04em]">${escapeHtml(value)}</h3>
+            <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">${escapeHtml(detail)}</p>
+          </article>
+        `;
+      }
+
+      function adminUserRow(user) {
+        return `
+          <article class="schedule-item">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <strong class="break-words text-sm">${escapeHtml(user.email)}</strong>
+                <span class="status-pill" style="--status-bg: ${user.role === "admin" ? "#fff4b8" : "#dff7e8"}; --status-ink: ${user.role === "admin" ? "#9c7a00" : "#2d8c54"}">${escapeHtml(user.role)}</span>
+              </div>
+              <p class="mt-1 text-xs font-bold text-[#68717d]">Joined ${formatDateTime(user.createdAt)} - Last login ${user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "Never"}</p>
+            </div>
+            <div class="text-right text-xs font-black text-[#68717d]">
+              <p>${Number(user.subjectCount || 0)} subjects</p>
+              <p>${Number(user.taskCount || 0)} tasks</p>
+              <p>${Number(user.eventCount || 0)} events</p>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderAdminTab() {
+        if (!isAdmin()) {
+          tabPanel.innerHTML = `
+            ${panelIntro("Admin", "This area is only available to admin accounts.")}
+            <section class="menu-grid">
+              <article class="menu-panel">
+                <span class="round-icon">${icon("shield", 18)}</span>
+                <h3 class="mt-4 text-xl font-black tracking-[-0.03em]">Admin access required</h3>
+                <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">Log in with the configured admin account to view account activity.</p>
+              </article>
+            </section>
+          `;
+          return;
+        }
+
+        const metrics = state.adminOverview?.metrics || {};
+        const recent = state.adminOverview?.recentRegistrations || [];
+        tabPanel.innerHTML = `
+          ${panelIntro("Admin dashboard", "Track account creation and app usage without opening private notes, links, or task text.")}
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm font-black text-[#68717d]">${state.adminUsers.length} visible accounts</p>
+            <button class="soft-button tap-target" type="button" data-refresh-admin>${icon("tune", 16)} Refresh</button>
+          </div>
+          <section class="menu-grid">
+            ${adminMetricCard("Total users", String(metrics.totalUsers || 0), `${metrics.regularUsers || 0} regular, ${metrics.totalAdmins || 0} admin`, "users")}
+            ${adminMetricCard("Subjects", String(metrics.totalSubjects || 0), "Subjects created across all accounts.", "cap")}
+            ${adminMetricCard("Tasks", String(metrics.totalTasks || 0), "Task count only; private task text stays hidden.", "note")}
+            ${adminMetricCard("Calendar items", String(metrics.totalEvents || 0), "Events and deadlines across the app.", "calendar")}
+            <article class="menu-panel">
+              <h3 class="text-lg font-black tracking-[-0.03em]">Recent registrations</h3>
+              <div class="compact-list mt-4">
+                ${recent.length ? recent.map(adminUserRow).join("") : `<div class="panel-empty">No account activity yet.</div>`}
+              </div>
+            </article>
+            <article class="menu-panel">
+              <h3 class="text-lg font-black tracking-[-0.03em]">Users</h3>
+              <div class="compact-list mt-4">
+                ${state.adminUsers.length ? state.adminUsers.map(adminUserRow).join("") : `<div class="panel-empty">No users found.</div>`}
+              </div>
+            </article>
+          </section>
+        `;
+
+        tabPanel.querySelector("[data-refresh-admin]")?.addEventListener("click", async () => {
+          await loadAdminData();
+          render();
+        });
       }
 
       function renderSettingsTab() {

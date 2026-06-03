@@ -152,6 +152,8 @@ function schemaSql(dialect) {
       id ${primaryKey},
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user',
+      last_login_at TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -283,6 +285,24 @@ function schemaSql(dialect) {
 async function initDb() {
   const db = await getDb();
   await db.exec(schemaSql(db.dialect));
+  await ensureUserColumns(db);
+}
+
+async function ensureUserColumns(db) {
+  if (db.dialect === "postgres") {
+    await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user';");
+    await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TEXT;");
+    return;
+  }
+
+  const columns = await db.all("PRAGMA table_info(users)");
+  const names = new Set(columns.map((column) => column.name));
+  if (!names.has("role")) {
+    await db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user';");
+  }
+  if (!names.has("last_login_at")) {
+    await db.exec("ALTER TABLE users ADD COLUMN last_login_at TEXT;");
+  }
 }
 
 module.exports = {

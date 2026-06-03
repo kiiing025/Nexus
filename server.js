@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "semstack-dev-secret-change-me";
 const TOKEN_TTL = "7d";
 
-const dbReady = initDb();
+const dbReady = initializeData();
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -35,11 +35,17 @@ app.use("/api", async (req, res, next) => {
 });
 
 function signToken(user) {
-  return jwt.sign({ sub: user.id, email: user.email }, JWT_SECRET, { expiresIn: TOKEN_TTL });
+  return jwt.sign({ sub: user.id, email: user.email, role: user.role || "user" }, JWT_SECRET, { expiresIn: TOKEN_TTL });
 }
 
 function publicUser(user) {
-  return { id: user.id, email: user.email };
+  return {
+    id: user.id,
+    email: user.email,
+    role: user.role || "user",
+    createdAt: user.created_at || user.createdAt || null,
+    lastLoginAt: user.last_login_at || user.lastLoginAt || null,
+  };
 }
 
 async function findUserSubject(userId, subjectId) {
@@ -63,6 +69,20 @@ function optionalText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+async function initializeData() {
+  await initDb();
+  await seedConfiguredAdmin();
+}
+
+async function seedConfiguredAdmin() {
+  const email = String(process.env.ADMIN_EMAIL || "").trim().toLowerCase();
+  const password = String(process.env.ADMIN_PASSWORD || "");
+  if (!email || !password) return;
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  await User.ensureAdmin({ email, passwordHash });
+}
+
 async function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : "";
@@ -82,6 +102,13 @@ async function requireAuth(req, res, next) {
   } catch {
     return res.status(401).json({ error: "Invalid or expired authorization token." });
   }
+}
+
+function requireAdmin(req, res, next) {
+  if (req.user?.role !== "admin") {
+    return res.status(403).json({ error: "Admin access required." });
+  }
+  return next();
 }
 
 app.post("/api/auth/register", async (req, res, next) => {
@@ -119,9 +146,10 @@ app.post("/api/auth/login", async (req, res, next) => {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
+    const loggedInUser = await User.markLogin(user.id);
     return res.json({
-      token: signToken(user),
-      user: publicUser(user),
+      token: signToken(loggedInUser),
+      user: publicUser(loggedInUser),
     });
   } catch (error) {
     return next(error);
@@ -145,6 +173,22 @@ app.get("/api/dashboard", requireAuth, async (req, res, next) => {
     const folders = await Folder.allForUser(req.user.id);
     const events = await Event.allForUser(req.user.id);
     return res.json({ user: publicUser(req.user), subjects, tasks, notes, folders, events });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get("/api/admin/overview", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    return res.json(await User.adminOverview());
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    return res.json({ users: await User.adminUsers() });
   } catch (error) {
     return next(error);
   }
