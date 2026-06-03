@@ -1,4 +1,4 @@
-const CACHE_NAME = "semstack-shell-v6";
+const CACHE_NAME = "semstack-shell-v7";
 const CORE_ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/icons/semstack-icon.svg"];
 
 async function cacheResponse(request, response) {

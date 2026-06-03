@@ -1995,8 +1995,8 @@
     <script>
       const filters = [
         { id: "all", label: "All Semesters", icon: "grid" },
-        { id: "3rd Year", label: "3rd Year", icon: "cap" },
-        { id: "4th Year", label: "4th Year", icon: "calendar" },
+        { id: "1st Semester", label: "1st Semester", icon: "cap" },
+        { id: "2nd Semester", label: "2nd Semester", icon: "calendar" },
       ];
 
       const tabs = [
@@ -2142,7 +2142,7 @@
           soft: subject?.accent || "#d7e6ef",
           strong: subject?.accent || "#6c7a89",
           rating: "4.7",
-          type: subject?.year || "Coursework",
+          type: subject?.year && subject.year !== subject?.semester ? subject.year : "Coursework",
           icon: "note",
         };
       }
@@ -2260,7 +2260,14 @@
 
       function visibleSubjects() {
         if (state.filter === "all") return state.subjects;
-        return state.subjects.filter((subject) => subject.year === state.filter);
+        return state.subjects.filter((subject) => semesterBucket(subject) === state.filter);
+      }
+
+      function semesterBucket(subject) {
+        const text = `${subject?.semester || ""} ${subject?.year || ""}`.toLowerCase();
+        if (text.includes("2nd semester") || text.includes("second semester")) return "2nd Semester";
+        if (text.includes("1st semester") || text.includes("first semester")) return "1st Semester";
+        return subject?.semester || "Unsorted";
       }
 
       function subjectTasks(subjectId) {
@@ -2705,16 +2712,11 @@
                   <input class="panel-input tap-target" name="name" placeholder="Database Systems" autocomplete="off" required />
                 </label>
                 <label class="panel-field">
-                  <span class="field-label">Year</span>
-                  <select class="panel-select tap-target" name="year">
-                    <option>3rd Year</option>
-                    <option>4th Year</option>
-                    <option>Custom</option>
-                  </select>
-                </label>
-                <label class="panel-field">
                   <span class="field-label">Semester</span>
-                  <input class="panel-input tap-target" name="semester" value="3rd Year - 1st Semester" autocomplete="off" required />
+                  <select class="panel-select tap-target" name="semester">
+                    <option>1st Semester</option>
+                    <option>2nd Semester</option>
+                  </select>
                 </label>
                 <label class="panel-field">
                   <span class="field-label">Accent color</span>
@@ -2742,8 +2744,8 @@
               body: JSON.stringify({
                 code: data.get("code").trim(),
                 name: data.get("name").trim(),
-                year: data.get("year"),
-                semester: data.get("semester").trim(),
+                year: "Coursework",
+                semester: data.get("semester"),
                 accent: data.get("accent"),
               }),
             });

@@ -33,7 +33,11 @@ class Subject {
        FROM subjects
        WHERE user_id = ?
        ORDER BY
-        CASE year WHEN '3rd Year' THEN 1 WHEN '4th Year' THEN 2 ELSE 3 END,
+        CASE
+          WHEN semester LIKE '%1st Semester%' OR year = '1st Semester' THEN 1
+          WHEN semester LIKE '%2nd Semester%' OR year = '2nd Semester' THEN 2
+          ELSE 3
+        END,
         code ASC`,
       userId,
     );
@@ -110,8 +114,8 @@ class Subject {
 
     const subject = {
       id: subjectId,
-      year: typeof year === "string" && year.trim() ? year.trim() : "Custom",
-      semester: typeof semester === "string" && semester.trim() ? semester.trim() : "Custom Semester",
+      year: typeof year === "string" && year.trim() ? year.trim() : "Coursework",
+      semester: typeof semester === "string" && semester.trim() ? semester.trim() : "1st Semester",
       code: subjectId,
       name: typeof name === "string" && name.trim() ? name.trim() : subjectId,
       accent: /^#[0-9A-F]{6}$/i.test(String(accent || "")) ? accent : "#38bdf8",

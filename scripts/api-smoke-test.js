@@ -49,12 +49,13 @@ async function request(path, options = {}) {
     body: JSON.stringify({
       code: "IT499",
       name: "Capstone Studio",
-      year: "4th Year",
-      semester: "4th Year - 1st Semester",
+      semester: "2nd Semester",
       accent: "#14b8a6",
     }),
   });
   assert.equal(customSubject.subject.id, "IT499");
+  assert.equal(customSubject.subject.year, "Coursework");
+  assert.equal(customSubject.subject.semester, "2nd Semester");
   assert.equal(customSubject.folders.length, 6);
 
   const customTask = await request("/api/tasks", {
@@ -95,12 +96,13 @@ async function request(path, options = {}) {
     body: JSON.stringify({
       code: "IT314",
       name: "Software Engineering",
-      year: "3rd Year",
-      semester: "3rd Year - 1st Semester",
+      semester: "1st Semester",
       accent: "#6366f1",
     }),
   });
   assert.equal(courseworkSubject.subject.id, "IT314");
+  assert.equal(courseworkSubject.subject.year, "Coursework");
+  assert.equal(courseworkSubject.subject.semester, "1st Semester");
   assert.equal(courseworkSubject.folders.length, 6);
 
   const links = await request("/api/subjects/IT314/links", {
