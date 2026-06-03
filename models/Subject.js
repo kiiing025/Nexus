@@ -1,5 +1,4 @@
 const { getDb } = require("./database");
-const { defaultSubjects } = require("./defaultSubjects");
 
 const linkKeys = ["syllabus", "drive", "github", "messenger", "meeting", "instructor", "custom"];
 
@@ -27,46 +26,6 @@ function normalizeSubjectId(value) {
 }
 
 class Subject {
-  static async ensureDefaultsForUser(userId) {
-    const db = await getDb();
-
-    for (const subject of defaultSubjects) {
-      const deleted = await db.get(
-        `SELECT id
-         FROM deleted_subjects
-         WHERE user_id = ? AND subject_id = ?`,
-        userId,
-        subject.id,
-      );
-      if (deleted) continue;
-
-      const existing = await this.findForUser({ userId, subjectId: subject.id });
-      if (!existing) {
-        await db.run(
-          `INSERT INTO subjects (user_id, subject_id, year, semester, code, name, accent)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          userId,
-          subject.id,
-          subject.year,
-          subject.semester,
-          subject.code,
-          subject.name,
-          subject.accent,
-        );
-      }
-
-      const links = await this.linksForUserSubject({ userId, subjectId: subject.id });
-      if (!links) {
-        await db.run(
-          `INSERT INTO subject_links (user_id, subject_id)
-           VALUES (?, ?)`,
-          userId,
-          subject.id,
-        );
-      }
-    }
-  }
-
   static async allForUser(userId) {
     const db = await getDb();
     const subjects = await db.all(

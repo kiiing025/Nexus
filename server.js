@@ -44,12 +44,10 @@ function publicUser(user) {
 
 async function findUserSubject(userId, subjectId) {
   if (typeof subjectId !== "string" || !subjectId.trim()) return null;
-  await Subject.ensureDefaultsForUser(userId);
   return Subject.findForUser({ userId, subjectId: subjectId.trim() });
 }
 
-async function ensureUserCoursework(userId) {
-  await Subject.ensureDefaultsForUser(userId);
+async function loadUserCoursework(userId) {
   const subjects = await Subject.allForUser(userId);
   for (const subject of subjects) {
     await Folder.ensureDefaultsForUserSubject({ userId, subjectId: subject.id });
@@ -105,7 +103,6 @@ app.post("/api/auth/register", async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, 12);
     const user = await User.create({ email, passwordHash });
-    await ensureUserCoursework(user.id);
     return res.status(201).json({ token: signToken(user), user: publicUser(user) });
   } catch (error) {
     return next(error);
@@ -142,7 +139,7 @@ app.get("/api/health", async (req, res, next) => {
 
 app.get("/api/dashboard", requireAuth, async (req, res, next) => {
   try {
-    const subjects = await ensureUserCoursework(req.user.id);
+    const subjects = await loadUserCoursework(req.user.id);
     const tasks = await Task.allForUser(req.user.id);
     const notes = await Note.allForUser(req.user.id);
     const folders = await Folder.allForUser(req.user.id);

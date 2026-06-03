@@ -37,10 +37,11 @@ async function request(path, options = {}) {
 
   const headers = { Authorization: `Bearer ${registered.token}` };
   const dashboard = await request("/api/dashboard", { headers });
-  assert.equal(dashboard.subjects.length, 5);
+  assert.equal(dashboard.subjects.length, 0);
   assert.ok(Array.isArray(dashboard.folders));
   assert.ok(Array.isArray(dashboard.events));
-  assert.ok(dashboard.folders.length >= 30);
+  assert.equal(dashboard.folders.length, 0);
+  assert.equal(dashboard.events.length, 0);
 
   const customSubject = await request("/api/subjects", {
     method: "POST",
@@ -88,9 +89,19 @@ async function request(path, options = {}) {
   assert.equal(afterCustomDelete.folders.some((folder) => folder.subjectId === "IT499"), false);
   assert.equal(afterCustomDelete.events.some((event) => event.subjectId === "IT499"), false);
 
-  await request("/api/subjects/IT315", { method: "DELETE", headers });
-  const afterDefaultDelete = await request("/api/dashboard", { headers });
-  assert.equal(afterDefaultDelete.subjects.some((subject) => subject.id === "IT315"), false);
+  const courseworkSubject = await request("/api/subjects", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      code: "IT314",
+      name: "Software Engineering",
+      year: "3rd Year",
+      semester: "3rd Year - 1st Semester",
+      accent: "#6366f1",
+    }),
+  });
+  assert.equal(courseworkSubject.subject.id, "IT314");
+  assert.equal(courseworkSubject.folders.length, 6);
 
   const links = await request("/api/subjects/IT314/links", {
     method: "PUT",
@@ -190,7 +201,7 @@ async function request(path, options = {}) {
   await request(`/api/folder-items/${item.item.id}`, { method: "DELETE", headers });
   await request(`/api/folders/${folder.folder.id}`, { method: "DELETE", headers });
 
-  console.log(JSON.stringify({ ok: true, email, subjects: dashboard.subjects.length }));
+  console.log(JSON.stringify({ ok: true, email, initialSubjects: dashboard.subjects.length }));
 })().catch((error) => {
   console.error(error);
   process.exit(1);

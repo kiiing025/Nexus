@@ -2326,6 +2326,23 @@
         return options.map((option) => `<option value="${escapeHtml(option)}" ${option === selected ? "selected" : ""}>${escapeHtml(option)}</option>`).join("");
       }
 
+      function addSubjectCallout(title = "No subjects yet", text = "Create your first subject to unlock tasks, notes, folders, links, and calendar planning.", className = "menu-panel") {
+        return `
+          <article class="${className}">
+            <span class="round-icon">${icon("plus", 18)}</span>
+            <h3 class="mt-4 text-xl font-black tracking-[-0.03em]">${title}</h3>
+            <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">${text}</p>
+            <button class="soft-button tap-target mt-4" type="button" data-add-subject>${icon("plus", 16)} Add subject</button>
+          </article>
+        `;
+      }
+
+      function bindAddSubjectButtons(root = document) {
+        root.querySelectorAll("[data-add-subject]").forEach((button) => {
+          button.addEventListener("click", openSubjectFormPanel);
+        });
+      }
+
       function renderFilters(target) {
         target.innerHTML = filters
           .map((filter) => `
@@ -2352,6 +2369,21 @@
 
       function renderSubjectRail(target) {
         const list = state.subjects.slice(0, target === mobileSubjectRail ? state.subjects.length : 3);
+        if (!list.length) {
+          target.innerHTML = `
+            <button class="rail-course tap-target" type="button" data-add-subject>
+              <div class="course-orbit">
+                <span class="round-icon">${icon("plus", 18)}</span>
+                <span class="arrow-circle">${icon("arrow", 18)}</span>
+              </div>
+              <h3 class="mt-4 text-base font-black">Add your first subject</h3>
+              <p class="mt-1 text-xs font-bold text-[#3f4851]">Start with any course code</p>
+            </button>
+          `;
+          bindAddSubjectButtons(target);
+          return;
+        }
+
         target.innerHTML = list
           .map((subject) => {
             const meta = subjectMeta(subject.id);
@@ -2379,7 +2411,13 @@
       }
 
       function renderMilestones() {
-        milestonesEl.innerHTML = milestones
+        const activeMilestones = milestones.filter((milestone) => subjectById(milestone.subjectId));
+        if (!activeMilestones.length) {
+          milestonesEl.innerHTML = `<div class="panel-empty">Add subjects first, then use the calendar to track exams, defenses, meetings, and submissions.</div>`;
+          return;
+        }
+
+        milestonesEl.innerHTML = activeMilestones
           .map((milestone) => {
             const subject = state.subjects.find((item) => item.id === milestone.subjectId);
             const meta = subjectMeta(milestone.subjectId);
@@ -2407,7 +2445,11 @@
       function subjectCardsMarkup(subjects) {
         return subjects.length
           ? subjects.map(subjectCard).join("")
-          : `<article class="subject-card"><h3 class="text-xl font-black">No subjects here</h3><p class="mt-2 text-sm font-semibold text-[#68717d]">Try another semester filter.</p></article>`;
+          : addSubjectCallout(
+              state.subjects.length ? "No subjects in this filter" : "No subjects yet",
+              state.subjects.length ? "Try another semester filter or add a new subject for this term." : "Create your first subject to start organizing coursework.",
+              "subject-card"
+            );
       }
 
       function subjectCard(subject) {
@@ -2531,6 +2573,8 @@
       }
 
       function bindSubjectEvents(root = document) {
+        bindAddSubjectButtons(root);
+
         root.querySelectorAll(".task-form").forEach((form) => {
           form.addEventListener("submit", async (event) => {
             event.preventDefault();
@@ -3013,7 +3057,11 @@
 
       function renderSchedule() {
         if (!state.subjects.length) {
-          schedulePanel.innerHTML = "";
+          schedulePanel.innerHTML = `
+            <div class="panel-empty">Add a subject first, then schedule items can attach to the right course.</div>
+            <button class="soft-button tap-target w-full" type="button" data-add-subject>${icon("plus", 16)} Add subject</button>
+          `;
+          bindAddSubjectButtons(schedulePanel);
           return;
         }
 
@@ -3375,28 +3423,32 @@
         tabPanel.innerHTML = `
           ${panelIntro("Notes desk", "A single place for terminal commands, exam dates, module links, and subject-specific reminders.")}
           <section class="menu-grid" aria-label="Subject notes">
-            ${state.subjects
-              .map((subject) => {
-                const meta = subjectMeta(subject.id);
-                return `
-                  <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}" data-note-shell>
-                    <div class="mb-3 flex items-start justify-between gap-3">
-                      <div class="min-w-0">
-                        <p class="text-xs font-black text-[#68717d]">${subject.code}</p>
-                        <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.name}</h3>
-                      </div>
-                      <span class="round-icon" style="background: ${meta.soft}; color: ${meta.strong}">${icon("note", 18)}</span>
-                    </div>
-                    <textarea
-                      class="notes-field"
-                      data-subject="${subject.id}"
-                      placeholder="Paste commands, links, exam dates, or reminders..."
-                    >${escapeHtml(state.notes[subject.id] || "")}</textarea>
-                    <p class="save-state mt-2" data-save-state="notes-${subject.id}">Saved automatically</p>
-                  </article>
-                `;
-              })
-              .join("")}
+            ${
+              state.subjects.length
+                ? state.subjects
+                    .map((subject) => {
+                      const meta = subjectMeta(subject.id);
+                      return `
+                        <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}" data-note-shell>
+                          <div class="mb-3 flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                              <p class="text-xs font-black text-[#68717d]">${subject.code}</p>
+                              <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.name}</h3>
+                            </div>
+                            <span class="round-icon" style="background: ${meta.soft}; color: ${meta.strong}">${icon("note", 18)}</span>
+                          </div>
+                          <textarea
+                            class="notes-field"
+                            data-subject="${subject.id}"
+                            placeholder="Paste commands, links, exam dates, or reminders..."
+                          >${escapeHtml(state.notes[subject.id] || "")}</textarea>
+                          <p class="save-state mt-2" data-save-state="notes-${subject.id}">Saved automatically</p>
+                        </article>
+                      `;
+                    })
+                    .join("")
+                : addSubjectCallout("No note spaces yet", "Add a subject first, then each course gets its own autosaving scratchpad.", "menu-card")
+            }
           </section>
         `;
         bindSubjectEvents(tabPanel);
@@ -3407,23 +3459,27 @@
         tabPanel.innerHTML = `
           ${panelIntro("Class channels", "Keep Messenger, Facebook groups, Meet, Zoom, and instructor contact links one tap away.")}
           <section class="menu-grid" aria-label="Class communication links">
-            ${state.subjects
-              .map((subject) => {
-                const meta = subjectMeta(subject.id);
-                return `
-                  <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}">
-                    <div class="mb-3 flex items-start justify-between gap-3">
-                      <div class="min-w-0">
-                        <p class="text-xs font-black text-[#68717d]">${subject.code}</p>
-                        <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.name}</h3>
-                      </div>
-                      <button class="edit-links-button tap-target" type="button" data-edit-links="${subject.id}">${icon("edit", 15)} <span>Edit</span></button>
-                    </div>
-                    <div class="resource-grid">${fields.map((field) => resourceButton(subject, field)).join("")}</div>
-                  </article>
-                `;
-              })
-              .join("")}
+            ${
+              state.subjects.length
+                ? state.subjects
+                    .map((subject) => {
+                      const meta = subjectMeta(subject.id);
+                      return `
+                        <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}">
+                          <div class="mb-3 flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                              <p class="text-xs font-black text-[#68717d]">${subject.code}</p>
+                              <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.name}</h3>
+                            </div>
+                            <button class="edit-links-button tap-target" type="button" data-edit-links="${subject.id}">${icon("edit", 15)} <span>Edit</span></button>
+                          </div>
+                          <div class="resource-grid">${fields.map((field) => resourceButton(subject, field)).join("")}</div>
+                        </article>
+                      `;
+                    })
+                    .join("")
+                : addSubjectCallout("No class channels yet", "Add a subject, then save Messenger, Facebook, Meet, Zoom, and instructor links inside it.", "menu-card")
+            }
           </section>
         `;
         bindSubjectEvents(tabPanel);
@@ -3431,6 +3487,17 @@
 
       function renderCalendarTab() {
         const events = [...state.events].sort((a, b) => new Date(a.startsAt || 0) - new Date(b.startsAt || 0));
+        if (!state.subjects.length) {
+          tabPanel.innerHTML = `
+            ${panelIntro("Schedule", "Add class calls, exams, defenses, and submission dates. The right rail mini calendar mirrors this list on desktop.")}
+            <section class="menu-grid">
+              ${addSubjectCallout("No calendar subjects yet", "Add a subject before creating deadlines, meetings, exams, or performance schedules.", "menu-panel")}
+            </section>
+          `;
+          bindAddSubjectButtons(tabPanel);
+          return;
+        }
+
         tabPanel.innerHTML = `
           ${panelIntro("Schedule", "Add class calls, exams, defenses, and submission dates. The right rail mini calendar mirrors this list on desktop.")}
           <section class="menu-grid">
@@ -3495,28 +3562,32 @@
         tabPanel.innerHTML = `
           ${panelIntro("Instructor board", "Use this as your quick contact and class-room map for each subject. Add the exact links your instructor uses.")}
           <section class="menu-grid">
-            ${state.subjects
-              .map((subject) => {
-                const meta = subjectMeta(subject.id);
-                return `
-                  <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}">
-                    <div class="mb-3 flex items-center justify-between gap-3">
-                      <div class="min-w-0">
-                        <p class="text-xs font-black text-[#68717d]">${subject.semester}</p>
-                        <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.code}</h3>
-                      </div>
-                      <span class="round-icon" style="background: ${meta.soft}; color: ${meta.strong}">${icon("users", 18)}</span>
-                    </div>
-                    <div class="resource-grid">
-                      ${resourceButton(subject, linkFields.find((field) => field.key === "instructor"))}
-                      ${resourceButton(subject, linkFields.find((field) => field.key === "meeting"))}
-                      ${resourceButton(subject, linkFields.find((field) => field.key === "custom"))}
-                    </div>
-                    <button class="edit-links-button tap-target mt-3" type="button" data-edit-links="${subject.id}">${icon("edit", 15)} <span>Update contact links</span></button>
-                  </article>
-                `;
-              })
-              .join("")}
+            ${
+              state.subjects.length
+                ? state.subjects
+                    .map((subject) => {
+                      const meta = subjectMeta(subject.id);
+                      return `
+                        <article class="menu-card" style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}">
+                          <div class="mb-3 flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                              <p class="text-xs font-black text-[#68717d]">${subject.semester}</p>
+                              <h3 class="break-words text-lg font-black tracking-[-0.03em]">${subject.code}</h3>
+                            </div>
+                            <span class="round-icon" style="background: ${meta.soft}; color: ${meta.strong}">${icon("users", 18)}</span>
+                          </div>
+                          <div class="resource-grid">
+                            ${resourceButton(subject, linkFields.find((field) => field.key === "instructor"))}
+                            ${resourceButton(subject, linkFields.find((field) => field.key === "meeting"))}
+                            ${resourceButton(subject, linkFields.find((field) => field.key === "custom"))}
+                          </div>
+                          <button class="edit-links-button tap-target mt-3" type="button" data-edit-links="${subject.id}">${icon("edit", 15)} <span>Update contact links</span></button>
+                        </article>
+                      `;
+                    })
+                    .join("")
+                : addSubjectCallout("No instructor cards yet", "Add subjects first, then keep each instructor and meeting link organized here.", "menu-card")
+            }
           </section>
         `;
         bindSubjectEvents(tabPanel);
@@ -3564,6 +3635,11 @@
       }
 
       function renderSubjectProgress() {
+        if (!state.subjects.length) {
+          subjectProgressList.innerHTML = `<div class="panel-empty">No subject progress yet. Add a subject and tasks will appear here.</div>`;
+          return;
+        }
+
         subjectProgressList.innerHTML = state.subjects
           .slice(0, 3)
           .map((subject) => {
