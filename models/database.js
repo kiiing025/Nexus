@@ -186,6 +186,15 @@ function schemaSql(dialect) {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS deleted_subjects (
+      id ${primaryKey},
+      user_id INTEGER NOT NULL,
+      subject_id TEXT NOT NULL,
+      deleted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(user_id, subject_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS tasks (
       id ${primaryKey},
       user_id INTEGER NOT NULL,
@@ -256,6 +265,8 @@ function schemaSql(dialect) {
       ON subjects(user_id, subject_id);
     CREATE INDEX IF NOT EXISTS idx_subject_links_user_subject
       ON subject_links(user_id, subject_id);
+    CREATE INDEX IF NOT EXISTS idx_deleted_subjects_user_subject
+      ON deleted_subjects(user_id, subject_id);
     CREATE INDEX IF NOT EXISTS idx_notes_user_subject
       ON notes(user_id, subject_id);
     CREATE INDEX IF NOT EXISTS idx_folders_user_subject

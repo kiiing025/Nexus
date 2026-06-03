@@ -153,6 +153,39 @@ app.get("/api/dashboard", requireAuth, async (req, res, next) => {
   }
 });
 
+app.post("/api/subjects", requireAuth, async (req, res, next) => {
+  try {
+    const subject = await Subject.createForUser({
+      userId: req.user.id,
+      code: req.body.code,
+      name: req.body.name,
+      year: req.body.year,
+      semester: req.body.semester,
+      accent: req.body.accent,
+    });
+    await Folder.ensureDefaultsForUserSubject({ userId: req.user.id, subjectId: subject.id });
+    const folders = await Folder.allForUserSubject({ userId: req.user.id, subjectId: subject.id });
+    return res.status(201).json({ subject, folders });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete("/api/subjects/:subjectId", requireAuth, async (req, res, next) => {
+  try {
+    const deleted = await Subject.deleteForUser({
+      userId: req.user.id,
+      subjectId: req.params.subjectId,
+    });
+    if (!deleted) {
+      return res.status(404).json({ error: "Subject not found." });
+    }
+    return res.status(204).send();
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.post("/api/tasks", requireAuth, async (req, res, next) => {
   try {
     const subjectId = String(req.body.subjectId || "").trim();
@@ -460,7 +493,7 @@ app.get(/^(?!\/api).*/, (req, res) => {
 
 app.use((error, req, res, next) => {
   console.error(error);
-  res.status(500).json({ error: "Unexpected server error." });
+  res.status(error.status || 500).json({ error: error.status ? error.message : "Unexpected server error." });
 });
 
 async function start() {

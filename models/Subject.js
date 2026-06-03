@@ -19,11 +19,27 @@ function rowToSubject(row, links = {}) {
   };
 }
 
+function normalizeSubjectId(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9_-]/g, "");
+}
+
 class Subject {
   static async ensureDefaultsForUser(userId) {
     const db = await getDb();
 
     for (const subject of defaultSubjects) {
+      const deleted = await db.get(
+        `SELECT id
+         FROM deleted_subjects
+         WHERE user_id = ? AND subject_id = ?`,
+        userId,
+        subject.id,
+      );
+      if (deleted) continue;
+
       const existing = await this.findForUser({ userId, subjectId: subject.id });
       if (!existing) {
         await db.run(
@@ -123,6 +139,88 @@ class Subject {
       normalized.custom,
     );
     return this.linksForUserSubject({ userId, subjectId });
+  }
+
+  static async createForUser({ userId, code, name, year, semester, accent }) {
+    const subjectId = normalizeSubjectId(code);
+    if (!subjectId) {
+      const error = new Error("Subject code is required.");
+      error.status = 400;
+      throw error;
+    }
+
+    const subject = {
+      id: subjectId,
+      year: typeof year === "string" && year.trim() ? year.trim() : "Custom",
+      semester: typeof semester === "string" && semester.trim() ? semester.trim() : "Custom Semester",
+      code: subjectId,
+      name: typeof name === "string" && name.trim() ? name.trim() : subjectId,
+      accent: /^#[0-9A-F]{6}$/i.test(String(accent || "")) ? accent : "#38bdf8",
+    };
+
+    const existing = await this.findForUser({ userId, subjectId });
+    if (existing) {
+      const error = new Error("A subject with that code already exists.");
+      error.status = 409;
+      throw error;
+    }
+
+    const db = await getDb();
+    await db.run("DELETE FROM deleted_subjects WHERE user_id = ? AND subject_id = ?", userId, subjectId);
+    await db.run(
+      `INSERT INTO subjects (user_id, subject_id, year, semester, code, name, accent)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      userId,
+      subject.id,
+      subject.year,
+      subject.semester,
+      subject.code,
+      subject.name,
+      subject.accent,
+    );
+    await db.run(
+      `INSERT INTO subject_links (user_id, subject_id)
+       VALUES (?, ?)
+       ON CONFLICT(user_id, subject_id) DO NOTHING`,
+      userId,
+      subject.id,
+    );
+
+    return rowToSubject(
+      {
+        subjectId: subject.id,
+        year: subject.year,
+        semester: subject.semester,
+        code: subject.code,
+        name: subject.name,
+        accent: subject.accent,
+      },
+      {},
+    );
+  }
+
+  static async deleteForUser({ userId, subjectId }) {
+    const normalizedSubjectId = normalizeSubjectId(subjectId);
+    const existing = await this.findForUser({ userId, subjectId: normalizedSubjectId });
+    if (!existing) return false;
+
+    const db = await getDb();
+    await db.run(
+      `INSERT INTO deleted_subjects (user_id, subject_id, deleted_at)
+       VALUES (?, ?, CURRENT_TIMESTAMP)
+       ON CONFLICT(user_id, subject_id)
+       DO UPDATE SET deleted_at = CURRENT_TIMESTAMP`,
+      userId,
+      normalizedSubjectId,
+    );
+    await db.run("DELETE FROM events WHERE user_id = ? AND subject_id = ?", userId, normalizedSubjectId);
+    await db.run("DELETE FROM tasks WHERE user_id = ? AND subject_id = ?", userId, normalizedSubjectId);
+    await db.run("DELETE FROM notes WHERE user_id = ? AND subject_id = ?", userId, normalizedSubjectId);
+    await db.run("DELETE FROM subject_links WHERE user_id = ? AND subject_id = ?", userId, normalizedSubjectId);
+    await db.run("DELETE FROM folder_items WHERE user_id = ? AND subject_id = ?", userId, normalizedSubjectId);
+    await db.run("DELETE FROM folders WHERE user_id = ? AND subject_id = ?", userId, normalizedSubjectId);
+    const result = await db.run("DELETE FROM subjects WHERE user_id = ? AND subject_id = ?", userId, normalizedSubjectId);
+    return result.changes > 0;
   }
 }
 

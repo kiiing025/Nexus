@@ -869,6 +869,12 @@
         font-weight: 700;
       }
 
+      button.calendar-day {
+        cursor: pointer;
+        font: inherit;
+        padding: 0.25rem;
+      }
+
       .calendar-day.is-muted {
         color: #b5bec7;
       }
@@ -877,6 +883,32 @@
         background: #ff904f;
         color: white;
         box-shadow: 0 12px 22px rgba(255, 144, 79, 0.3);
+      }
+
+      .calendar-day.has-events {
+        align-content: center;
+        gap: 0.12rem;
+        background: color-mix(in srgb, var(--event-color) 24%, white);
+        border-color: color-mix(in srgb, var(--event-color) 48%, white);
+        color: #14191f;
+      }
+
+      .calendar-day.has-events.is-today {
+        background: color-mix(in srgb, var(--event-color) 78%, #ff904f);
+        color: white;
+      }
+
+      .calendar-event-label {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        color: inherit;
+        font-size: 0.58rem;
+        font-weight: 900;
+        line-height: 1;
+        opacity: 0.82;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .subject-grid {
@@ -1104,6 +1136,51 @@
       .detail-list {
         display: grid;
         gap: 0.55rem;
+      }
+
+      .summary-card {
+        display: grid;
+        gap: 0.85rem;
+        border-radius: 1.2rem;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 0.85rem;
+      }
+
+      .preview-list {
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .preview-row {
+        display: grid;
+        grid-template-columns: 1.9rem minmax(0, 1fr);
+        align-items: center;
+        gap: 0.55rem;
+        min-height: 2.55rem;
+        border-radius: 0.9rem;
+        background: rgba(255, 255, 255, 0.58);
+        padding: 0.4rem 0.55rem;
+      }
+
+      .danger-button {
+        display: inline-flex;
+        min-height: 2.75rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        border: 0;
+        border-radius: 999px;
+        background: #151515;
+        color: white;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 900;
+        padding: 0 0.9rem;
+      }
+
+      .danger-button.is-destructive {
+        background: #d84e65;
       }
 
       .detail-folder-row {
@@ -1963,7 +2040,7 @@
       ];
 
       const folderItemTypes = ["Assignment", "Project", "Module", "Lecture", "Link", "Reading", "Other"];
-      const eventTypes = ["Class", "Deadline", "Exam", "Defense", "Meeting", "Study"];
+      const eventTypes = ["Class", "Deadline", "Exam", "Defense", "Meeting", "Study", "Performance"];
 
       const state = {
         authMode: "login",
@@ -2059,7 +2136,15 @@
       }
 
       function subjectMeta(subjectId) {
-        return subjectDesign[subjectId] || { soft: "#d7e6ef", strong: "#6c7a89", rating: "4.7", type: "Coursework", icon: "note" };
+        const subject = state.subjects.find((item) => item.id === subjectId);
+        if (subjectDesign[subjectId]) return subjectDesign[subjectId];
+        return {
+          soft: subject?.accent || "#d7e6ef",
+          strong: subject?.accent || "#6c7a89",
+          rating: "4.7",
+          type: subject?.year || "Coursework",
+          icon: "note",
+        };
       }
 
       function setLoading(isLoading) {
@@ -2210,6 +2295,24 @@
           hour: "numeric",
           minute: "2-digit",
         }).format(date);
+      }
+
+      function dateKey(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function eventDateKey(event) {
+        const date = new Date(event.startsAt);
+        return Number.isNaN(date.getTime()) ? "" : dateKey(date);
+      }
+
+      function eventsForDate(key) {
+        return state.events
+          .filter((event) => eventDateKey(event) === key)
+          .sort((a, b) => new Date(a.startsAt || 0) - new Date(b.startsAt || 0));
       }
 
       function defaultDateTimeLocal() {
@@ -2541,6 +2644,195 @@
         state.activePanel = null;
       }
 
+      function openSubjectFormPanel() {
+        state.activePanel = { type: "subject-form" };
+        openCourseworkPanel({
+          eyebrow: "Classroom manager",
+          title: "Add subject",
+          body: `
+            <form id="subjectForm" class="panel-form">
+              <div class="panel-grid">
+                <label class="panel-field">
+                  <span class="field-label">Subject code</span>
+                  <input class="panel-input tap-target" name="code" placeholder="IT316" autocomplete="off" required />
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Subject name</span>
+                  <input class="panel-input tap-target" name="name" placeholder="Database Systems" autocomplete="off" required />
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Year</span>
+                  <select class="panel-select tap-target" name="year">
+                    <option>3rd Year</option>
+                    <option>4th Year</option>
+                    <option>Custom</option>
+                  </select>
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Semester</span>
+                  <input class="panel-input tap-target" name="semester" value="3rd Year - 1st Semester" autocomplete="off" required />
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Accent color</span>
+                  <input class="panel-input tap-target" name="accent" type="color" value="#38bdf8" />
+                </label>
+              </div>
+              <p class="text-sm font-bold leading-6 text-[#68717d]">New subjects get the standard Modules, Lectures, Assignments, Projects, Links, and Exams folders automatically.</p>
+              <div class="flex flex-wrap items-center justify-end gap-3">
+                <button class="soft-button tap-target" type="submit">${icon("plus", 17)} Create subject</button>
+              </div>
+            </form>
+          `,
+        });
+
+        document.querySelector("#subjectForm").addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const data = new FormData(form);
+          const button = form.querySelector("button[type='submit']");
+          button.disabled = true;
+          button.textContent = "Creating...";
+          try {
+            const payload = await api("/api/subjects", {
+              method: "POST",
+              body: JSON.stringify({
+                code: data.get("code").trim(),
+                name: data.get("name").trim(),
+                year: data.get("year"),
+                semester: data.get("semester").trim(),
+                accent: data.get("accent"),
+              }),
+            });
+            state.subjects.push(payload.subject);
+            state.folders.push(...(payload.folders || []));
+            state.activeSubjectId = payload.subject.id;
+            state.activeTab = "subject";
+            render();
+            closeCourseworkPanel();
+          } catch (error) {
+            button.disabled = false;
+            button.textContent = "Try again";
+            courseworkBody.insertAdjacentHTML("afterbegin", `<p class="error-text mb-3">${escapeHtml(error.message)}</p>`);
+          }
+        });
+      }
+
+      function openDeleteSubjectPanel(subjectId) {
+        const subject = subjectById(subjectId);
+        if (!subject) return;
+        state.activePanel = { type: "delete-subject", subjectId };
+        openCourseworkPanel({
+          eyebrow: `${subject.code} danger zone`,
+          title: "Delete subject permanently",
+          body: `
+            <div class="grid gap-4">
+              <p class="text-sm font-bold leading-6 text-[#68717d]">
+                This permanently deletes ${escapeHtml(subject.code)} with its tasks, notes, links, folders, files, and schedule items. This cannot be restored.
+              </p>
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <button class="inline-action tap-target" type="button" data-cancel-delete-subject>Cancel</button>
+                <button class="danger-button is-destructive tap-target" type="button" data-confirm-delete-subject="${subject.id}">
+                  ${icon("trash", 17)} Delete everything
+                </button>
+              </div>
+            </div>
+          `,
+        });
+
+        document.querySelector("[data-cancel-delete-subject]")?.addEventListener("click", closeCourseworkPanel);
+        document.querySelector("[data-confirm-delete-subject]")?.addEventListener("click", async (event) => {
+          const button = event.currentTarget;
+          button.disabled = true;
+          button.textContent = "Deleting...";
+          await api(`/api/subjects/${subject.id}`, { method: "DELETE" });
+          state.subjects = state.subjects.filter((item) => item.id !== subject.id);
+          state.tasks = state.tasks.filter((task) => task.subjectId !== subject.id);
+          delete state.notes[subject.id];
+          state.folders = state.folders.filter((folder) => folder.subjectId !== subject.id);
+          state.events = state.events.filter((item) => item.subjectId !== subject.id);
+          if (state.activeSubjectId === subject.id) {
+            state.activeSubjectId = null;
+            state.activeTab = "courses";
+          }
+          render();
+          closeCourseworkPanel();
+        });
+      }
+
+      function openTasksPanel(subjectId) {
+        const subject = subjectById(subjectId);
+        if (!subject) return;
+        state.activePanel = { type: "tasks", subjectId };
+        openCourseworkPanel({
+          eyebrow: `${subject.code} task board`,
+          title: "All tasks",
+          body: renderTasksPanel(subject),
+        });
+        bindTasksPanel(subjectId);
+      }
+
+      function renderTasksPanel(subject) {
+        const meta = subjectMeta(subject.id);
+        const tasks = subjectTasks(subject.id);
+        const completed = tasks.filter((task) => task.completed).length;
+        return `
+          <div class="grid gap-5">
+            <section class="summary-card" style="--soft-strong: ${meta.strong}">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p class="eyebrow">Progress</p>
+                  <h3 class="text-xl font-black tracking-[-0.03em]">${completed}/${tasks.length} completed</h3>
+                </div>
+                <span class="status-pill" style="--status-bg: ${meta.soft}; --status-ink: ${meta.strong}">${subjectCompletion(subject.id)}%</span>
+              </div>
+              <div class="launcher-progress"><span style="width: ${subjectCompletion(subject.id)}%"></span></div>
+            </section>
+            <form id="taskPanelForm" class="task-form" data-subject="${subject.id}">
+              <input class="task-input tap-target" name="task" placeholder="Add task for ${subject.code}..." autocomplete="off" required />
+              <button class="add-task tap-target" type="submit" aria-label="Add task">${icon("plus", 18)}</button>
+            </form>
+            <ul class="task-list">${tasks.length ? tasks.map(taskRow).join("") : `<li class="panel-empty">No tasks for this subject yet.</li>`}</ul>
+          </div>
+        `;
+      }
+
+      function bindTasksPanel(subjectId) {
+        document.querySelector("#taskPanelForm")?.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const input = event.currentTarget.elements.task;
+          const text = input.value.trim();
+          if (!text) return;
+          input.value = "";
+          const payload = await api("/api/tasks", {
+            method: "POST",
+            body: JSON.stringify({ subjectId, text }),
+          });
+          state.tasks.push({ ...payload.task, completed: Boolean(payload.task.completed) });
+          render();
+          openTasksPanel(subjectId);
+        });
+
+        courseworkBody.querySelectorAll(".task-row").forEach((row) => {
+          const id = Number(row.dataset.taskId);
+          row.querySelector(".task-toggle").addEventListener("change", async (event) => {
+            const payload = await api(`/api/tasks/${id}`, {
+              method: "PUT",
+              body: JSON.stringify({ completed: event.target.checked }),
+            });
+            state.tasks = state.tasks.map((task) => (task.id === id ? { ...payload.task, completed: Boolean(payload.task.completed) } : task));
+            render();
+            openTasksPanel(subjectId);
+          });
+
+          row.querySelector(".delete-task").addEventListener("click", async () => {
+            await api(`/api/tasks/${id}`, { method: "DELETE" });
+            state.tasks = state.tasks.filter((task) => task.id !== id);
+            render();
+            openTasksPanel(subjectId);
+          });
+        });
+      }
+
       function openLinksPanel(subjectId) {
         const subject = subjectById(subjectId);
         if (!subject) return;
@@ -2796,6 +3088,38 @@
         `;
       }
 
+      function openDayAgendaPanel(key) {
+        const events = eventsForDate(key);
+        if (!events.length) return;
+        const date = new Date(`${key}T12:00:00`);
+        openCourseworkPanel({
+          eyebrow: "Calendar day",
+          title: new Intl.DateTimeFormat("en", { month: "long", day: "numeric", year: "numeric" }).format(date),
+          body: `
+            <div class="grid gap-4">
+              <div class="compact-list">
+                ${events.map(scheduleRow).join("")}
+              </div>
+              <button class="inline-action tap-target" type="button" data-open-calendar-tab>${icon("calendar", 15)} <span>Add another schedule item</span></button>
+            </div>
+          `,
+        });
+
+        courseworkBody.querySelector("[data-open-calendar-tab]")?.addEventListener("click", () => {
+          closeCourseworkPanel();
+          setActiveTab("calendar");
+        });
+        courseworkBody.querySelectorAll("[data-delete-event]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const eventId = Number(button.dataset.deleteEvent);
+            await api(`/api/events/${eventId}`, { method: "DELETE" });
+            state.events = state.events.filter((item) => item.id !== eventId);
+            render();
+            closeCourseworkPanel();
+          });
+        });
+      }
+
       function subjectEvents(subjectId) {
         return state.events
           .filter((item) => item.subjectId === subjectId)
@@ -2837,6 +3161,10 @@
               ${icon("arrow", 15)}
               <span>Back to courses</span>
             </button>
+            <button class="danger-button tap-target mb-5 ml-2 bg-white/15 text-white" type="button" data-delete-subject="${subject.id}">
+              ${icon("trash", 15)}
+              <span>Delete subject</span>
+            </button>
             <div class="grid gap-5">
               <div class="min-w-0">
                 <p class="text-sm font-black text-white/70">Subject command center</p>
@@ -2862,11 +3190,22 @@
                   </div>
                   <span class="status-pill" style="--status-bg: ${meta.soft}; --status-ink: ${meta.strong}">${completed}/${tasks.length}</span>
                 </div>
-                <form class="task-form mb-3" data-subject="${subject.id}">
-                  <input class="task-input tap-target" name="task" placeholder="Add task for ${subject.code}..." autocomplete="off" />
-                  <button class="add-task tap-target" type="submit" aria-label="Add task">${icon("plus", 18)}</button>
-                </form>
-                <ul class="task-list">${tasks.length ? tasks.map(taskRow).join("") : `<li class="panel-empty">No tasks for this subject yet.</li>`}</ul>
+                <div class="summary-card">
+                  <div class="mini-progress"><span style="width: ${subjectCompletion(subject.id)}%; background: ${meta.strong}"></span></div>
+                  <div class="preview-list">
+                    ${
+                      tasks.length
+                        ? tasks.slice(0, 3).map((task) => `
+                            <div class="preview-row">
+                              <input class="task-toggle" type="checkbox" ${task.completed ? "checked" : ""} disabled aria-label="${escapeHtml(task.text)}" />
+                              <span class="truncate text-sm font-black ${task.completed ? "text-[#7d8791] line-through" : "text-[#252b31]"}">${escapeHtml(task.text)}</span>
+                            </div>
+                          `).join("")
+                        : `<div class="panel-empty">No tasks yet. Open the task board to add the first one.</div>`
+                    }
+                  </div>
+                  <button class="soft-button tap-target w-full" type="button" data-open-tasks="${subject.id}">${icon("note", 16)} Open tasks</button>
+                </div>
               </article>
 
               <article class="menu-panel">
@@ -2957,6 +3296,8 @@
       function bindSubjectDetailEvents() {
         tabPanel.querySelector("[data-back-to-courses]")?.addEventListener("click", () => setActiveTab("courses"));
         tabPanel.querySelector("[data-jump-calendar]")?.addEventListener("click", () => setActiveTab("calendar"));
+        tabPanel.querySelector("[data-open-tasks]")?.addEventListener("click", (event) => openTasksPanel(event.currentTarget.dataset.openTasks));
+        tabPanel.querySelector("[data-delete-subject]")?.addEventListener("click", (event) => openDeleteSubjectPanel(event.currentTarget.dataset.deleteSubject));
         tabPanel.querySelectorAll("[data-delete-event]").forEach((button) => {
           button.addEventListener("click", async () => {
             const eventId = Number(button.dataset.deleteEvent);
@@ -3018,11 +3359,16 @@
       function renderCoursesTab() {
         tabPanel.innerHTML = `
           ${panelIntro("Subject pages", "Choose a subject to open its focused page with tasks, folders, links, notes, and schedule in one place.")}
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm font-black text-[#68717d]">${visibleSubjects().length} visible subjects</p>
+            <button class="soft-button tap-target" type="button" data-add-subject>${icon("plus", 16)} New subject</button>
+          </div>
           <section class="subject-grid" aria-label="Filtered course cards">
             ${subjectCardsMarkup(visibleSubjects())}
           </section>
         `;
         bindSubjectEvents(tabPanel);
+        tabPanel.querySelector("[data-add-subject]")?.addEventListener("click", openSubjectFormPanel);
       }
 
       function renderNotesTab() {
@@ -3268,19 +3614,44 @@
         }).format(now);
 
         for (let i = firstDay - 1; i >= 0; i--) {
-          cells.push({ day: prevMonthDays - i, muted: true });
+          const day = prevMonthDays - i;
+          cells.push({ day, muted: true, date: new Date(year, month - 1, day) });
         }
         for (let day = 1; day <= daysInMonth; day++) {
-          cells.push({ day, today: day === today });
+          cells.push({ day, today: day === today, date: new Date(year, month, day) });
         }
         while (cells.length < 42) {
-          cells.push({ day: cells.length - daysInMonth - firstDay + 1, muted: true });
+          const day = cells.length - daysInMonth - firstDay + 1;
+          cells.push({ day, muted: true, date: new Date(year, month + 1, day) });
         }
 
         document.querySelector("#calendarGrid").innerHTML = cells
           .slice(0, 42)
-          .map((cell) => `<span class="calendar-day ${cell.muted ? "is-muted" : ""} ${cell.today ? "is-today" : ""}">${cell.day}</span>`)
+          .map((cell) => {
+            const key = dateKey(cell.date);
+            const dayEvents = eventsForDate(key);
+            const firstEvent = dayEvents[0];
+            const meta = firstEvent ? subjectMeta(firstEvent.subjectId) : null;
+            const label = firstEvent ? firstEvent.title : "";
+            return `
+              <button
+                class="calendar-day ${cell.muted ? "is-muted" : ""} ${cell.today ? "is-today" : ""} ${dayEvents.length ? "has-events" : ""}"
+                type="button"
+                data-calendar-date="${key}"
+                style="${meta ? `--event-color: ${meta.strong}` : ""}"
+                ${dayEvents.length ? "" : "disabled"}
+                title="${dayEvents.length ? escapeHtml(`${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}`) : ""}"
+              >
+                <span>${cell.day}</span>
+                ${label ? `<span class="calendar-event-label">${escapeHtml(label)}</span>` : ""}
+              </button>
+            `;
+          })
           .join("");
+
+        document.querySelectorAll("[data-calendar-date]:not([disabled])").forEach((button) => {
+          button.addEventListener("click", () => openDayAgendaPanel(button.dataset.calendarDate));
+        });
       }
 
       function openResource(url, title) {

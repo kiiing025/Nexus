@@ -42,6 +42,56 @@ async function request(path, options = {}) {
   assert.ok(Array.isArray(dashboard.events));
   assert.ok(dashboard.folders.length >= 30);
 
+  const customSubject = await request("/api/subjects", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      code: "IT499",
+      name: "Capstone Studio",
+      year: "4th Year",
+      semester: "4th Year - 1st Semester",
+      accent: "#14b8a6",
+    }),
+  });
+  assert.equal(customSubject.subject.id, "IT499");
+  assert.equal(customSubject.folders.length, 6);
+
+  const customTask = await request("/api/tasks", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ subjectId: "IT499", text: "Custom subject task" }),
+  });
+  assert.ok(customTask.task.id);
+
+  await request("/api/notes/IT499", {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({ content: "Custom subject note" }),
+  });
+
+  await request("/api/events", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      subjectId: "IT499",
+      title: "Custom subject performance",
+      startsAt: "2026-06-05T09:00:00.000Z",
+      type: "Performance",
+    }),
+  });
+
+  await request("/api/subjects/IT499", { method: "DELETE", headers });
+  const afterCustomDelete = await request("/api/dashboard", { headers });
+  assert.equal(afterCustomDelete.subjects.some((subject) => subject.id === "IT499"), false);
+  assert.equal(afterCustomDelete.tasks.some((task) => task.subjectId === "IT499"), false);
+  assert.equal(afterCustomDelete.notes.some((note) => note.subjectId === "IT499"), false);
+  assert.equal(afterCustomDelete.folders.some((folder) => folder.subjectId === "IT499"), false);
+  assert.equal(afterCustomDelete.events.some((event) => event.subjectId === "IT499"), false);
+
+  await request("/api/subjects/IT315", { method: "DELETE", headers });
+  const afterDefaultDelete = await request("/api/dashboard", { headers });
+  assert.equal(afterDefaultDelete.subjects.some((subject) => subject.id === "IT315"), false);
+
   const links = await request("/api/subjects/IT314/links", {
     method: "PUT",
     headers,
