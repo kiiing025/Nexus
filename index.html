@@ -69,6 +69,14 @@
           linear-gradient(135deg, #c7ced9 0%, #d7e6ef 55%, #c8d6e1 100%);
       }
 
+      body.admin-mode {
+        background:
+          radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.36), transparent 17rem),
+          radial-gradient(circle at 84% 16%, rgba(79, 70, 229, 0.22), transparent 26rem),
+          radial-gradient(circle at 72% 78%, rgba(14, 165, 233, 0.18), transparent 22rem),
+          linear-gradient(135deg, #0a111c 0%, #162033 48%, #1f2937 100%);
+      }
+
       body::before {
         position: fixed;
         inset: 0;
@@ -294,6 +302,16 @@
           inset 0 1px 0 rgba(255, 255, 255, 0.8);
       }
 
+      body.admin-mode .dashboard-shell {
+        border-color: rgba(148, 163, 184, 0.35);
+        background:
+          radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.13), transparent 20rem),
+          linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.94));
+        box-shadow:
+          0 34px 90px rgba(2, 6, 23, 0.48),
+          inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      }
+
       .left-rail,
       .right-rail,
       .workspace-panel,
@@ -327,6 +345,26 @@
         overflow-y: auto;
         overscroll-behavior: contain;
         background: rgba(238, 248, 250, 0.78);
+      }
+
+      body.admin-mode .left-rail {
+        border-color: rgba(148, 163, 184, 0.22);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(17, 24, 39, 0.86));
+        color: #f8fafc;
+      }
+
+      body.admin-mode .left-rail .brand-mark,
+      body.admin-mode .left-rail .brand-mark::before,
+      body.admin-mode .left-rail .brand-mark::after {
+        border-color: #f8fafc;
+      }
+
+      body.admin-mode .left-rail .welcome-title,
+      body.admin-mode .left-rail .eyebrow,
+      body.admin-mode .left-rail h3,
+      body.admin-mode .left-rail p,
+      body.admin-mode .left-rail #currentDate {
+        color: #f8fafc;
       }
 
       .logo-lockup {
@@ -373,6 +411,45 @@
         line-height: 0.98;
         letter-spacing: -0.04em;
         text-wrap: balance;
+      }
+
+      .admin-badge {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 0.45rem;
+        border: 1px solid rgba(125, 211, 252, 0.34);
+        border-radius: 999px;
+        background: rgba(14, 165, 233, 0.13);
+        color: #e0f2fe;
+        padding: 0.5rem 0.72rem;
+        font-size: 0.76rem;
+        font-weight: 900;
+      }
+
+      .admin-side-card {
+        border: 1px solid rgba(125, 211, 252, 0.24);
+        border-radius: 1.35rem;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.18), transparent 8rem),
+          rgba(15, 23, 42, 0.68);
+        color: #e5f3ff;
+        padding: 0.9rem;
+      }
+
+      .admin-side-card strong {
+        display: block;
+        font-size: 0.98rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+      }
+
+      .admin-side-card p {
+        margin-top: 0.35rem;
+        color: #a9bfd2 !important;
+        font-size: 0.76rem;
+        font-weight: 700;
+        line-height: 1.35;
       }
 
       .eyebrow {
@@ -576,6 +653,30 @@
         color: white;
       }
 
+      body.admin-mode .pill-nav {
+        background: rgba(15, 23, 42, 0.58);
+      }
+
+      body.admin-mode .icon-button {
+        background: rgba(255, 255, 255, 0.1);
+        color: #cbd5e1;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      body.admin-mode .icon-button.is-active {
+        background: #f8fafc;
+        color: #0f172a;
+      }
+
+      body.admin-mode .icon-button[data-tab="admin"] {
+        background: linear-gradient(135deg, #7dd3fc, #c4b5fd);
+        color: #08111f;
+      }
+
+      body.admin-mode .icon-button[data-tab="admin"].is-active {
+        box-shadow: 0 14px 32px rgba(14, 165, 233, 0.28);
+      }
+
       .icon-button.is-active span {
         display: inline;
       }
@@ -747,6 +848,253 @@
         border-radius: 1.25rem;
         background: rgba(255, 255, 255, 0.72);
         padding: 0.9rem;
+      }
+
+      .admin-shell {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .admin-hero {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(125, 211, 252, 0.28);
+        border-radius: 1.75rem;
+        background:
+          radial-gradient(circle at 86% 12%, rgba(125, 211, 252, 0.28), transparent 13rem),
+          radial-gradient(circle at 20% 80%, rgba(196, 181, 253, 0.18), transparent 16rem),
+          linear-gradient(135deg, #07111f, #13243a 52%, #1e293b);
+        color: #f8fafc;
+        padding: clamp(1rem, 2.4vw, 1.5rem);
+      }
+
+      .admin-hero::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        opacity: 0.11;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
+        background-size: 32px 32px;
+        pointer-events: none;
+      }
+
+      .admin-hero > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .admin-hero-title {
+        margin: 0;
+        max-width: 13ch;
+        font-size: clamp(2.35rem, 5vw, 4.6rem);
+        font-weight: 900;
+        letter-spacing: -0.07em;
+        line-height: 0.88;
+      }
+
+      .admin-hero-copy {
+        max-width: 58ch;
+        color: #b8c7d8;
+        font-size: 0.96rem;
+        font-weight: 700;
+        line-height: 1.65;
+      }
+
+      .admin-hero-actions,
+      .admin-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+
+      .admin-command-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 2.85rem;
+        border: 0;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #0f172a;
+        padding: 0 0.95rem;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .admin-command-button.is-ghost {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+      }
+
+      .admin-kpi-grid,
+      .admin-health-grid,
+      .admin-funnel {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .admin-kpi-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .admin-kpi,
+      .admin-panel,
+      .admin-user-row,
+      .admin-health-card,
+      .admin-action-card {
+        min-width: 0;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 1.35rem;
+        background: rgba(255, 255, 255, 0.78);
+        padding: 0.95rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+      }
+
+      .admin-kpi {
+        background:
+          radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--admin-accent) 22%, transparent), transparent 7rem),
+          rgba(255, 255, 255, 0.82);
+      }
+
+      .admin-kpi strong {
+        display: block;
+        margin-top: 0.75rem;
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.06em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .admin-kpi p,
+      .admin-health-card p,
+      .admin-action-card p {
+        color: #66717d;
+        font-size: 0.82rem;
+        font-weight: 750;
+        line-height: 1.45;
+      }
+
+      .admin-layout-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.78fr);
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .admin-input,
+      .admin-select {
+        width: 100%;
+        min-height: 2.85rem;
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+        color: #111827;
+        padding: 0 0.9rem;
+        font: inherit;
+        font-size: 0.88rem;
+        font-weight: 800;
+      }
+
+      .admin-toolbar {
+        display: grid;
+        grid-template-columns: minmax(12rem, 1fr) minmax(9rem, auto) minmax(9rem, auto);
+        align-items: center;
+      }
+
+      .admin-user-list {
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      .admin-user-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.9rem;
+      }
+
+      .admin-user-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.45rem;
+      }
+
+      .admin-chip {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: #eaf1f7;
+        color: #52606d;
+        padding: 0.28rem 0.5rem;
+        font-size: 0.68rem;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .admin-chip.is-risk {
+        background: #fff4d6;
+        color: #9a6500;
+      }
+
+      .admin-chip.is-good {
+        background: #dafbe8;
+        color: #11613c;
+      }
+
+      .admin-score {
+        display: grid;
+        place-items: center;
+        width: 3.25rem;
+        height: 3.25rem;
+        border-radius: 1rem;
+        background: #111827;
+        color: white;
+        font-size: 1.05rem;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .admin-health-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .admin-funnel-row {
+        display: grid;
+        grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.7rem;
+      }
+
+      .admin-funnel-track {
+        height: 0.58rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e4ecf3;
+      }
+
+      .admin-funnel-track span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #38bdf8, #a78bfa);
+      }
+
+      .admin-empty {
+        border-radius: 1.1rem;
+        background: rgba(226, 232, 240, 0.7);
+        color: #66717d;
+        padding: 1rem;
+        font-size: 0.88rem;
+        font-weight: 800;
+        line-height: 1.5;
       }
 
       .compact-list {
@@ -1658,7 +2006,14 @@
         .subject-grid,
         .subject-detail-grid,
         .menu-grid,
+        .admin-layout-grid,
+        .admin-kpi-grid,
+        .admin-health-grid,
         .right-rail {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .admin-toolbar {
           grid-template-columns: minmax(0, 1fr);
         }
 
@@ -1700,8 +2055,14 @@
         .resource-grid,
         .folder-strip,
         .menu-grid,
+        .admin-funnel-row,
+        .admin-user-row,
         .panel-grid {
           grid-template-columns: minmax(0, 1fr);
+        }
+
+        .admin-score {
+          width: 100%;
         }
 
         .icon-button span {
@@ -1858,6 +2219,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </button>
       </div>
+      <div id="mobileAdminBadge" class="admin-side-card mb-5 hidden"></div>
       <p class="eyebrow mb-3">Semester filters</p>
       <nav class="filter-stack mb-5" id="mobileFilters"></nav>
       <p class="eyebrow mb-3">Subjects</p>
@@ -1877,6 +2239,7 @@
           <section>
             <p id="currentDate" class="mb-3 text-sm font-bold text-[#68717d]"></p>
             <h1 class="welcome-title">Welcome back,<br /><span id="welcomeName">student</span></h1>
+            <div id="adminModeBadge" class="admin-badge mt-4 hidden"></div>
           </section>
 
           <section>
@@ -1886,6 +2249,8 @@
             </div>
             <div class="subject-rail" id="desktopSubjectRail"></div>
           </section>
+
+          <section id="adminSideCard" class="admin-side-card hidden"></section>
 
           <nav class="filter-stack" id="desktopFilters" aria-label="Semester filters"></nav>
           <button id="desktopLogout" class="soft-button tap-target w-full" type="button">Logout</button>
@@ -1905,7 +2270,7 @@
             </nav>
             <div class="flex items-center gap-2">
               <button class="icon-button tap-target" type="button" title="Notifications" aria-label="Notifications" id="notifyButton"></button>
-              <div class="avatar-button" aria-label="Profile avatar">👨🏻‍💻</div>
+              <div id="profileAvatar" class="avatar-button" aria-label="Profile avatar">AD</div>
             </div>
           </div>
 
@@ -2065,6 +2430,10 @@
         activePanel: null,
         adminOverview: null,
         adminUsers: [],
+        adminHealth: null,
+        adminSearch: "",
+        adminRoleFilter: "all",
+        adminSort: "recent",
       };
 
       const authOverlay = document.querySelector("#authOverlay");
@@ -2104,6 +2473,10 @@
       const courseworkEyebrow = document.querySelector("#courseworkEyebrow");
       const courseworkBody = document.querySelector("#courseworkBody");
       const schedulePanel = document.querySelector("#schedulePanel");
+      const adminModeBadge = document.querySelector("#adminModeBadge");
+      const adminSideCard = document.querySelector("#adminSideCard");
+      const mobileAdminBadge = document.querySelector("#mobileAdminBadge");
+      const profileAvatar = document.querySelector("#profileAvatar");
 
       function icon(name, size = 20) {
         const attrs = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" aria-hidden="true"`;
@@ -2132,6 +2505,12 @@
           trash: `<svg ${attrs}><path ${common} d="M5 7h14M10 11v6M14 11v6M8 7l1-3h6l1 3M7 7l1 13h8l1-13"/></svg>`,
           tune: `<svg ${attrs}><path ${common} d="M4 7h10M18 7h2M14 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0ZM4 17h2M10 17h10M6 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"/></svg>`,
           bell: `<svg ${attrs}><path ${common} d="M18 10a6 6 0 0 0-12 0c0 7-2 7-2 8h16c0-1-2-1-2-8Z"/><path ${common} d="M10 21h4"/></svg>`,
+          database: `<svg ${attrs}><path ${common} d="M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3Z"/><path ${common} d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path ${common} d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>`,
+          download: `<svg ${attrs}><path ${common} d="M12 3v11M8 10l4 4 4-4"/><path ${common} d="M5 18h14"/></svg>`,
+          copy: `<svg ${attrs}><path ${common} d="M8 8h10v12H8z"/><path ${common} d="M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+          search: `<svg ${attrs}><path ${common} d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path ${common} d="m21 21-4.3-4.3"/></svg>`,
+          activity: `<svg ${attrs}><path ${common} d="M4 13h4l2-7 4 12 2-5h4"/></svg>`,
+          warning: `<svg ${attrs}><path ${common} d="m12 3 9 16H3l9-16Z"/><path ${common} d="M12 9v4M12 17h.01"/></svg>`,
         };
         return icons[name] || icons.grid;
       }
@@ -2268,6 +2647,10 @@
         state.activePanel = null;
         state.adminOverview = null;
         state.adminUsers = [];
+        state.adminHealth = null;
+        state.adminSearch = "";
+        state.adminRoleFilter = "all";
+        state.adminSort = "recent";
         sessionStorage.removeItem("semstackToken");
         closeResource();
         closeCourseworkPanel();
@@ -2287,8 +2670,12 @@
           state.events = payload.events || [];
           state.adminOverview = null;
           state.adminUsers = [];
+          state.adminHealth = null;
           if (isAdmin()) {
             await loadAdminData();
+            state.activeTab = isAdmin() ? "admin" : "overview";
+          } else if (state.activeTab === "admin") {
+            state.activeTab = "overview";
           }
           render();
         } catch (error) {
@@ -2299,9 +2686,10 @@
       }
 
       async function loadAdminData() {
-        const [overview, usersPayload] = await Promise.all([api("/api/admin/overview"), api("/api/admin/users")]);
+        const [overview, usersPayload, health] = await Promise.all([api("/api/admin/overview"), api("/api/admin/users"), api("/api/health")]);
         state.adminOverview = overview;
         state.adminUsers = usersPayload.users || [];
+        state.adminHealth = health;
       }
 
       function visibleSubjects() {
@@ -2348,6 +2736,36 @@
           hour: "numeric",
           minute: "2-digit",
         }).format(date);
+      }
+
+      function formatDateOnly(value) {
+        if (!value) return "Never";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "Never";
+        return new Intl.DateTimeFormat("en", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }).format(date);
+      }
+
+      function daysSince(value) {
+        if (!value) return null;
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return null;
+        return Math.max(0, Math.floor((Date.now() - date.getTime()) / 86400000));
+      }
+
+      function lastSeenLabel(value) {
+        const days = daysSince(value);
+        if (days === null) return "Never logged in";
+        if (days === 0) return "Seen today";
+        if (days === 1) return "Seen yesterday";
+        return `Seen ${days} days ago`;
+      }
+
+      function formatNumber(value) {
+        return new Intl.NumberFormat("en").format(Number(value || 0));
       }
 
       function dateKey(date) {
@@ -3647,34 +4065,184 @@
         bindSubjectEvents(tabPanel);
       }
 
-      function adminMetricCard(label, value, detail, iconName = "users") {
+      function adminStats() {
+        const users = state.adminUsers;
+        const regularUsers = users.filter((user) => user.role !== "admin");
+        const withSubjects = regularUsers.filter((user) => Number(user.subjectCount || 0) > 0);
+        const withTasks = regularUsers.filter((user) => Number(user.taskCount || 0) > 0);
+        const withEvents = regularUsers.filter((user) => Number(user.eventCount || 0) > 0);
+        const activeSevenDays = regularUsers.filter((user) => {
+          const days = daysSince(user.lastLoginAt);
+          return days !== null && days <= 7;
+        });
+        const needsSetup = regularUsers.filter((user) => Number(user.subjectCount || 0) === 0);
+        const dormant = regularUsers.filter((user) => {
+          const days = daysSince(user.lastLoginAt);
+          return days === null || days >= 14;
+        });
+
+        return {
+          users,
+          regularUsers,
+          withSubjects,
+          withTasks,
+          withEvents,
+          activeSevenDays,
+          needsSetup,
+          dormant,
+        };
+      }
+
+      function percentOf(value, total) {
+        return total ? Math.round((value / total) * 100) : 0;
+      }
+
+      function adminEngagementScore(user) {
+        const subjectPoints = Math.min(Number(user.subjectCount || 0) * 18, 36);
+        const taskPoints = Math.min(Number(user.taskCount || 0) * 5, 35);
+        const eventPoints = Math.min(Number(user.eventCount || 0) * 8, 24);
+        const days = daysSince(user.lastLoginAt);
+        const loginPoints = days === null ? 0 : days <= 7 ? 5 : days <= 14 ? 3 : 1;
+        return Math.min(subjectPoints + taskPoints + eventPoints + loginPoints, 100);
+      }
+
+      function adminRiskChip(user) {
+        if (user.role === "admin") return { label: "Admin", className: "" };
+        if (Number(user.subjectCount || 0) === 0) return { label: "Needs setup", className: "is-risk" };
+        if (!user.lastLoginAt) return { label: "No login yet", className: "is-risk" };
+        if ((daysSince(user.lastLoginAt) || 0) >= 14) return { label: "Dormant", className: "is-risk" };
+        if (adminEngagementScore(user) >= 55) return { label: "Active", className: "is-good" };
+        return { label: "Light use", className: "" };
+      }
+
+      function filteredAdminUsers() {
+        const query = state.adminSearch.trim().toLowerCase();
+        const filtered = state.adminUsers.filter((user) => {
+          const matchesSearch = !query || user.email.toLowerCase().includes(query);
+          const matchesRole =
+            state.adminRoleFilter === "all" ||
+            (state.adminRoleFilter === "admins" && user.role === "admin") ||
+            (state.adminRoleFilter === "students" && user.role !== "admin") ||
+            (state.adminRoleFilter === "setup" && user.role !== "admin" && Number(user.subjectCount || 0) === 0) ||
+            (state.adminRoleFilter === "active" && user.role !== "admin" && adminEngagementScore(user) >= 55);
+          return matchesSearch && matchesRole;
+        });
+
+        return filtered.sort((a, b) => {
+          if (state.adminSort === "usage") return adminEngagementScore(b) - adminEngagementScore(a);
+          if (state.adminSort === "lastLogin") return new Date(b.lastLoginAt || 0) - new Date(a.lastLoginAt || 0);
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
+      }
+
+      function adminMetricCard(label, value, detail, iconName = "users", accent = "#38bdf8") {
         return `
-          <article class="menu-card">
+          <article class="admin-kpi" style="--admin-accent: ${accent}">
             <span class="round-icon">${icon(iconName, 18)}</span>
-            <p class="eyebrow mt-4">${label}</p>
-            <h3 class="mt-1 text-3xl font-black tracking-[-0.04em]">${escapeHtml(value)}</h3>
-            <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">${escapeHtml(detail)}</p>
+            <strong>${escapeHtml(value)}</strong>
+            <p class="mt-2">${escapeHtml(label)}</p>
+            <p class="mt-1 text-xs font-black text-[#8a95a1]">${escapeHtml(detail)}</p>
           </article>
         `;
       }
 
-      function adminUserRow(user) {
+      function adminFunnelRow(label, value, total) {
+        const percent = percentOf(value, total);
         return `
-          <article class="schedule-item">
+          <div class="admin-funnel-row">
+            <strong class="text-sm font-black">${escapeHtml(label)}</strong>
+            <div class="admin-funnel-track" aria-hidden="true"><span style="width: ${percent}%"></span></div>
+            <span class="text-sm font-black text-[#66717d]">${percent}%</span>
+          </div>
+        `;
+      }
+
+      function adminUserRow(user) {
+        const risk = adminRiskChip(user);
+        const score = adminEngagementScore(user);
+        return `
+          <article class="admin-user-row">
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
                 <strong class="break-words text-sm">${escapeHtml(user.email)}</strong>
                 <span class="status-pill" style="--status-bg: ${user.role === "admin" ? "#fff4b8" : "#dff7e8"}; --status-ink: ${user.role === "admin" ? "#9c7a00" : "#2d8c54"}">${escapeHtml(user.role)}</span>
+                <span class="admin-chip ${risk.className}">${escapeHtml(risk.label)}</span>
               </div>
-              <p class="mt-1 text-xs font-bold text-[#68717d]">Joined ${formatDateTime(user.createdAt)} - Last login ${user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "Never"}</p>
+              <p class="mt-2 text-xs font-bold text-[#68717d]">Joined ${formatDateOnly(user.createdAt)}. ${lastSeenLabel(user.lastLoginAt)}.</p>
+              <div class="admin-user-meta">
+                <span class="admin-chip">${formatNumber(user.subjectCount)} subjects</span>
+                <span class="admin-chip">${formatNumber(user.taskCount)} tasks</span>
+                <span class="admin-chip">${formatNumber(user.eventCount)} events</span>
+              </div>
             </div>
-            <div class="text-right text-xs font-black text-[#68717d]">
-              <p>${Number(user.subjectCount || 0)} subjects</p>
-              <p>${Number(user.taskCount || 0)} tasks</p>
-              <p>${Number(user.eventCount || 0)} events</p>
-            </div>
+            <div class="admin-score" title="Engagement score">${score}</div>
           </article>
         `;
+      }
+
+      function renderAdminUserResults() {
+        const users = filteredAdminUsers();
+        const count = tabPanel.querySelector("[data-admin-results-count]");
+        const list = tabPanel.querySelector("[data-admin-users-list]");
+        if (count) {
+          count.textContent = `${users.length} account${users.length === 1 ? "" : "s"} shown`;
+        }
+        if (list) {
+          list.innerHTML = users.length ? users.map(adminUserRow).join("") : `<div class="admin-empty">No accounts match this filter.</div>`;
+        }
+      }
+
+      function adminCsv() {
+        const headers = ["email", "role", "createdAt", "lastLoginAt", "subjects", "tasks", "events", "engagementScore"];
+        const rows = state.adminUsers.map((user) => [
+          user.email,
+          user.role,
+          user.createdAt || "",
+          user.lastLoginAt || "",
+          user.subjectCount || 0,
+          user.taskCount || 0,
+          user.eventCount || 0,
+          adminEngagementScore(user),
+        ]);
+        return [headers, ...rows]
+          .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","))
+          .join("\n");
+      }
+
+      function downloadAdminCsv() {
+        const blob = new Blob([adminCsv()], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `semstack-admin-users-${dateKey(new Date())}.csv`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      async function copyAdminSummary() {
+        const metrics = state.adminOverview?.metrics || {};
+        const stats = adminStats();
+        const summary = [
+          "SemStack admin snapshot",
+          `Users: ${metrics.totalUsers || 0}`,
+          `Regular users: ${metrics.regularUsers || stats.regularUsers.length}`,
+          `Admins: ${metrics.totalAdmins || 0}`,
+          `Subjects: ${metrics.totalSubjects || 0}`,
+          `Tasks: ${metrics.totalTasks || 0}`,
+          `Calendar items: ${metrics.totalEvents || 0}`,
+          `Needs setup: ${stats.needsSetup.length}`,
+          `Active this week: ${stats.activeSevenDays.length}`,
+          `Database: ${state.adminHealth?.database || "unknown"}`,
+        ].join("\n");
+
+        try {
+          await navigator.clipboard.writeText(summary);
+          return "Summary copied.";
+        } catch {
+          return summary;
+        }
       }
 
       function renderAdminTab() {
@@ -3693,36 +4261,153 @@
         }
 
         const metrics = state.adminOverview?.metrics || {};
+        const stats = adminStats();
         const recent = state.adminOverview?.recentRegistrations || [];
+        const totalRegular = stats.regularUsers.length || Number(metrics.regularUsers || 0);
+        const setupPercent = percentOf(stats.withSubjects.length, totalRegular);
+        const taskPercent = percentOf(stats.withTasks.length, totalRegular);
+        const eventPercent = percentOf(stats.withEvents.length, totalRegular);
+        const attention = [...stats.needsSetup, ...stats.dormant]
+          .filter((user, index, list) => list.findIndex((item) => item.email === user.email) === index)
+          .slice(0, 5);
+
         tabPanel.innerHTML = `
-          ${panelIntro("Admin dashboard", "Track account creation and app usage without opening private notes, links, or task text.")}
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <p class="text-sm font-black text-[#68717d]">${state.adminUsers.length} visible accounts</p>
-            <button class="soft-button tap-target" type="button" data-refresh-admin>${icon("tune", 16)} Refresh</button>
-          </div>
-          <section class="menu-grid">
-            ${adminMetricCard("Total users", String(metrics.totalUsers || 0), `${metrics.regularUsers || 0} regular, ${metrics.totalAdmins || 0} admin`, "users")}
-            ${adminMetricCard("Subjects", String(metrics.totalSubjects || 0), "Subjects created across all accounts.", "cap")}
-            ${adminMetricCard("Tasks", String(metrics.totalTasks || 0), "Task count only; private task text stays hidden.", "note")}
-            ${adminMetricCard("Calendar items", String(metrics.totalEvents || 0), "Events and deadlines across the app.", "calendar")}
-            <article class="menu-panel">
-              <h3 class="text-lg font-black tracking-[-0.03em]">Recent registrations</h3>
-              <div class="compact-list mt-4">
-                ${recent.length ? recent.map(adminUserRow).join("") : `<div class="panel-empty">No account activity yet.</div>`}
+          <section class="admin-shell" aria-label="Admin Command Center">
+            <article class="admin-hero">
+              <div class="flex flex-wrap items-start justify-between gap-5">
+                <div class="min-w-0">
+                  <span class="admin-badge">${icon("shield", 15)} Admin Mode</span>
+                  <h2 class="admin-hero-title mt-5">Admin Command Center</h2>
+                  <p class="admin-hero-copy mt-5">Monitor accounts, spot setup problems, export user activity, and confirm the platform is running on durable storage without opening private coursework content.</p>
+                </div>
+                <div class="admin-hero-actions">
+                  <button class="admin-command-button tap-target" type="button" data-refresh-admin>${icon("activity", 16)} Refresh data</button>
+                  <button class="admin-command-button is-ghost tap-target" type="button" data-export-admin-users>${icon("download", 16)} Export CSV</button>
+                  <button class="admin-command-button is-ghost tap-target" type="button" data-copy-admin-summary>${icon("copy", 16)} Copy summary</button>
+                </div>
               </div>
             </article>
-            <article class="menu-panel">
-              <h3 class="text-lg font-black tracking-[-0.03em]">Users</h3>
-              <div class="compact-list mt-4">
-                ${state.adminUsers.length ? state.adminUsers.map(adminUserRow).join("") : `<div class="panel-empty">No users found.</div>`}
+
+            <section class="admin-kpi-grid">
+              ${adminMetricCard("Total users", formatNumber(metrics.totalUsers || state.adminUsers.length), `${metrics.regularUsers || totalRegular} regular, ${metrics.totalAdmins || 0} admin`, "users", "#38bdf8")}
+              ${adminMetricCard("Setup rate", `${setupPercent}%`, `${stats.withSubjects.length} accounts added subjects`, "cap", "#22c55e")}
+              ${adminMetricCard("Task adoption", `${taskPercent}%`, `${formatNumber(metrics.totalTasks || 0)} total tasks`, "note", "#a78bfa")}
+              ${adminMetricCard("Calendar adoption", `${eventPercent}%`, `${formatNumber(metrics.totalEvents || 0)} scheduled items`, "calendar", "#f59e0b")}
+            </section>
+
+            <section class="admin-layout-grid">
+              <article class="admin-panel">
+                <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p class="eyebrow">Account intelligence</p>
+                    <h3 class="mt-1 text-xl font-black tracking-[-0.04em]">Users and engagement</h3>
+                  </div>
+                  <p class="text-sm font-black text-[#68717d]" data-admin-results-count></p>
+                </div>
+                <div class="admin-toolbar mb-4">
+                  <label class="relative block min-w-0">
+                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#66717d]">${icon("search", 16)}</span>
+                    <input class="admin-input pl-10" type="search" placeholder="Search accounts..." value="${escapeHtml(state.adminSearch)}" data-admin-search />
+                  </label>
+                  <select class="admin-select" data-admin-role-filter>
+                    <option value="all" ${state.adminRoleFilter === "all" ? "selected" : ""}>All accounts</option>
+                    <option value="students" ${state.adminRoleFilter === "students" ? "selected" : ""}>Students only</option>
+                    <option value="admins" ${state.adminRoleFilter === "admins" ? "selected" : ""}>Admins only</option>
+                    <option value="setup" ${state.adminRoleFilter === "setup" ? "selected" : ""}>Needs setup</option>
+                    <option value="active" ${state.adminRoleFilter === "active" ? "selected" : ""}>Active users</option>
+                  </select>
+                  <select class="admin-select" data-admin-sort>
+                    <option value="recent" ${state.adminSort === "recent" ? "selected" : ""}>Newest first</option>
+                    <option value="lastLogin" ${state.adminSort === "lastLogin" ? "selected" : ""}>Last login</option>
+                    <option value="usage" ${state.adminSort === "usage" ? "selected" : ""}>Most engaged</option>
+                  </select>
+                </div>
+                <div class="admin-user-list" data-admin-users-list></div>
+              </article>
+
+              <div class="grid gap-4">
+                <article class="admin-panel">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p class="eyebrow">Platform health</p>
+                      <h3 class="mt-1 text-lg font-black tracking-[-0.03em]">Live system status</h3>
+                    </div>
+                    <span class="round-icon">${icon("database", 18)}</span>
+                  </div>
+                  <div class="admin-health-grid mt-4">
+                    <div class="admin-health-card">
+                      <strong class="text-sm font-black">Database</strong>
+                      <p class="mt-1">${escapeHtml(state.adminHealth?.database || "checking")}</p>
+                    </div>
+                    <div class="admin-health-card">
+                      <strong class="text-sm font-black">Auth</strong>
+                      <p class="mt-1">JWT protected</p>
+                    </div>
+                    <div class="admin-health-card">
+                      <strong class="text-sm font-black">Privacy</strong>
+                      <p class="mt-1">Counts only</p>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="admin-panel">
+                  <p class="eyebrow">Adoption funnel</p>
+                  <h3 class="mt-1 text-lg font-black tracking-[-0.03em]">Where users stop</h3>
+                  <div class="admin-funnel mt-4">
+                    ${adminFunnelRow("Registered", totalRegular, totalRegular || 1)}
+                    ${adminFunnelRow("Added subjects", stats.withSubjects.length, totalRegular)}
+                    ${adminFunnelRow("Created tasks", stats.withTasks.length, totalRegular)}
+                    ${adminFunnelRow("Scheduled dates", stats.withEvents.length, totalRegular)}
+                  </div>
+                </article>
+
+                <article class="admin-panel">
+                  <p class="eyebrow">Needs attention</p>
+                  <h3 class="mt-1 text-lg font-black tracking-[-0.03em]">Accounts to check</h3>
+                  <div class="compact-list mt-4">
+                    ${
+                      attention.length
+                        ? attention.map(adminUserRow).join("")
+                        : `<div class="admin-empty">No setup or inactivity issues found.</div>`
+                    }
+                  </div>
+                </article>
+
+                <article class="admin-panel">
+                  <p class="eyebrow">Recent registrations</p>
+                  <div class="compact-list mt-4">
+                    ${recent.length ? recent.map(adminUserRow).join("") : `<div class="admin-empty">No account activity yet.</div>`}
+                  </div>
+                </article>
               </div>
-            </article>
+            </section>
           </section>
         `;
 
-        tabPanel.querySelector("[data-refresh-admin]")?.addEventListener("click", async () => {
-          await loadAdminData();
-          render();
+        renderAdminUserResults();
+
+        tabPanel.querySelector("[data-admin-search]")?.addEventListener("input", (event) => {
+          state.adminSearch = event.currentTarget.value;
+          renderAdminUserResults();
+        });
+        tabPanel.querySelector("[data-admin-role-filter]")?.addEventListener("change", (event) => {
+          state.adminRoleFilter = event.currentTarget.value;
+          renderAdminUserResults();
+        });
+        tabPanel.querySelector("[data-admin-sort]")?.addEventListener("change", (event) => {
+          state.adminSort = event.currentTarget.value;
+          renderAdminUserResults();
+        });
+        tabPanel.querySelectorAll("[data-refresh-admin]").forEach((button) => {
+          button.addEventListener("click", async () => {
+            await loadAdminData();
+            render();
+          });
+        });
+        tabPanel.querySelector("[data-export-admin-users]")?.addEventListener("click", downloadAdminCsv);
+        tabPanel.querySelector("[data-copy-admin-summary]")?.addEventListener("click", async (event) => {
+          const message = await copyAdminSummary();
+          event.currentTarget.innerHTML = `${icon("copy", 16)} ${escapeHtml(message === "Summary copied." ? "Copied" : "Summary ready")}`;
         });
       }
 
@@ -3877,10 +4562,35 @@
         resourceOverlay.classList.remove("grid");
       }
 
+      function renderAdminChrome() {
+        const admin = isAdmin();
+        document.body.classList.toggle("admin-mode", admin);
+        profileAvatar.textContent = admin ? "AD" : "👨🏻‍💻";
+
+        const stats = admin ? adminStats() : null;
+        const sideMarkup = admin
+          ? `
+            <div class="flex items-center gap-2">
+              <span class="round-icon h-9 w-9 bg-white/10 text-white">${icon("shield", 16)}</span>
+              <strong>Admin console</strong>
+            </div>
+            <p>${stats?.regularUsers.length || 0} student accounts, ${stats?.needsSetup.length || 0} need setup, ${state.adminHealth?.database || "checking"} database.</p>
+          `
+          : "";
+
+        adminModeBadge.classList.toggle("hidden", !admin);
+        adminModeBadge.innerHTML = admin ? `${icon("shield", 15)} Admin Mode` : "";
+        adminSideCard.classList.toggle("hidden", !admin);
+        adminSideCard.innerHTML = sideMarkup;
+        mobileAdminBadge.classList.toggle("hidden", !admin);
+        mobileAdminBadge.innerHTML = sideMarkup;
+      }
+
       function render() {
         const rawName = state.user?.email ? state.user.email.split("@")[0].split("+")[0] : "";
-        const displayName = rawName && rawName.length <= 12 && !rawName.includes("-") ? rawName : "King";
+        const displayName = isAdmin() ? "admin" : rawName && rawName.length <= 12 && !rawName.includes("-") ? rawName : "King";
         document.querySelector("#welcomeName").textContent = displayName;
+        renderAdminChrome();
         subjectCount.textContent = `${state.subjects.length}`;
         renderFilters(desktopFilters);
         renderFilters(mobileFilters);
