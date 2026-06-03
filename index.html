@@ -1553,6 +1553,12 @@
         font-weight: 700;
       }
 
+      .error-text.is-success {
+        border-color: rgba(31, 159, 132, 0.24);
+        background: rgba(223, 247, 232, 0.78);
+        color: #1f7f68;
+      }
+
       .skeleton {
         display: inline-flex;
         align-items: center;
@@ -2155,6 +2161,7 @@
       function setAuthMode(mode) {
         state.authMode = mode;
         authError.classList.add("hidden");
+        authError.classList.remove("is-success");
         authSubmit.firstChild.textContent = mode === "login" ? "Login " : "Create account ";
         loginTab.classList.toggle("is-active", mode === "login");
         registerTab.classList.toggle("is-active", mode === "register");
@@ -2204,8 +2211,10 @@
       async function authenticate(event) {
         event.preventDefault();
         authError.classList.add("hidden");
+        authError.classList.remove("is-success");
         setLoading(true);
         try {
+          const mode = state.authMode;
           const payload = await api(`/api/auth/${state.authMode}`, {
             method: "POST",
             body: JSON.stringify({
@@ -2213,12 +2222,25 @@
               password: authPassword.value,
             }),
           });
+          if (mode === "register") {
+            state.token = null;
+            state.user = null;
+            sessionStorage.removeItem("semstackToken");
+            authPassword.value = "";
+            setAuthMode("login");
+            authError.textContent = "Account created. Please log in.";
+            authError.classList.add("is-success");
+            authError.classList.remove("hidden");
+            return;
+          }
+
           state.token = payload.token;
           state.user = payload.user;
           sessionStorage.setItem("semstackToken", payload.token);
           hideAuth();
           await loadDashboard();
         } catch (error) {
+          authError.classList.remove("is-success");
           authError.textContent = error.message;
           authError.classList.remove("hidden");
         } finally {
