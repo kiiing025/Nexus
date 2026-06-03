@@ -2185,13 +2185,16 @@
         }
 
         const response = await fetch(path, { ...options, headers });
-        if (response.status === 401) {
-          logout("Your session expired. Please log in again.");
-          throw new Error("Unauthorized");
-        }
         if (response.status === 204) return null;
 
         const payload = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          if (path.startsWith("/api/auth/")) {
+            throw new Error(payload.error || "Invalid email or password.");
+          }
+          logout("Your session expired. Please log in again.");
+          throw new Error("Unauthorized");
+        }
         if (!response.ok) {
           throw new Error(payload.error || "Request failed.");
         }
