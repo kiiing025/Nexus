@@ -11,6 +11,7 @@ const defaultDbPath = process.env.VERCEL
   : path.join(dataDir, "semstack.sqlite");
 const dbPath = process.env.DB_FILE || defaultDbPath;
 const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
+const requireHostedDatabase = process.env.VERCEL || process.env.SEMSTACK_REQUIRE_DATABASE_URL === "true";
 
 let dbPromise;
 
@@ -131,6 +132,9 @@ async function createSqliteDb() {
 
 async function getDb() {
   if (!dbPromise) {
+    if (!databaseUrl && requireHostedDatabase) {
+      throw new Error("DATABASE_URL is required for deployed SemStack data. Attach a hosted Postgres database before starting production.");
+    }
     dbPromise = databaseUrl ? Promise.resolve(makePostgresWrapper(createPostgresPool())) : createSqliteDb();
   }
 
