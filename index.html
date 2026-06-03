@@ -892,8 +892,49 @@
         padding: 1rem;
       }
 
+      .subject-card.is-launcher {
+        position: relative;
+        display: grid;
+        min-height: 16.5rem;
+        align-content: space-between;
+        cursor: pointer;
+        overflow: hidden;
+      }
+
+      .subject-card.is-launcher::after {
+        position: absolute;
+        right: -2.8rem;
+        bottom: -3rem;
+        width: 10rem;
+        height: 10rem;
+        content: "";
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--soft-strong) 20%, transparent);
+        pointer-events: none;
+      }
+
+      .subject-card.is-launcher:hover {
+        transform: translateY(-0.25rem);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.82),
+          0 24px 54px color-mix(in srgb, var(--soft-strong) 18%, rgba(112, 128, 144, 0.18));
+      }
+
+      .subject-card.is-launcher:focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--soft-strong) 36%, white);
+        outline-offset: 4px;
+      }
+
       .subject-card:nth-child(3n + 1) {
         transform: translateY(-0.2rem);
+      }
+
+      .subject-card.is-launcher:nth-child(3n + 1) {
+        transform: none;
+      }
+
+      .subject-card.is-launcher:nth-child(3n + 1):hover {
+        transform: translateY(-0.25rem);
       }
 
       .subject-head {
@@ -901,6 +942,50 @@
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 0.8rem;
         align-items: start;
+      }
+
+      .launcher-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.5rem;
+      }
+
+      .launcher-stat {
+        min-width: 0;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.58);
+        padding: 0.68rem;
+      }
+
+      .launcher-stat strong {
+        display: block;
+        color: var(--ink);
+        font-size: 1rem;
+        font-weight: 900;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .launcher-stat span {
+        display: block;
+        margin-top: 0.35rem;
+        color: #68717d;
+        font-size: 0.72rem;
+        font-weight: 800;
+      }
+
+      .launcher-progress {
+        height: 0.5rem;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.68);
+      }
+
+      .launcher-progress span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--soft-strong);
       }
 
       .resource-grid {
@@ -2226,77 +2311,68 @@
         const meta = subjectMeta(subject.id);
         const tasks = subjectTasks(subject.id);
         const completed = tasks.filter((task) => task.completed).length;
-        const note = state.notes[subject.id] || "";
         const completion = subjectCompletion(subject.id);
+        const folders = foldersForSubject(subject.id);
+        const events = subjectEvents(subject.id);
+        const nextEvent = events[0];
 
         return `
           <article
-            class="subject-card reveal"
+            class="subject-card is-launcher reveal tap-target"
             style="--soft: ${meta.soft}; --soft-strong: ${meta.strong}"
             data-subject-card="${subject.id}"
+            data-open-subject="${subject.id}"
+            role="button"
+            tabindex="0"
+            aria-label="Open ${subject.code} subject page"
           >
             <header class="subject-head">
               <div class="min-w-0">
                 <p class="text-xs font-black text-[#68717d]">${subject.semester}</p>
-                <h3 class="mt-1 break-words text-xl font-black leading-tight">${subject.code}: ${subject.name}</h3>
+                <h3 class="mt-1 break-words text-2xl font-black leading-tight tracking-[-0.04em]">${subject.code}: ${subject.name}</h3>
               </div>
-              <span class="round-icon" style="color: ${meta.strong}">${icon(meta.icon, 20)}</span>
+              <span class="round-icon" style="background: rgba(255,255,255,0.72); color: ${meta.strong}">${icon(meta.icon, 20)}</span>
             </header>
 
-            <button class="open-subject-button tap-target mt-4 w-full" type="button" data-open-subject="${subject.id}">
-              ${icon("arrow", 16)}
-              <span>Open subject page</span>
-            </button>
+            <div class="relative z-[1] mt-5">
+              <p class="max-w-[34ch] text-sm font-bold leading-6 text-[#3f4851]">
+                Open the focused page for tasks, folders, links, notes, and schedule items.
+              </p>
+            </div>
 
-            <div class="mt-4 grid gap-2">
-              <div class="flex items-center justify-between gap-3">
-                <p class="text-sm font-black">Resource hub</p>
-                <button class="edit-links-button tap-target" type="button" data-edit-links="${subject.id}">
-                  ${icon("edit", 15)}
-                  <span>Edit links</span>
-                </button>
+            <div class="relative z-[1] mt-5 grid gap-3">
+              <div class="launcher-stat-grid">
+                <div class="launcher-stat">
+                  <strong>${tasks.length}</strong>
+                  <span>tasks</span>
+                </div>
+                <div class="launcher-stat">
+                  <strong>${folders.length}</strong>
+                  <span>folders</span>
+                </div>
+                <div class="launcher-stat">
+                  <strong>${events.length}</strong>
+                  <span>dates</span>
+                </div>
               </div>
-              <div class="resource-grid">
-                ${linkFields.map((field) => resourceButton(subject, field)).join("")}
+              <div>
+                <div class="mb-2 flex items-center justify-between gap-3">
+                  <p class="text-xs font-black text-[#68717d]">${tasks.length ? `${completed}/${tasks.length} done` : "No tasks yet"}</p>
+                  <p class="text-xs font-black text-[#68717d]">${completion}%</p>
+                </div>
+                <div class="launcher-progress" aria-hidden="true">
+                  <span style="width: ${completion}%"></span>
+                </div>
               </div>
             </div>
 
-            <section class="mt-5">
-              <div class="mb-2 flex items-center justify-between gap-3">
-                <p class="text-sm font-black">Subject folders</p>
-                <p class="text-xs font-bold text-[#68717d]">${foldersForSubject(subject.id).length} hubs</p>
+            <footer class="relative z-[1] mt-5 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-xs font-black text-[#68717d]">Next</p>
+                <p class="truncate text-sm font-black">${nextEvent ? escapeHtml(nextEvent.title) : "Open subject page"}</p>
               </div>
-              <div class="folder-strip">
-                ${foldersForSubject(subject.id).map((folder) => folderButton(subject, folder)).join("")}
-              </div>
-            </section>
-
-            <section class="mt-5">
-              <div class="mb-2 flex items-center justify-between gap-3">
-                <p class="text-sm font-black">Tasks</p>
-                <div class="flex items-center gap-2">
-                  <p class="text-xs font-bold text-[#68717d]">${completed}/${tasks.length} done</p>
-                  <div class="mini-progress w-20"><span style="width: ${completion}%; background: ${meta.strong}"></span></div>
-                </div>
-              </div>
-              <form class="task-form mb-3" data-subject="${subject.id}">
-                <input class="task-input tap-target" name="task" placeholder="Add task..." autocomplete="off" />
-                <button class="add-task tap-target" type="submit" aria-label="Add task">${icon("plus", 18)}</button>
-              </form>
-              <ul class="task-list">${tasks.length ? tasks.map(taskRow).join("") : `<li class="rounded-[1rem] bg-white/55 px-3 py-3 text-sm font-bold text-[#68717d]">No tasks in this lane yet.</li>`}</ul>
-            </section>
-
-            <section class="mt-5" data-note-shell>
-              <div class="mb-2 flex items-center justify-between gap-3">
-                <p class="text-sm font-black">Scratchpad</p>
-                <p class="save-state" data-save-state="${subject.id}">Saved automatically</p>
-              </div>
-              <textarea
-                class="notes-field notes-field-${subject.id}"
-                data-subject="${subject.id}"
-                placeholder="Paste commands, module links, exam dates, or project notes..."
-              >${escapeHtml(note)}</textarea>
-            </section>
+              <span class="arrow-circle bg-white/45">${icon("arrow", 18)}</span>
+            </footer>
           </article>
         `;
       }
@@ -2413,8 +2489,21 @@
           button.addEventListener("click", () => openFolderPanel(button.dataset.subject, button.dataset.folderButton));
         });
 
-        root.querySelectorAll("[data-open-subject]").forEach((button) => {
-          button.addEventListener("click", () => openSubject(button.dataset.openSubject));
+        root.querySelectorAll("[data-open-subject]").forEach((trigger) => {
+          const open = () => openSubject(trigger.dataset.openSubject);
+          trigger.addEventListener("click", (event) => {
+            event.preventDefault();
+            open();
+          });
+
+          if (trigger.tagName !== "BUTTON") {
+            trigger.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                open();
+              }
+            });
+          }
         });
       }
 
@@ -2928,7 +3017,7 @@
 
       function renderCoursesTab() {
         tabPanel.innerHTML = `
-          ${panelIntro("Courses", "Browse every subject without leaving the dashboard frame. Use filters from the sidebar to narrow the cards.")}
+          ${panelIntro("Subject pages", "Choose a subject to open its focused page with tasks, folders, links, notes, and schedule in one place.")}
           <section class="subject-grid" aria-label="Filtered course cards">
             ${subjectCardsMarkup(visibleSubjects())}
           </section>
