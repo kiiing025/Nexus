@@ -10,7 +10,7 @@ const defaultDbPath = process.env.VERCEL
   ? path.join(os.tmpdir(), "semstack.sqlite")
   : path.join(dataDir, "semstack.sqlite");
 const dbPath = process.env.DB_FILE || defaultDbPath;
-const databaseUrl = process.env.DATABASE_URL || "";
+const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || "";
 
 let dbPromise;
 

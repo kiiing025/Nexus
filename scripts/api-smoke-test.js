@@ -25,6 +25,10 @@ async function request(path, options = {}) {
 }
 
 (async () => {
+  const health = await request("/api/health");
+  assert.equal(health.ok, true);
+  assert.match(health.database, /^(sqlite|postgres)$/);
+
   const registered = await request("/api/auth/register", {
     method: "POST",
     body: JSON.stringify({ email, password }),

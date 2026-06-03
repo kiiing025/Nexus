@@ -6,7 +6,7 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const { initDb } = require("./models/database");
+const { getDb, initDb } = require("./models/database");
 const User = require("./models/User");
 const Subject = require("./models/Subject");
 const Folder = require("./models/Folder");
@@ -126,6 +126,15 @@ app.post("/api/auth/login", async (req, res, next) => {
       token: signToken(user),
       user: publicUser(user),
     });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get("/api/health", async (req, res, next) => {
+  try {
+    const db = await getDb();
+    return res.json({ ok: true, database: db.dialect });
   } catch (error) {
     return next(error);
   }
