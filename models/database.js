@@ -33,9 +33,19 @@ function useSslForPostgres(connectionString) {
   return !/localhost|127\.0\.0\.1/i.test(connectionString);
 }
 
+function sanitizedPostgresConnectionString(connectionString) {
+  try {
+    const url = new URL(connectionString);
+    ["sslmode", "sslcert", "sslkey", "sslrootcert"].forEach((key) => url.searchParams.delete(key));
+    return url.toString();
+  } catch {
+    return connectionString;
+  }
+}
+
 function createPostgresPool() {
   return new Pool({
-    connectionString: databaseUrl,
+    connectionString: sanitizedPostgresConnectionString(databaseUrl),
     ssl: useSslForPostgres(databaseUrl) ? { rejectUnauthorized: false } : false,
   });
 }
@@ -157,6 +167,10 @@ function schemaSql(dialect) {
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'user',
+      status TEXT NOT NULL DEFAULT 'active',
+      moderation_reason TEXT NOT NULL DEFAULT '',
+      flagged_at TEXT,
+      suspended_at TEXT,
       last_login_at TEXT,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
@@ -267,6 +281,63 @@ function schemaSql(dialect) {
       FOREIGN KEY (folder_item_id) REFERENCES folder_items(id) ON DELETE SET NULL
     );
 
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      id ${primaryKey},
+      user_id INTEGER NOT NULL,
+      session_key TEXT NOT NULL UNIQUE,
+      status TEXT NOT NULL DEFAULT 'active',
+      started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      last_ping_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      ended_at TEXT,
+      ip_address TEXT NOT NULL DEFAULT '',
+      user_agent TEXT NOT NULL DEFAULT '',
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS activity_logs (
+      id ${primaryKey},
+      user_id INTEGER,
+      action TEXT NOT NULL,
+      entity_type TEXT NOT NULL DEFAULT '',
+      entity_id TEXT NOT NULL DEFAULT '',
+      metadata TEXT NOT NULL DEFAULT '{}',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS feature_usage_daily (
+      id ${primaryKey},
+      user_id INTEGER,
+      feature_key TEXT NOT NULL,
+      usage_count INTEGER NOT NULL DEFAULT 1,
+      date TEXT NOT NULL DEFAULT CURRENT_DATE,
+      UNIQUE(user_id, feature_key, date),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS global_subject_templates (
+      id ${primaryKey},
+      code TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      semester TEXT NOT NULL DEFAULT '1st Semester',
+      accent TEXT NOT NULL DEFAULT '#38bdf8',
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_by INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS global_task_templates (
+      id ${primaryKey},
+      subject_template_id INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      folder_name TEXT NOT NULL DEFAULT '',
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (subject_template_id) REFERENCES global_subject_templates(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_subjects_user_subject
       ON subjects(user_id, subject_id);
     CREATE INDEX IF NOT EXISTS idx_subject_links_user_subject
@@ -283,6 +354,12 @@ function schemaSql(dialect) {
       ON events(user_id, subject_id);
     CREATE INDEX IF NOT EXISTS idx_events_user_starts
       ON events(user_id, starts_at);
+    CREATE INDEX IF NOT EXISTS idx_user_sessions_last_ping
+      ON user_sessions(last_ping_at);
+    CREATE INDEX IF NOT EXISTS idx_activity_logs_created
+      ON activity_logs(created_at);
+    CREATE INDEX IF NOT EXISTS idx_feature_usage_daily_feature
+      ON feature_usage_daily(feature_key, date);
   `;
 }
 
@@ -295,6 +372,10 @@ async function initDb() {
 async function ensureUserColumns(db) {
   if (db.dialect === "postgres") {
     await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user';");
+    await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'active';");
+    await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS moderation_reason TEXT NOT NULL DEFAULT '';");
+    await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS flagged_at TEXT;");
+    await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended_at TEXT;");
     await db.exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TEXT;");
     return;
   }
@@ -303,6 +384,18 @@ async function ensureUserColumns(db) {
   const names = new Set(columns.map((column) => column.name));
   if (!names.has("role")) {
     await db.exec("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user';");
+  }
+  if (!names.has("status")) {
+    await db.exec("ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'active';");
+  }
+  if (!names.has("moderation_reason")) {
+    await db.exec("ALTER TABLE users ADD COLUMN moderation_reason TEXT NOT NULL DEFAULT '';");
+  }
+  if (!names.has("flagged_at")) {
+    await db.exec("ALTER TABLE users ADD COLUMN flagged_at TEXT;");
+  }
+  if (!names.has("suspended_at")) {
+    await db.exec("ALTER TABLE users ADD COLUMN suspended_at TEXT;");
   }
   if (!names.has("last_login_at")) {
     await db.exec("ALTER TABLE users ADD COLUMN last_login_at TEXT;");

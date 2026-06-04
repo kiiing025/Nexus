@@ -13,6 +13,7 @@ const Folder = require("./models/Folder");
 const Event = require("./models/Event");
 const Task = require("./models/Task");
 const Note = require("./models/Note");
+const AdminOps = require("./models/AdminOps");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,9 @@ const JWT_SECRET = process.env.JWT_SECRET || "semstack-dev-secret-change-me";
 const TOKEN_TTL = "7d";
 
 const dbReady = initializeData();
+dbReady.catch((error) => {
+  console.error("Database initialization failed", error);
+});
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -34,8 +38,8 @@ app.use("/api", async (req, res, next) => {
   }
 });
 
-function signToken(user) {
-  return jwt.sign({ sub: user.id, email: user.email, role: user.role || "user" }, JWT_SECRET, { expiresIn: TOKEN_TTL });
+function signToken(user, sessionKey = "") {
+  return jwt.sign({ sub: user.id, email: user.email, role: user.role || "user", sid: sessionKey }, JWT_SECRET, { expiresIn: TOKEN_TTL });
 }
 
 function publicUser(user) {
@@ -43,6 +47,7 @@ function publicUser(user) {
     id: user.id,
     email: user.email,
     role: user.role || "user",
+    status: user.status || "active",
     createdAt: user.created_at || user.createdAt || null,
     lastLoginAt: user.last_login_at || user.lastLoginAt || null,
   };
@@ -97,7 +102,11 @@ async function requireAuth(req, res, next) {
     if (!user) {
       return res.status(401).json({ error: "Invalid authorization token." });
     }
+    if (user.status === "suspended") {
+      return res.status(403).json({ error: "This account is suspended." });
+    }
     req.user = user;
+    req.sessionKey = payload.sid || "";
     return next();
   } catch {
     return res.status(401).json({ error: "Invalid or expired authorization token." });
@@ -130,7 +139,15 @@ app.post("/api/auth/register", async (req, res, next) => {
 
     const passwordHash = await bcrypt.hash(password, 12);
     const user = await User.create({ email, passwordHash });
-    return res.status(201).json({ token: signToken(user), user: publicUser(user) });
+    const sessionKey = await AdminOps.createSession({ userId: user.id, req });
+    await AdminOps.logActivity({
+      userId: user.id,
+      action: "registered_account",
+      entityType: "user",
+      entityId: user.id,
+      featureKey: "auth",
+    });
+    return res.status(201).json({ token: signToken(user, sessionKey), user: publicUser(user) });
   } catch (error) {
     return next(error);
   }
@@ -145,10 +162,21 @@ app.post("/api/auth/login", async (req, res, next) => {
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(401).json({ error: "Invalid email or password." });
     }
+    if (user.status === "suspended") {
+      return res.status(403).json({ error: "This account is suspended." });
+    }
 
     const loggedInUser = await User.markLogin(user.id);
+    const sessionKey = await AdminOps.createSession({ userId: user.id, req });
+    await AdminOps.logActivity({
+      userId: user.id,
+      action: "logged_in",
+      entityType: "user",
+      entityId: user.id,
+      featureKey: "auth",
+    });
     return res.json({
-      token: signToken(loggedInUser),
+      token: signToken(loggedInUser, sessionKey),
       user: publicUser(loggedInUser),
     });
   } catch (error) {
@@ -160,6 +188,34 @@ app.get("/api/health", async (req, res, next) => {
   try {
     const db = await getDb();
     return res.json({ ok: true, database: db.dialect });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/activity/ping", requireAuth, async (req, res, next) => {
+  try {
+    return res.json(await AdminOps.ping({ userId: req.user.id, sessionKey: req.sessionKey, req }));
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/activity/log", requireAuth, async (req, res, next) => {
+  try {
+    const action = optionalText(req.body.action);
+    if (!action) {
+      return res.status(400).json({ error: "Activity action is required." });
+    }
+    await AdminOps.logActivity({
+      userId: req.user.id,
+      action,
+      entityType: optionalText(req.body.entityType),
+      entityId: optionalText(req.body.entityId),
+      metadata: req.body.metadata && typeof req.body.metadata === "object" ? req.body.metadata : {},
+      featureKey: optionalText(req.body.featureKey),
+    });
+    return res.json({ ok: true });
   } catch (error) {
     return next(error);
   }
@@ -194,6 +250,89 @@ app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res, next) =>
   }
 });
 
+app.get("/api/admin/os", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const db = await getDb();
+    return res.json(await AdminOps.osSnapshot(db.dialect));
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.get("/api/admin/templates", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    return res.json({ templates: await AdminOps.templates() });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/admin/templates", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const template = await AdminOps.createTemplate({
+      code: req.body.code,
+      name: req.body.name,
+      semester: req.body.semester,
+      accent: req.body.accent,
+      tasks: Array.isArray(req.body.tasks) ? req.body.tasks : [],
+      createdBy: req.user.id,
+    });
+    return res.status(201).json({ template });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put("/api/admin/templates/:id", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const template = await AdminOps.updateTemplate({
+      id: Number(req.params.id),
+      code: req.body.code,
+      name: req.body.name,
+      semester: req.body.semester,
+      accent: req.body.accent,
+      isActive: req.body.isActive,
+      tasks: Array.isArray(req.body.tasks) ? req.body.tasks : undefined,
+      adminId: req.user.id,
+    });
+    if (!template) {
+      return res.status(404).json({ error: "Template not found." });
+    }
+    return res.json({ template });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete("/api/admin/templates/:id", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const deleted = await AdminOps.deleteTemplate({ id: Number(req.params.id), adminId: req.user.id });
+    if (!deleted) {
+      return res.status(404).json({ error: "Template not found." });
+    }
+    return res.status(204).send();
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.put("/api/admin/users/:id/status", requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const user = await AdminOps.updateUserStatus({
+      userId: Number(req.params.id),
+      status: optionalText(req.body.status),
+      reason: optionalText(req.body.reason),
+      adminId: req.user.id,
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    return res.json({ user });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.post("/api/subjects", requireAuth, async (req, res, next) => {
   try {
     const subject = await Subject.createForUser({
@@ -203,6 +342,14 @@ app.post("/api/subjects", requireAuth, async (req, res, next) => {
       year: req.body.year,
       semester: req.body.semester,
       accent: req.body.accent,
+    });
+    await AdminOps.logActivity({
+      userId: req.user.id,
+      action: "created_subject",
+      entityType: "subject",
+      entityId: subject.id,
+      metadata: { code: subject.code },
+      featureKey: "subjects",
     });
     await Folder.ensureDefaultsForUserSubject({ userId: req.user.id, subjectId: subject.id });
     const folders = await Folder.allForUserSubject({ userId: req.user.id, subjectId: subject.id });
@@ -240,6 +387,14 @@ app.post("/api/tasks", requireAuth, async (req, res, next) => {
     }
 
     const task = await Task.create({ userId: req.user.id, subjectId, text });
+    await AdminOps.logActivity({
+      userId: req.user.id,
+      action: "created_task",
+      entityType: "task",
+      entityId: task.id,
+      metadata: { subjectId },
+      featureKey: "tasks",
+    });
     return res.status(201).json({ task });
   } catch (error) {
     return next(error);
@@ -258,6 +413,14 @@ app.put("/api/tasks/:id", requireAuth, async (req, res, next) => {
     if (!task) {
       return res.status(404).json({ error: "Task not found." });
     }
+    await AdminOps.logActivity({
+      userId: req.user.id,
+      action: task.completed ? "marked_task_complete" : "updated_task",
+      entityType: "task",
+      entityId: task.id,
+      metadata: { subjectId: task.subjectId, completed: Boolean(task.completed) },
+      featureKey: "tasks",
+    });
     return res.json({ task });
   } catch (error) {
     return next(error);
@@ -479,6 +642,14 @@ app.post("/api/events", requireAuth, async (req, res, next) => {
       startsAt,
       type: optionalText(req.body.type) || "Task",
       folderItemId,
+    });
+    await AdminOps.logActivity({
+      userId: req.user.id,
+      action: "created_event",
+      entityType: "event",
+      entityId: event.id,
+      metadata: { subjectId, type: event.type },
+      featureKey: "calendar",
     });
     return res.status(201).json({ event });
   } catch (error) {

@@ -8,6 +8,7 @@
     "dev": "node --watch server.js",
     "migrate": "node scripts/migrate.js",
     "test:admin-ui": "node scripts/admin-ui-contract-test.js",
+    "test:admin-os": "node scripts/admin-os-smoke-test.js",
     "test:api": "node scripts/api-smoke-test.js"
   },
   "dependencies": {

@@ -7,6 +7,10 @@ function normalizeUser(row) {
     email: row.email,
     password_hash: row.password_hash,
     role: row.role || "user",
+    status: row.status || "active",
+    moderation_reason: row.moderation_reason || row.moderationReason || "",
+    flagged_at: row.flagged_at || row.flaggedAt || null,
+    suspended_at: row.suspended_at || row.suspendedAt || null,
     created_at: row.created_at || row.createdAt,
     last_login_at: row.last_login_at || row.lastLoginAt || null,
   };
@@ -17,6 +21,10 @@ function normalizeAdminUser(row) {
     id: row.id,
     email: row.email,
     role: row.role || "user",
+    status: row.status || "active",
+    moderationReason: row.moderationReason || row.moderation_reason || "",
+    flaggedAt: row.flaggedAt || row.flagged_at || null,
+    suspendedAt: row.suspendedAt || row.suspended_at || null,
     createdAt: row.createdAt || row.created_at,
     lastLoginAt: row.lastLoginAt || row.last_login_at || null,
     subjectCount: Number(row.subjectCount || 0),
@@ -49,7 +57,10 @@ class User {
 
   static async findById(id) {
     const db = await getDb();
-    const row = await db.get("SELECT id, email, role, created_at, last_login_at FROM users WHERE id = ?", id);
+    const row = await db.get(
+      "SELECT id, email, role, status, moderation_reason, flagged_at, suspended_at, created_at, last_login_at FROM users WHERE id = ?",
+      id,
+    );
     return normalizeUser(row);
   }
 
@@ -84,6 +95,10 @@ class User {
         u.id,
         u.email,
         u.role,
+        u.status,
+        u.moderation_reason AS "moderationReason",
+        u.flagged_at AS "flaggedAt",
+        u.suspended_at AS "suspendedAt",
         u.created_at AS "createdAt",
         u.last_login_at AS "lastLoginAt",
         (SELECT COUNT(*) FROM subjects s WHERE s.user_id = u.id) AS "subjectCount",
