@@ -564,6 +564,42 @@
         text-align: left;
       }
 
+      .rail-course.is-compact {
+        display: grid;
+        grid-template-columns: 0.72rem minmax(0, 1fr);
+        align-items: center;
+        gap: 0.7rem;
+        border-color: rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.07);
+        color: #f8fafc;
+        padding: 0.72rem;
+      }
+
+      .rail-course.is-compact::after {
+        content: none;
+      }
+
+      .subject-dot {
+        display: inline-block;
+        width: 0.72rem;
+        height: 0.72rem;
+        border-radius: 999px;
+        background: var(--subject-accent);
+        box-shadow: 0 0 0 0.28rem color-mix(in srgb, var(--subject-accent) 18%, transparent);
+      }
+
+      .rail-deadline {
+        display: block;
+        margin-top: 0.18rem;
+        overflow: hidden;
+        color: rgba(226, 232, 240, 0.68);
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .rail-course::after {
         position: absolute;
         right: -2rem;
@@ -613,8 +649,36 @@
 
       .filter-stack {
         display: grid;
-        gap: 0.5rem;
+        gap: 0.7rem;
         margin-top: auto;
+      }
+
+      .semester-picker {
+        display: grid;
+        gap: 0.42rem;
+      }
+
+      .semester-picker label {
+        color: rgba(226, 232, 240, 0.76);
+        font-size: 0.72rem;
+        font-weight: 900;
+      }
+
+      .semester-select {
+        width: 100%;
+        min-height: 2.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 0.95rem;
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+        padding: 0 0.8rem;
+        font: inherit;
+        font-size: 0.86rem;
+        font-weight: 900;
+      }
+
+      .semester-select option {
+        color: #111827;
       }
 
       .filter-button {
@@ -871,6 +935,7 @@
       }
 
       .activity-card {
+        position: relative;
         border-radius: 1.35rem;
         background:
           linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 249, 252, 0.9));
@@ -878,12 +943,36 @@
       }
 
       .activity-bars {
+        position: relative;
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
         align-items: end;
         gap: 0.45rem;
         height: 8.25rem;
         padding-top: 1rem;
+      }
+
+      .hours-goal-line {
+        position: absolute;
+        right: 0;
+        left: 0;
+        bottom: calc(var(--goal-position) * 1%);
+        z-index: 2;
+        border-top: 2px dashed #f28b4b;
+        pointer-events: none;
+      }
+
+      .hours-goal-line span {
+        position: absolute;
+        right: 0;
+        bottom: 0.35rem;
+        border-radius: 999px;
+        background: #fff4e8;
+        color: #9a4b14;
+        padding: 0.22rem 0.44rem;
+        font-size: 0.64rem;
+        font-weight: 950;
+        white-space: nowrap;
       }
 
       .bar-wrap {
@@ -922,6 +1011,53 @@
         background:
           linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(243, 248, 252, 0.78));
         padding: 0.95rem;
+      }
+
+      .onboarding-banner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1rem;
+        align-items: center;
+        border: 1px solid rgba(16, 23, 34, 0.08);
+        border-radius: 1.25rem;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(50, 199, 183, 0.16), transparent 10rem),
+          rgba(255, 255, 255, 0.84);
+        padding: 1rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+      }
+
+      .onboarding-steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .onboarding-step {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.42rem;
+        border-radius: 999px;
+        background: #edf4f8;
+        color: #637083;
+        padding: 0.42rem 0.62rem;
+        font-size: 0.74rem;
+        font-weight: 950;
+      }
+
+      .onboarding-step.is-done {
+        background: #dff7e8;
+        color: #1f7f68;
+      }
+
+      .empty-subject-card {
+        display: grid;
+        align-content: center;
+        min-height: 16rem;
+        border-style: dashed;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(50, 199, 183, 0.16), transparent 10rem),
+          rgba(255, 255, 255, 0.78);
       }
 
       .menu-panel {
@@ -1197,6 +1333,67 @@
 
       .admin-os-mode .tab-panel {
         color: #e6eef8;
+      }
+
+      .admin-alert-banner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1rem;
+        align-items: center;
+        border: 1px solid color-mix(in srgb, var(--alert-accent) 34%, rgba(226, 232, 240, 0.18));
+        border-radius: 1rem;
+        background:
+          radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--alert-accent) 16%, transparent), transparent 10rem),
+          rgba(8, 13, 22, 0.72);
+        color: #e6eef8;
+        padding: 0.85rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .admin-health-badge,
+      .admin-tab-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        border-radius: 999px;
+        background: var(--badge-bg);
+        color: var(--badge-ink);
+        padding: 0.24rem 0.5rem;
+        font-size: 0.68rem;
+        font-weight: 950;
+      }
+
+      .admin-tab-badge {
+        min-width: 1.28rem;
+        height: 1.28rem;
+        padding: 0 0.38rem;
+        font-size: 0.66rem;
+      }
+
+      .admin-sessions-table {
+        display: grid;
+        gap: 0.4rem;
+        margin-top: 0.8rem;
+      }
+
+      .admin-session-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(5.5rem, 0.75fr) minmax(4.5rem, 0.55fr) auto;
+        gap: 0.55rem;
+        align-items: center;
+        border-radius: 0.8rem;
+        background: rgba(241, 245, 249, 0.78);
+        padding: 0.55rem;
+        font-size: 0.74rem;
+        font-weight: 850;
+      }
+
+      .admin-session-grid.is-head {
+        background: transparent;
+        color: #64748b;
+        font-size: 0.68rem;
+        font-weight: 950;
       }
 
       .admin-os-shell {
@@ -1703,6 +1900,14 @@
         white-space: nowrap;
       }
 
+      .calendar-event-dot {
+        display: block;
+        width: 0.36rem;
+        height: 0.36rem;
+        border-radius: 999px;
+        background: var(--event-color);
+      }
+
       .subject-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2092,6 +2297,7 @@
         align-items: center;
         min-height: 3rem;
         border: 1px solid rgba(16, 23, 34, 0.06);
+        border-left: 0.32rem solid var(--task-accent, #101722);
         border-radius: 0.9rem;
         background: rgba(255, 255, 255, 0.68);
       }
@@ -2100,7 +2306,7 @@
         width: 1.25rem;
         height: 1.25rem;
         justify-self: center;
-        accent-color: var(--ink);
+        accent-color: var(--task-accent, var(--ink));
       }
 
       .task-label {
@@ -2549,6 +2755,12 @@
       }
 
       @media (max-width: 520px) {
+        .onboarding-banner,
+        .admin-alert-banner,
+        .admin-session-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
         .stat-grid,
         .detail-stat-grid,
         .resource-grid,
@@ -2790,6 +3002,7 @@
 
           <div id="workspaceContent" class="workspace-content">
             <div id="overviewView" class="tab-view">
+              <section id="onboardingBanner" class="onboarding-banner hidden" aria-label="Getting started checklist"></section>
               <section class="hero-grid">
                 <article class="premium-card">
                   <div class="premium-content">
@@ -2885,6 +3098,9 @@
         { id: "2nd Semester", label: "2nd Semester", icon: "calendar" },
       ];
 
+      const subjectAccentPalette = ["#d84e65", "#1f9f84", "#4f71d8", "#7c68a6", "#d98a24", "#0e9faa", "#b4538f", "#64748b"];
+      const weeklyStudyTarget = 6;
+
       const tabs = [
         { id: "overview", label: "Overview", icon: "grid" },
         { id: "courses", label: "Courses", icon: "cap" },
@@ -2971,6 +3187,7 @@
       const mobileSubjectRail = document.querySelector("#mobileSubjectRail");
       const subjectGrid = document.querySelector("#subjectGrid");
       const overviewView = document.querySelector("#overviewView");
+      const onboardingBanner = document.querySelector("#onboardingBanner");
       const tabPanel = document.querySelector("#tabPanel");
       const workspaceContent = document.querySelector("#workspaceContent");
       const milestonesEl = document.querySelector("#milestones");
@@ -3346,6 +3563,25 @@
         return `Seen ${days} days ago`;
       }
 
+      function isValidHex(value) {
+        return /^#[0-9A-F]{6}$/i.test(String(value || ""));
+      }
+
+      function nextSubjectAccent() {
+        return subjectAccentPalette[state.subjects.length % subjectAccentPalette.length];
+      }
+
+      function subjectAccent(subjectId) {
+        const subject = subjectById(subjectId);
+        return isValidHex(subject?.accent) ? subject.accent : subjectAccentPalette[0];
+      }
+
+      function subjectGradient() {
+        const colors = state.subjects.map((subject) => subjectAccent(subject.id)).filter(Boolean);
+        const palette = colors.length ? colors.slice(0, 5) : subjectAccentPalette.slice(0, 3);
+        return `linear-gradient(90deg, ${palette.join(", ")})`;
+      }
+
       function formatNumber(value) {
         return new Intl.NumberFormat("en").format(Number(value || 0));
       }
@@ -3362,10 +3598,32 @@
         return Number.isNaN(date.getTime()) ? "" : dateKey(date);
       }
 
+      function formatShortDate(value) {
+        if (!value) return "No deadline";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "No deadline";
+        return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(date);
+      }
+
       function eventsForDate(key) {
         return state.events
           .filter((event) => eventDateKey(event) === key)
           .sort((a, b) => new Date(a.startsAt || 0) - new Date(b.startsAt || 0));
+      }
+
+      function nextUpcomingEvent(subjectId = "") {
+        const now = Date.now();
+        return state.events
+          .filter((event) => (!subjectId || event.subjectId === subjectId) && new Date(event.startsAt || 0).getTime() >= now)
+          .sort((a, b) => new Date(a.startsAt || 0) - new Date(b.startsAt || 0))[0] || null;
+      }
+
+      function onboardingSteps() {
+        return [
+          { id: "subject", label: "Add a subject", done: state.subjects.length > 0 },
+          { id: "tasks", label: "Add tasks", done: state.tasks.length > 0 },
+          { id: "calendar", label: "Schedule on calendar", done: state.events.length > 0 },
+        ];
       }
 
       function defaultDateTimeLocal() {
@@ -3379,13 +3637,19 @@
         return options.map((option) => `<option value="${escapeHtml(option)}" ${option === selected ? "selected" : ""}>${escapeHtml(option)}</option>`).join("");
       }
 
-      function addSubjectCallout(title = "No subjects yet", text = "Create your first subject to unlock tasks, notes, folders, links, and calendar planning.", className = "menu-panel") {
+      function addSubjectCallout(
+        title = "No subjects yet",
+        text = "Create your first subject to unlock tasks, notes, folders, links, and calendar planning.",
+        className = "menu-panel",
+        showButton = false,
+        buttonLabel = "Add subject"
+      ) {
         return `
           <article class="${className}">
             <span class="round-icon">${icon("plus", 18)}</span>
             <h3 class="mt-4 text-xl font-black tracking-[-0.03em]">${title}</h3>
             <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">${text}</p>
-            <button class="soft-button tap-target mt-4" type="button" data-add-subject>${icon("plus", 16)} Add subject</button>
+            ${showButton ? `<button class="soft-button tap-target mt-4" type="button" data-add-subject>${icon("plus", 16)} ${escapeHtml(buttonLabel)}</button>` : ""}
           </article>
         `;
       }
@@ -3397,30 +3661,61 @@
       }
 
       function renderFilters(target) {
-        target.innerHTML = filters
-          .map((filter) => `
-            <button
-              type="button"
-              class="filter-button tap-target"
-              data-filter="${filter.id}"
-              aria-pressed="${filter.id === state.filter}"
-            >
-              <span class="mini-icon">${icon(filter.icon, 18)}</span>
-              <span>${filter.label}</span>
-            </button>
-          `)
-          .join("");
+        target.innerHTML = `
+          <div class="semester-picker">
+            <label for="${target.id}-semester">Semester</label>
+            <select class="semester-select tap-target" id="${target.id}-semester" aria-label="Filter subjects by semester">
+              ${filters.map((filter) => `<option value="${filter.id}" ${filter.id === state.filter ? "selected" : ""}>${filter.label}</option>`).join("")}
+            </select>
+          </div>
+        `;
 
-        target.querySelectorAll("button").forEach((button) => {
-          button.addEventListener("click", () => {
-            state.filter = button.dataset.filter;
-            closeDrawer();
-            render();
-          });
+        target.querySelector("select")?.addEventListener("change", (event) => {
+          state.filter = event.currentTarget.value;
+          closeDrawer();
+          render();
         });
       }
 
       function renderSubjectRail(target) {
+        const railSubjects = state.subjects;
+        if (!railSubjects.length) {
+          target.innerHTML = `
+            <button class="rail-course tap-target" type="button" data-add-subject>
+              <div class="course-orbit">
+                <span class="round-icon">${icon("plus", 18)}</span>
+                <span class="arrow-circle">${icon("arrow", 18)}</span>
+              </div>
+              <h3 class="mt-4 text-base font-black">Add your first subject</h3>
+              <p class="mt-1 text-xs font-bold text-[#3f4851]">Start with any course code</p>
+            </button>
+          `;
+          bindAddSubjectButtons(target);
+          return;
+        }
+
+        target.innerHTML = railSubjects
+          .map((subject) => {
+            const meta = subjectMeta(subject.id);
+            const nextEvent = nextUpcomingEvent(subject.id);
+            const deadline = nextEvent ? `${formatShortDate(nextEvent.startsAt)} - ${nextEvent.title}` : "No upcoming deadline";
+            return `
+              <button class="rail-course is-compact tap-target" type="button" style="--subject-accent: ${meta.strong}" data-open-subject="${subject.id}">
+                <span class="subject-dot" aria-hidden="true"></span>
+                <div class="min-w-0">
+                  <h3 class="truncate text-sm font-black">${escapeHtml(subject.code)} - ${escapeHtml(subject.name)}</h3>
+                  <span class="rail-deadline">${escapeHtml(deadline)}</span>
+                </div>
+              </button>
+            `;
+          })
+          .join("");
+
+        target.querySelectorAll("[data-open-subject]").forEach((button) => {
+          button.addEventListener("click", () => openSubject(button.dataset.openSubject));
+        });
+        return;
+
         const list = state.subjects.slice(0, target === mobileSubjectRail ? state.subjects.length : 3);
         if (!list.length) {
           target.innerHTML = `
@@ -3499,9 +3794,13 @@
         return subjects.length
           ? subjects.map(subjectCard).join("")
           : addSubjectCallout(
-              state.subjects.length ? "No subjects in this filter" : "No subjects yet",
-              state.subjects.length ? "Try another semester filter or add a new subject for this term." : "Create your first subject to start organizing coursework.",
-              "subject-card"
+              state.subjects.length ? "No subjects in this filter" : "Build your first course space",
+              state.subjects.length
+                ? "Try another semester in the dropdown, or use the main add button when you are ready to create a new course."
+                : "Start with one subject code. SemStack will create folders, notes, links, tasks, and calendar space around it.",
+              "subject-card empty-subject-card",
+              !state.subjects.length,
+              "Add your first subject"
             );
       }
 
@@ -3614,8 +3913,9 @@
       }
 
       function taskRow(task) {
+        const meta = subjectMeta(task.subjectId);
         return `
-          <li class="task-row ${task.completed ? "is-complete" : ""}" data-task-id="${task.id}">
+          <li class="task-row ${task.completed ? "is-complete" : ""}" data-task-id="${task.id}" style="--task-accent: ${meta.strong}">
             <input class="task-toggle" type="checkbox" ${task.completed ? "checked" : ""} aria-label="Toggle ${escapeHtml(task.text)}" />
             <span class="task-label">${escapeHtml(task.text)}</span>
             <button class="delete-task tap-target" type="button" aria-label="Delete task">
@@ -3743,6 +4043,7 @@
 
       function openSubjectFormPanel() {
         state.activePanel = { type: "subject-form" };
+        const accent = nextSubjectAccent();
         openCourseworkPanel({
           eyebrow: "Classroom manager",
           title: "Add subject",
@@ -3764,10 +4065,13 @@
                     <option>2nd Semester</option>
                   </select>
                 </label>
-                <label class="panel-field">
-                  <span class="field-label">Accent color</span>
-                  <input class="panel-input tap-target" name="accent" type="color" value="#38bdf8" />
-                </label>
+                <div class="panel-field">
+                  <span class="field-label">Auto accent</span>
+                  <div class="panel-input tap-target flex items-center gap-2">
+                    <span class="subject-dot" style="--subject-accent: ${accent}"></span>
+                    <strong class="text-sm">Next palette color</strong>
+                  </div>
+                </div>
               </div>
               <p class="text-sm font-bold leading-6 text-[#68717d]">New subjects get the standard Modules, Lectures, Assignments, Projects, Links, and Exams folders automatically.</p>
               <div class="flex flex-wrap items-center justify-end gap-3">
@@ -3792,7 +4096,7 @@
                 name: data.get("name").trim(),
                 year: "Coursework",
                 semester: data.get("semester"),
-                accent: data.get("accent"),
+                accent,
               }),
             });
             state.subjects.push(payload.subject);
@@ -4463,14 +4767,12 @@
           ${panelIntro("Subject pages", "Choose a subject to open its focused page with tasks, folders, links, notes, and schedule in one place.")}
           <div class="flex flex-wrap items-center justify-between gap-3">
             <p class="text-sm font-black text-[#68717d]">${visibleSubjects().length} visible subjects</p>
-            <button class="soft-button tap-target" type="button" data-add-subject>${icon("plus", 16)} New subject</button>
           </div>
           <section class="subject-grid" aria-label="Filtered course cards">
             ${subjectCardsMarkup(visibleSubjects())}
           </section>
         `;
         bindSubjectEvents(tabPanel);
-        tabPanel.querySelector("[data-add-subject]")?.addEventListener("click", openSubjectFormPanel);
       }
 
       function renderNotesTab() {
@@ -4910,13 +5212,21 @@
         return { bg: "#e0e7ff", ink: "#3730a3" };
       }
 
-      function adminOsKpiCard(label, value, detail, iconName, accent) {
+      function adminBadgeTone(type = "neutral") {
+        if (type === "good") return { bg: "#dcfce7", ink: "#166534" };
+        if (type === "warn") return { bg: "#fef3c7", ink: "#92400e" };
+        return { bg: "#e2e8f0", ink: "#475569" };
+      }
+
+      function adminOsKpiCard(label, value, detail, iconName, accent, badge = null) {
+        const tone = adminBadgeTone(badge?.tone);
         return `
           <article class="admin-os-kpi" style="--admin-accent: ${accent}">
             <span class="round-icon" style="background: color-mix(in srgb, ${accent} 18%, white); color: ${accent}">${icon(iconName, 18)}</span>
             <strong>${escapeHtml(value)}</strong>
             <p class="mt-2">${escapeHtml(label)}</p>
             <p class="mt-1 text-xs">${escapeHtml(detail)}</p>
+            ${badge ? `<span class="admin-health-badge mt-3" style="--badge-bg: ${tone.bg}; --badge-ink: ${tone.ink}">${escapeHtml(badge.label)}</span>` : ""}
           </article>
         `;
       }
@@ -4935,9 +5245,11 @@
       }
 
       function adminFeatureRows(items = []) {
-        if (!items.length) return `<div class="admin-empty">No feature usage logged today yet.</div>`;
-        const max = Math.max(...items.map((item) => Number(item.count || 0)), 1);
-        return items
+        const major = ["auth", "dashboard", "subjects", "calendar", "tasks"];
+        const byKey = new Map(items.map((item) => [String(item.featureKey || "").toLowerCase(), Number(item.count || 0)]));
+        const rows = major.map((featureKey) => ({ featureKey, count: byKey.get(featureKey) || 0 }));
+        const max = Math.max(...rows.map((item) => Number(item.count || 0)), 1);
+        return rows
           .map((item) => {
             const percent = Math.max(5, Math.round((Number(item.count || 0) / max) * 100));
             return `
@@ -5043,6 +5355,7 @@
               state.adminRoleFilter === "all" ||
               (state.adminRoleFilter === "students" && user.role !== "admin") ||
               (state.adminRoleFilter === "admins" && user.role === "admin") ||
+              (state.adminRoleFilter === "moderation" && (user.status === "flagged" || user.status === "suspended")) ||
               (state.adminRoleFilter === "flagged" && user.status === "flagged") ||
               (state.adminRoleFilter === "suspended" && user.status === "suspended") ||
               (state.adminRoleFilter === "setup" && user.role !== "admin" && Number(user.subjectCount || 0) === 0);
@@ -5060,13 +5373,96 @@
         if (list) list.innerHTML = users.length ? users.map(adminManagedUserRow).join("") : `<div class="admin-empty">No accounts match this filter.</div>`;
       }
 
+      function adminKpiBadges(kpis = {}, live = {}) {
+        const averageCompletion = Number(kpis.averageCompletionRate || 0);
+        const flaggedUsers = Number(kpis.flaggedUsers || 0);
+        const weeklyActiveUsers = Number(kpis.weeklyActiveUsers || 0);
+        const liveUsers = Number(live.activeUsers || 0);
+        return {
+          registered: {
+            label: weeklyActiveUsers ? `+${formatNumber(weeklyActiveUsers)} this week` : "No WAU yet",
+            tone: weeklyActiveUsers ? "good" : "neutral",
+          },
+          subjects: {
+            label: Number(kpis.globalSubjects || 0) ? `${formatNumber(kpis.globalTasks || 0)} tasks linked` : "No subjects yet",
+            tone: Number(kpis.globalSubjects || 0) ? "good" : "neutral",
+          },
+          completion: {
+            label: averageCompletion >= 50 ? "Healthy pace" : averageCompletion ? "Needs momentum" : "Needs subjects",
+            tone: averageCompletion >= 50 ? "good" : "warn",
+          },
+          queue: {
+            label: flaggedUsers ? `${formatNumber(flaggedUsers)} flagged` : "All clear",
+            tone: flaggedUsers ? "warn" : "good",
+          },
+          live: {
+            label: liveUsers ? "Live now" : "Quiet now",
+            tone: liveUsers ? "good" : "neutral",
+          },
+        };
+      }
+
+      function adminAlertBanner(kpis = {}) {
+        const flaggedUsers = Number(kpis.flaggedUsers || 0);
+        const clear = flaggedUsers === 0;
+        return `
+          <section class="admin-alert-banner" style="--alert-accent: ${clear ? "#22c55e" : "#f59e0b"}" aria-label="Moderation queue status">
+            <div class="min-w-0">
+              <p class="eyebrow">${clear ? "Moderation clear" : "Moderation needs review"}</p>
+              <h3 class="mt-1 text-lg font-black">${clear ? "No flagged accounts in the queue." : `${formatNumber(flaggedUsers)} account${flaggedUsers === 1 ? "" : "s"} waiting in moderation.`}</h3>
+              <p class="mt-1 text-sm font-bold text-slate-400">${clear ? "The platform has no active account flags right now." : "Review flagged and suspended accounts before they block student access."}</p>
+            </div>
+            <button class="admin-command-button tap-target" type="button" data-admin-view-queue>${icon("warning", 16)} View queue</button>
+          </section>
+        `;
+      }
+
+      function adminTabBadge(section) {
+        if (!section.badge) return "";
+        const tone = adminBadgeTone(section.badge.tone);
+        return `<span class="admin-tab-badge" style="--badge-bg: ${tone.bg}; --badge-ink: ${tone.ink}" aria-label="${escapeHtml(section.badge.label)}">${escapeHtml(section.badge.label)}</span>`;
+      }
+
+      function adminRecentSessionsTable(users = []) {
+        const rows = users.slice(0, 5);
+        return `
+          <div class="admin-sessions-table" aria-label="Recent user sessions">
+            <div class="admin-session-grid is-head" aria-hidden="true">
+              <span>User</span>
+              <span>Last active</span>
+              <span>Device</span>
+              <span>Status</span>
+            </div>
+            ${
+              rows.length
+                ? rows
+                    .map((session) => {
+                      const tone = adminStatusTone(session.status);
+                      const statusText = session.status === "Idle" && session.idleMinutes ? `Idle ${session.idleMinutes}m` : session.status;
+                      return `
+                        <div class="admin-session-grid">
+                          <strong class="min-w-0 break-words">${escapeHtml(session.email || `User #${session.userId}`)}</strong>
+                          <span>${relativeTime(session.lastActiveAt)}</span>
+                          <span>${escapeHtml(session.device || "Unknown")}</span>
+                          <span class="admin-os-status" style="--status-bg: ${tone.bg}; --status-ink: ${tone.ink}">${escapeHtml(statusText || "Offline")}</span>
+                        </div>
+                      `;
+                    })
+                    .join("")
+                : `<div class="admin-empty">Recent sessions appear here after users open SemStack.</div>`
+            }
+          </div>
+        `;
+      }
+
       function adminSections(templates = []) {
+        const flaggedUsers = state.adminUsers.filter((user) => user.status === "flagged" || user.status === "suspended").length;
         return [
-          { id: "overview", label: "Overview", icon: "activity", count: "" },
-          { id: "users", label: "Users", icon: "users", count: formatNumber(state.adminUsers.length) },
-          { id: "templates", label: "Templates", icon: "cap", count: formatNumber(templates.length) },
-          { id: "activity", label: "Activity", icon: "database", count: "" },
-          { id: "security", label: "Security", icon: "shield", count: "" },
+          { id: "overview", label: "Overview", icon: "activity" },
+          { id: "users", label: "Users", icon: "users", badge: { label: formatNumber(state.adminUsers.length), tone: flaggedUsers ? "warn" : "neutral" } },
+          { id: "templates", label: "Templates", icon: "cap", badge: { label: formatNumber(templates.length), tone: templates.length ? "good" : "neutral" } },
+          { id: "activity", label: "Activity", icon: "database" },
+          { id: "security", label: "Security", icon: "shield", badge: { label: "!", tone: "warn" } },
         ];
       }
 
@@ -5074,11 +5470,11 @@
         return adminSections(templates)
           .map((section) => {
             const active = state.adminSection === section.id;
-            const suffix = section.count ? ` ${section.count}` : "";
             return `
               <button class="admin-section-button ${active ? "is-active" : ""}" type="button" data-admin-section="${section.id}" ${active ? 'aria-current="page"' : ""}>
                 ${icon(section.icon, 16)}
-                <span>${section.label}${suffix}</span>
+                <span>${section.label}</span>
+                ${adminTabBadge(section)}
               </button>
             `;
           })
@@ -5100,6 +5496,10 @@
                   <span class="round-icon">${icon("activity", 18)}</span>
                 </div>
                 <div class="admin-os-bars">${adminPeakBars(os.peakActivity?.days || [])}</div>
+                <div class="mt-4">
+                  <p class="eyebrow">Recent Sessions</p>
+                  ${adminRecentSessionsTable(users)}
+                </div>
               </article>
 
               <aside class="grid gap-3">
@@ -5149,6 +5549,7 @@
                   <option value="students" ${state.adminRoleFilter === "students" ? "selected" : ""}>Students only</option>
                   <option value="admins" ${state.adminRoleFilter === "admins" ? "selected" : ""}>Admins only</option>
                   <option value="setup" ${state.adminRoleFilter === "setup" ? "selected" : ""}>Needs setup</option>
+                  <option value="moderation" ${state.adminRoleFilter === "moderation" ? "selected" : ""}>Moderation queue</option>
                   <option value="flagged" ${state.adminRoleFilter === "flagged" ? "selected" : ""}>Flagged</option>
                   <option value="suspended" ${state.adminRoleFilter === "suspended" ? "selected" : ""}>Suspended</option>
                 </select>
@@ -5288,6 +5689,7 @@
         const activity = os.activity || {};
         const stream = activity.stream || [];
         const templates = state.adminTemplates || [];
+        const badges = adminKpiBadges(kpis, live);
         const validSections = adminSections(templates).map((section) => section.id);
         if (!validSections.includes(state.adminSection)) state.adminSection = "overview";
 
@@ -5304,6 +5706,7 @@
 
         tabPanel.innerHTML = `
           <section class="admin-os-shell" aria-label="SemStack Admin OS">
+            ${adminAlertBanner(kpis)}
             <article class="admin-os-hero">
               <div class="min-w-0">
                 <span class="admin-badge">${icon("shield", 15)} Creator control plane</span>
@@ -5334,11 +5737,11 @@
             </article>
 
             <section class="admin-os-kpi-grid" aria-label="App Health KPI Metrics">
-              ${adminOsKpiCard("Total registered", formatNumber(kpis.totalRegistered), `${formatNumber(kpis.weeklyActiveUsers)} weekly active users`, "users", "#22d3ee")}
-              ${adminOsKpiCard("Global subjects", formatNumber(kpis.globalSubjects), `${formatNumber(kpis.globalTasks)} active tasks`, "cap", "#34d399")}
-              ${adminOsKpiCard("Average completion", `${formatNumber(kpis.averageCompletionRate)}%`, "Aggregated across all tasks", "activity", "#818cf8")}
-              ${adminOsKpiCard("Moderation queue", formatNumber(kpis.flaggedUsers), "Flagged or suspended accounts", "warning", "#f59e0b")}
-              ${adminOsKpiCard("Live concurrency", formatNumber(live.activeUsers), "Users interacting right now", "database", "#f472b6")}
+              ${adminOsKpiCard("Total registered", formatNumber(kpis.totalRegistered), `${formatNumber(kpis.weeklyActiveUsers)} weekly active users`, "users", "#22d3ee", badges.registered)}
+              ${adminOsKpiCard("Global subjects", formatNumber(kpis.globalSubjects), `${formatNumber(kpis.globalTasks)} active tasks`, "cap", "#34d399", badges.subjects)}
+              ${adminOsKpiCard("Average completion", `${formatNumber(kpis.averageCompletionRate)}%`, "Aggregated across all tasks", "activity", "#818cf8", badges.completion)}
+              ${adminOsKpiCard("Moderation queue", formatNumber(kpis.flaggedUsers), "Flagged or suspended accounts", "warning", "#f59e0b", badges.queue)}
+              ${adminOsKpiCard("Live concurrency", formatNumber(live.activeUsers), "Users interacting right now", "database", "#f472b6", badges.live)}
             </section>
 
             <nav class="admin-section-tabs" aria-label="Admin workspace sections">
@@ -5351,6 +5754,11 @@
 
         renderAdminUserResults();
 
+        tabPanel.querySelector("[data-admin-view-queue]")?.addEventListener("click", () => {
+          state.adminSection = "users";
+          state.adminRoleFilter = "moderation";
+          renderActiveTab();
+        });
         tabPanel.querySelectorAll("[data-admin-section]").forEach((button) => {
           button.addEventListener("click", () => {
             state.adminSection = button.dataset.adminSection;
@@ -5472,10 +5880,35 @@
         const active = Math.max(total - completed, 0);
         const percent = total ? Math.round((completed / total) * 100) : 0;
         progressText.textContent = `${percent}%`;
+        progressFill.style.background = subjectGradient();
         progressFill.style.transform = `scaleX(${percent / 100})`;
         progressBar.setAttribute("aria-valuenow", String(percent));
         completedCount.textContent = String(completed).padStart(2, "0");
         activeCount.textContent = String(active).padStart(2, "0");
+      }
+
+      function renderOnboarding() {
+        const steps = onboardingSteps();
+        const done = steps.filter((step) => step.done).length;
+        const complete = done === steps.length;
+        onboardingBanner.classList.toggle("hidden", complete);
+        if (complete) {
+          onboardingBanner.innerHTML = "";
+          return;
+        }
+
+        onboardingBanner.innerHTML = `
+          <div class="min-w-0">
+            <p class="eyebrow">New semester setup</p>
+            <h2 class="mt-1 text-xl font-black tracking-[-0.03em]">${done}/${steps.length} steps ready</h2>
+            <p class="mt-1 text-sm font-bold text-[#637083]">Set up the basics once, then use the dashboard as your daily coursework desk.</p>
+          </div>
+          <div class="onboarding-steps">
+            ${steps
+              .map((step, index) => `<span class="onboarding-step ${step.done ? "is-done" : ""}">${step.done ? icon("shield", 14) : index + 1} ${step.label}</span>`)
+              .join("")}
+          </div>
+        `;
       }
 
       function renderSubjectProgress() {
@@ -5508,6 +5941,7 @@
       function renderActivity() {
         const values = [52, 68, 26, 86, 48, 20, 62];
         const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const goalPosition = Math.min(Math.max((weeklyStudyTarget / 10) * 100, 12), 88);
         document.querySelector("#activityBars").innerHTML = values
           .map((value, index) => `
             <div class="grid gap-2 text-center">
@@ -5515,7 +5949,7 @@
               <span class="text-[0.68rem] font-bold text-[#68717d]">${labels[index]}</span>
             </div>
           `)
-          .join("");
+          .join("") + `<div class="hours-goal-line" style="--goal-position: ${goalPosition}"><span>${weeklyStudyTarget}h goal</span></div>`;
       }
 
       function renderCalendar() {
@@ -5563,6 +5997,7 @@
                 title="${dayEvents.length ? escapeHtml(`${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}`) : ""}"
               >
                 <span>${cell.day}</span>
+                ${dayEvents.length ? `<span class="calendar-event-dot" aria-hidden="true"></span>` : ""}
                 ${label ? `<span class="calendar-event-label">${escapeHtml(label)}</span>` : ""}
               </button>
             `;
@@ -5625,6 +6060,7 @@
         renderSubjectRail(mobileSubjectRail);
         renderMilestones();
         renderSubjects();
+        renderOnboarding();
         renderSubjectProgress();
         renderActivity();
         renderCalendar();

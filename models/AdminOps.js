@@ -4,6 +4,7 @@ const User = require("./User");
 
 const ACTIVE_WINDOW_MS = 2 * 60 * 1000;
 const IDLE_WINDOW_MS = 15 * 60 * 1000;
+const majorFeatureKeys = ["auth", "dashboard", "subjects", "calendar", "tasks"];
 
 function toDate(value) {
   if (!value) return null;
@@ -70,6 +71,13 @@ function normalizeLog(row) {
     metadata,
     createdAt: row.createdAt || row.created_at,
   };
+}
+
+function deviceLabel(userAgent = "") {
+  const agent = String(userAgent || "");
+  if (/iphone|ipad|android|mobile/i.test(agent)) return "Mobile";
+  if (/windows|macintosh|linux/i.test(agent)) return "Desktop";
+  return "Unknown";
 }
 
 class AdminOps {
@@ -332,14 +340,23 @@ class AdminOps {
        ORDER BY count DESC, feature_key ASC`,
       date,
     );
-    return rows.map((row) => ({ featureKey: row.featureKey, count: Number(row.count || 0) }));
+    const counts = new Map(rows.map((row) => [row.featureKey, Number(row.count || 0)]));
+    const expanded = majorFeatureKeys.map((featureKey) => ({ featureKey, count: counts.get(featureKey) || 0 }));
+    const extra = rows
+      .filter((row) => !majorFeatureKeys.includes(row.featureKey))
+      .map((row) => ({ featureKey: row.featureKey, count: Number(row.count || 0) }));
+    const featureRank = (featureKey) => {
+      const index = majorFeatureKeys.indexOf(featureKey);
+      return index === -1 ? 99 : index;
+    };
+    return [...expanded, ...extra].sort((a, b) => b.count - a.count || featureRank(a.featureKey) - featureRank(b.featureKey));
   }
 
   static async sessionUsers() {
     const db = await getDb();
     const rows = await db.all(
       `SELECT s.user_id AS "userId", u.email, u.role, u.status AS "accountStatus",
-              s.status, s.started_at AS "startedAt", s.last_ping_at AS "lastPingAt"
+              s.status, s.started_at AS "startedAt", s.last_ping_at AS "lastPingAt", s.user_agent AS "userAgent"
        FROM user_sessions s
        JOIN users u ON u.id = s.user_id
        ORDER BY s.last_ping_at DESC`,
@@ -356,6 +373,7 @@ class AdminOps {
         accountStatus: row.accountStatus,
         status: computed.status,
         idleMinutes: computed.idleMinutes,
+        device: deviceLabel(row.userAgent),
         startedAt: row.startedAt,
         lastActiveAt: row.lastPingAt,
       });

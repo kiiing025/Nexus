@@ -1,6 +1,7 @@
 const { getDb } = require("./database");
 
 const linkKeys = ["syllabus", "drive", "github", "messenger", "meeting", "instructor", "custom"];
+const subjectAccentPalette = ["#d84e65", "#1f9f84", "#4f71d8", "#7c68a6", "#d98a24", "#0e9faa", "#b4538f", "#64748b"];
 
 function normalizeLinks(links = {}) {
   return Object.fromEntries(linkKeys.map((key) => [key, typeof links[key] === "string" ? links[key].trim() : ""]));
@@ -112,13 +113,16 @@ class Subject {
       throw error;
     }
 
+    const db = await getDb();
+    const subjectCount = await db.get("SELECT COUNT(*) AS count FROM subjects WHERE user_id = ?", userId);
+    const fallbackAccent = subjectAccentPalette[Number(subjectCount?.count || 0) % subjectAccentPalette.length];
     const subject = {
       id: subjectId,
       year: typeof year === "string" && year.trim() ? year.trim() : "Coursework",
       semester: typeof semester === "string" && semester.trim() ? semester.trim() : "1st Semester",
       code: subjectId,
       name: typeof name === "string" && name.trim() ? name.trim() : subjectId,
-      accent: /^#[0-9A-F]{6}$/i.test(String(accent || "")) ? accent : "#38bdf8",
+      accent: /^#[0-9A-F]{6}$/i.test(String(accent || "")) ? accent : fallbackAccent,
     };
 
     const existing = await this.findForUser({ userId, subjectId });
@@ -128,7 +132,6 @@ class Subject {
       throw error;
     }
 
-    const db = await getDb();
     await db.run("DELETE FROM deleted_subjects WHERE user_id = ? AND subject_id = ?", userId, subjectId);
     await db.run(
       `INSERT INTO subjects (user_id, subject_id, year, semester, code, name, accent)

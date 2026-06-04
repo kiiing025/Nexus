@@ -269,6 +269,13 @@ app.get("/api/dashboard", requireAuth, async (req, res, next) => {
     const notes = await Note.allForUser(req.user.id);
     const folders = await Folder.allForUser(req.user.id);
     const events = await Event.allForUser(req.user.id);
+    await AdminOps.logActivity({
+      userId: req.user.id,
+      action: "viewed_dashboard",
+      entityType: "dashboard",
+      entityId: req.user.id,
+      featureKey: "dashboard",
+    });
     return res.json({ user: publicUser(req.user), subjects, tasks, notes, folders, events });
   } catch (error) {
     return next(error);
