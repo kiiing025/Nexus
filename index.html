@@ -1142,7 +1142,7 @@
 
       .admin-os-shell {
         display: grid;
-        gap: 1rem;
+        gap: 0.8rem;
         min-width: 0;
       }
 
@@ -1162,14 +1162,14 @@
         position: relative;
         overflow: hidden;
         display: grid;
-        grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.62fr);
-        gap: 1rem;
-        border-radius: 2rem;
+        grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 0.34fr);
+        gap: 0.85rem;
+        border-radius: 1.45rem;
         background:
-          radial-gradient(circle at 78% 20%, rgba(56, 189, 248, 0.22), transparent 15rem),
-          radial-gradient(circle at 20% 90%, rgba(20, 184, 166, 0.16), transparent 13rem),
+          radial-gradient(circle at 84% 16%, rgba(56, 189, 248, 0.2), transparent 11rem),
+          radial-gradient(circle at 18% 90%, rgba(20, 184, 166, 0.14), transparent 10rem),
           linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.96));
-        padding: clamp(1rem, 2.5vw, 1.55rem);
+        padding: clamp(0.85rem, 1.7vw, 1.15rem);
       }
 
       .admin-os-hero::after {
@@ -1190,37 +1190,37 @@
       }
 
       .admin-os-title {
-        max-width: 12ch;
+        max-width: 18ch;
         color: #f8fafc;
-        font-size: clamp(2.8rem, 8vw, 5.7rem);
+        font-size: clamp(1.75rem, 3.7vw, 3rem);
         font-weight: 900;
-        letter-spacing: -0.075em;
-        line-height: 0.82;
+        letter-spacing: 0;
+        line-height: 0.98;
       }
 
       .admin-os-copy {
-        max-width: 64ch;
+        max-width: 68ch;
         color: #aebdd0;
-        font-size: 0.96rem;
+        font-size: 0.86rem;
         font-weight: 700;
-        line-height: 1.6;
+        line-height: 1.5;
       }
 
       .admin-os-live-card {
         align-self: stretch;
-        border-radius: 1.55rem;
+        border-radius: 1.2rem;
         background:
-          radial-gradient(circle at 100% 0%, rgba(34, 211, 238, 0.18), transparent 9rem),
+          radial-gradient(circle at 100% 0%, rgba(34, 211, 238, 0.18), transparent 7rem),
           rgba(248, 250, 252, 0.08);
-        padding: 1rem;
+        padding: 0.85rem;
       }
 
       .admin-os-live-count {
         display: block;
         color: #f8fafc;
-        font-size: clamp(3.4rem, 10vw, 6rem);
+        font-size: clamp(2rem, 5vw, 3.1rem);
         font-weight: 900;
-        letter-spacing: -0.08em;
+        letter-spacing: 0;
         line-height: 0.9;
         font-variant-numeric: tabular-nums;
       }
@@ -1228,47 +1228,105 @@
       .admin-os-kpi-grid {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 0.85rem;
+        gap: 0.65rem;
       }
 
       .admin-os-kpi {
-        border-radius: 1.45rem;
+        border-radius: 1.1rem;
         background:
-          radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--admin-accent) 24%, transparent), transparent 7.5rem),
+          radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--admin-accent) 20%, transparent), transparent 6.2rem),
           rgba(248, 250, 252, 0.92);
         color: #0f172a;
-        padding: 1rem;
+        padding: 0.78rem;
       }
 
       .admin-os-kpi strong {
         display: block;
-        margin-top: 0.8rem;
-        font-size: clamp(1.65rem, 3vw, 2.35rem);
+        margin-top: 0.62rem;
+        font-size: clamp(1.25rem, 2.2vw, 1.8rem);
         font-weight: 900;
-        letter-spacing: -0.065em;
+        letter-spacing: 0;
         line-height: 1;
         font-variant-numeric: tabular-nums;
       }
 
       .admin-os-kpi p {
         color: #64748b;
-        font-size: 0.79rem;
+        font-size: 0.72rem;
         font-weight: 850;
         line-height: 1.4;
       }
 
+      .admin-section-tabs {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(8.8rem, max-content);
+        gap: 0.55rem;
+        min-width: 0;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        border: 1px solid rgba(226, 232, 240, 0.14);
+        border-radius: 1.25rem;
+        background: rgba(15, 23, 42, 0.62);
+        padding: 0.45rem;
+        scrollbar-width: none;
+      }
+
+      .admin-section-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .admin-section-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 2.75rem;
+        min-width: 0;
+        border-radius: 0.95rem;
+        color: #cbd5e1;
+        padding: 0 0.78rem;
+        font-size: 0.8rem;
+        font-weight: 950;
+        white-space: nowrap;
+        transition: background 180ms var(--motion), color 180ms var(--motion), transform 180ms var(--motion);
+      }
+
+      .admin-section-button:hover,
+      .admin-section-button:focus-visible {
+        background: rgba(248, 250, 252, 0.1);
+        color: #ffffff;
+      }
+
+      .admin-section-button.is-active {
+        background: #f8fafc;
+        color: #0f172a;
+      }
+
+      .admin-section-panel {
+        min-width: 0;
+        animation: panelIn 220ms var(--motion) both;
+      }
+
+      .admin-focus-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(17.5rem, 0.48fr);
+        gap: 0.8rem;
+        align-items: start;
+      }
+
       .admin-os-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.05fr) minmax(19rem, 0.72fr);
-        gap: 1rem;
+        grid-template-columns: minmax(0, 1.05fr) minmax(17rem, 0.62fr);
+        gap: 0.8rem;
         align-items: start;
       }
 
       .admin-os-card {
-        border-radius: 1.6rem;
+        border-radius: 1.25rem;
         background: rgba(248, 250, 252, 0.94);
         color: #0f172a;
-        padding: 1rem;
+        padding: 0.88rem;
       }
 
       .admin-os-card.is-dark {
@@ -1287,16 +1345,16 @@
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
         align-items: end;
-        gap: 0.55rem;
-        height: 12rem;
-        padding-top: 1rem;
+        gap: 0.45rem;
+        height: 8.6rem;
+        padding-top: 0.55rem;
       }
 
       .admin-os-bar-wrap {
         display: grid;
         align-items: end;
         min-width: 0;
-        height: 9.6rem;
+        height: 6.2rem;
         border-radius: 999px;
         background: rgba(226, 232, 240, 0.68);
         overflow: hidden;
@@ -1339,7 +1397,7 @@
       .admin-os-table {
         display: grid;
         gap: 0.55rem;
-        max-height: 25rem;
+        max-height: min(22rem, 48dvh);
         overflow-y: auto;
         padding-right: 0.12rem;
       }
@@ -1349,7 +1407,7 @@
         align-items: center;
         border-radius: 1.1rem;
         background: rgba(241, 245, 249, 0.86);
-        padding: 0.78rem;
+        padding: 0.7rem;
         box-shadow: none;
       }
 
@@ -1383,7 +1441,7 @@
       .admin-template-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.75rem;
+        gap: 0.65rem;
       }
 
       .admin-template-card {
@@ -2329,6 +2387,7 @@
         .admin-kpi-grid,
         .admin-os-hero,
         .admin-os-grid,
+        .admin-focus-grid,
         .admin-os-kpi-grid,
         .admin-template-grid,
         .admin-health-grid,
@@ -2352,6 +2411,10 @@
 
         .admin-template-form textarea {
           grid-column: auto;
+        }
+
+        .admin-section-tabs {
+          grid-auto-columns: max-content;
         }
 
         .right-rail {
@@ -2405,16 +2468,16 @@
         }
 
         .admin-os-title {
-          font-size: clamp(2.4rem, 18vw, 4.4rem);
+          font-size: clamp(1.8rem, 10vw, 2.6rem);
         }
 
         .admin-os-bars {
-          gap: 0.35rem;
-          height: 10rem;
+          gap: 0.32rem;
+          height: 8.5rem;
         }
 
         .admin-os-bar-wrap {
-          height: 7.6rem;
+          height: 6rem;
         }
 
         .icon-button span {
@@ -2785,6 +2848,7 @@
         adminOverview: null,
         adminUsers: [],
         adminHealth: null,
+        adminSection: "overview",
         adminSearch: "",
         adminRoleFilter: "all",
         adminSort: "recent",
@@ -3050,6 +3114,7 @@
         state.adminOverview = null;
         state.adminUsers = [];
         state.adminHealth = null;
+        state.adminSection = "overview";
         state.adminSearch = "";
         state.adminRoleFilter = "all";
         state.adminSort = "recent";
@@ -4896,6 +4961,213 @@
         if (list) list.innerHTML = users.length ? users.map(adminManagedUserRow).join("") : `<div class="admin-empty">No accounts match this filter.</div>`;
       }
 
+      function adminSections(templates = []) {
+        return [
+          { id: "overview", label: "Overview", icon: "activity", count: "" },
+          { id: "users", label: "Users", icon: "users", count: formatNumber(state.adminUsers.length) },
+          { id: "templates", label: "Templates", icon: "cap", count: formatNumber(templates.length) },
+          { id: "activity", label: "Activity", icon: "database", count: "" },
+          { id: "security", label: "Security", icon: "shield", count: "" },
+        ];
+      }
+
+      function adminSectionTabs(templates) {
+        return adminSections(templates)
+          .map((section) => {
+            const active = state.adminSection === section.id;
+            const suffix = section.count ? ` ${section.count}` : "";
+            return `
+              <button class="admin-section-button ${active ? "is-active" : ""}" type="button" data-admin-section="${section.id}" ${active ? 'aria-current="page"' : ""}>
+                ${icon(section.icon, 16)}
+                <span>${section.label}${suffix}</span>
+              </button>
+            `;
+          })
+          .join("");
+      }
+
+      function renderAdminOverviewPanel(os, activity) {
+        const users = activity.users || [];
+        return `
+          <section class="admin-section-panel" data-admin-section-panel="overview">
+            <div class="admin-focus-grid">
+              <article class="admin-os-card">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p class="eyebrow">Platform load</p>
+                    <h3 class="mt-1 text-2xl font-black">Peak Activity</h3>
+                    <p class="mt-2 max-w-[52ch] text-sm font-bold text-slate-500">Traffic by day, tuned for quick operational checks instead of deep report browsing.</p>
+                  </div>
+                  <span class="round-icon">${icon("activity", 18)}</span>
+                </div>
+                <div class="admin-os-bars">${adminPeakBars(os.peakActivity?.days || [])}</div>
+              </article>
+
+              <aside class="grid gap-3">
+                <article class="admin-os-card is-dark">
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <p class="eyebrow">Admin Analytics</p>
+                      <h3 class="mt-1 text-xl font-black">Activity Status</h3>
+                    </div>
+                    <span class="round-icon bg-white/10 text-white">${icon("users", 18)}</span>
+                  </div>
+                  <div class="admin-os-table mt-4">
+                    ${users.length ? users.map(adminSessionRow).join("") : `<div class="admin-empty">No tracked sessions yet.</div>`}
+                  </div>
+                </article>
+
+                <article class="admin-os-card">
+                  <p class="eyebrow">Feature Engagement</p>
+                  <h3 class="mt-1 text-xl font-black">Most used today</h3>
+                  <div class="mt-4 grid gap-3">${adminFeatureRows(os.featureEngagement || [])}</div>
+                </article>
+              </aside>
+            </div>
+          </section>
+        `;
+      }
+
+      function renderAdminUsersPanel() {
+        return `
+          <section class="admin-section-panel" data-admin-section-panel="users">
+            <article class="admin-os-card">
+              <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="eyebrow">User Management & Moderation</p>
+                  <h3 class="mt-1 text-2xl font-black">Accounts</h3>
+                  <p class="mt-2 max-w-[58ch] text-sm font-bold text-slate-500">Find accounts, check setup status, and change moderation state without exposing student tools.</p>
+                </div>
+                <p class="text-sm font-black text-slate-500" data-admin-results-count></p>
+              </div>
+              <div class="admin-toolbar mb-4">
+                <label class="relative block min-w-0">
+                  <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#66717d]">${icon("search", 16)}</span>
+                  <input class="admin-input pl-10" type="search" placeholder="Search user ID or email..." value="${escapeHtml(state.adminSearch)}" data-admin-search />
+                </label>
+                <select class="admin-select" data-admin-role-filter>
+                  <option value="all" ${state.adminRoleFilter === "all" ? "selected" : ""}>All accounts</option>
+                  <option value="students" ${state.adminRoleFilter === "students" ? "selected" : ""}>Students only</option>
+                  <option value="admins" ${state.adminRoleFilter === "admins" ? "selected" : ""}>Admins only</option>
+                  <option value="setup" ${state.adminRoleFilter === "setup" ? "selected" : ""}>Needs setup</option>
+                  <option value="flagged" ${state.adminRoleFilter === "flagged" ? "selected" : ""}>Flagged</option>
+                  <option value="suspended" ${state.adminRoleFilter === "suspended" ? "selected" : ""}>Suspended</option>
+                </select>
+                <select class="admin-select" data-admin-sort>
+                  <option value="recent" ${state.adminSort === "recent" ? "selected" : ""}>Newest first</option>
+                  <option value="lastLogin" ${state.adminSort === "lastLogin" ? "selected" : ""}>Last login</option>
+                  <option value="usage" ${state.adminSort === "usage" ? "selected" : ""}>Most engaged</option>
+                </select>
+              </div>
+              <div class="admin-os-table" data-admin-users-list></div>
+            </article>
+          </section>
+        `;
+      }
+
+      function renderAdminTemplatesPanel(templates) {
+        return `
+          <section class="admin-section-panel" data-admin-section-panel="templates">
+            <article class="admin-os-card">
+              <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="eyebrow">Global controls</p>
+                  <h3 class="mt-1 text-2xl font-black">Global Subject Templates</h3>
+                  <p class="mt-2 max-w-[62ch] text-sm font-bold text-slate-500">Create import-ready subject and starter task packs that future students can add to their empty dashboard.</p>
+                </div>
+                <span class="admin-chip">${formatNumber(templates.length)} templates</span>
+              </div>
+              <form class="admin-template-form" data-admin-template-form>
+                <label class="panel-field">
+                  <span class="field-label">Code</span>
+                  <input class="admin-input" name="code" placeholder="IT314" required />
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Subject name</span>
+                  <input class="admin-input" name="name" placeholder="Software Engineering" required />
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Semester</span>
+                  <select class="admin-select" name="semester">
+                    <option>1st Semester</option>
+                    <option>2nd Semester</option>
+                  </select>
+                </label>
+                <label class="panel-field">
+                  <span class="field-label">Accent</span>
+                  <input class="admin-input min-h-[2.85rem] p-1" name="accent" type="color" value="#38bdf8" />
+                </label>
+                <button class="soft-button tap-target" type="submit">${icon("plus", 16)} Add</button>
+                <label class="panel-field">
+                  <span class="field-label">Starter tasks, one per line</span>
+                  <textarea class="admin-input" name="tasks" placeholder="Read syllabus&#10;Create project repository&#10;Submit first lab"></textarea>
+                </label>
+              </form>
+              <div class="admin-template-grid mt-4">
+                ${templates.length ? templates.map(adminTemplateCard).join("") : `<div class="admin-empty">No global templates yet. Add one above to seed future accounts.</div>`}
+              </div>
+            </article>
+          </section>
+        `;
+      }
+
+      function renderAdminActivityPanel(os, live, stream) {
+        return `
+          <section class="admin-section-panel" data-admin-section-panel="activity">
+            <div class="admin-os-grid">
+              <article class="admin-os-card">
+                <p class="eyebrow">Admin Activity Stream</p>
+                <h3 class="mt-1 text-2xl font-black">Latest actions</h3>
+                <p class="mt-2 max-w-[54ch] text-sm font-bold text-slate-500">A focused audit trail of recent platform actions and account events.</p>
+                <div class="admin-os-table mt-4">
+                  ${stream.length ? stream.map(adminActivityRow).join("") : `<div class="admin-empty">No platform activity logged yet.</div>`}
+                </div>
+              </article>
+
+              <aside class="grid gap-3">
+                <article class="admin-os-card is-dark">
+                  <p class="eyebrow">Live concurrency</p>
+                  <strong class="admin-os-live-count mt-2">${formatNumber(live.activeUsers)}</strong>
+                  <p class="mt-2 text-sm font-bold text-slate-300">${formatNumber(live.idleUsers)} idle users, ${formatNumber(live.offlineTrackedUsers)} offline tracked sessions.</p>
+                </article>
+                <article class="admin-os-card">
+                  <p class="eyebrow">System signal</p>
+                  <h3 class="mt-1 text-xl font-black">Feature engagement</h3>
+                  <div class="mt-4 grid gap-3">${adminFeatureRows(os.featureEngagement || [])}</div>
+                </article>
+              </aside>
+            </div>
+          </section>
+        `;
+      }
+
+      function renderAdminSecurityPanel(os, templates) {
+        return `
+          <section class="admin-section-panel" data-admin-section-panel="security">
+            <div class="admin-focus-grid">
+              <article class="admin-os-card">
+                <p class="eyebrow">Security</p>
+                <h3 class="mt-1 text-2xl font-black">Change password</h3>
+                <p class="mt-2 max-w-[48ch] text-sm font-bold text-slate-500">Update your admin login without leaving the control plane.</p>
+                ${changePasswordFormMarkup("admin")}
+              </article>
+              <aside class="grid gap-3">
+                <article class="admin-os-card is-dark">
+                  <p class="eyebrow">Database</p>
+                  <h3 class="mt-1 text-xl font-black">${escapeHtml(os.health?.database || state.adminHealth?.database || "checking")}</h3>
+                  <p class="mt-2 text-sm font-bold text-slate-300">Current backing store used by the Admin OS.</p>
+                </article>
+                <article class="admin-os-card">
+                  <p class="eyebrow">Global templates</p>
+                  <h3 class="mt-1 text-xl font-black">${formatNumber(templates.length)} available</h3>
+                  <p class="mt-2 text-sm font-bold text-slate-500">Templates remain managed in their own focused panel.</p>
+                </article>
+              </aside>
+            </div>
+          </section>
+        `;
+      }
+
       function renderAdminTab() {
         if (!isAdmin()) {
           tabPanel.innerHTML = `
@@ -4915,18 +5187,30 @@
         const kpis = os.kpis || {};
         const live = os.live || {};
         const activity = os.activity || {};
-        const users = activity.users || [];
         const stream = activity.stream || [];
         const templates = state.adminTemplates || [];
+        const validSections = adminSections(templates).map((section) => section.id);
+        if (!validSections.includes(state.adminSection)) state.adminSection = "overview";
+
+        const panel =
+          state.adminSection === "users"
+            ? renderAdminUsersPanel()
+            : state.adminSection === "templates"
+              ? renderAdminTemplatesPanel(templates)
+              : state.adminSection === "activity"
+                ? renderAdminActivityPanel(os, live, stream)
+                : state.adminSection === "security"
+                  ? renderAdminSecurityPanel(os, templates)
+                  : renderAdminOverviewPanel(os, activity);
 
         tabPanel.innerHTML = `
           <section class="admin-os-shell" aria-label="SemStack Admin OS">
             <article class="admin-os-hero">
               <div class="min-w-0">
                 <span class="admin-badge">${icon("shield", 15)} Creator control plane</span>
-                <h2 class="admin-os-title mt-5">SemStack Admin OS</h2>
-                <p class="admin-os-copy mt-5">Monitor platform health, active sessions, account status, content volume, and importable subject templates without entering any student workflow.</p>
-                <div class="admin-hero-actions mt-6">
+                <h2 class="admin-os-title mt-3">SemStack Admin OS</h2>
+                <p class="admin-os-copy mt-3">Monitor platform health, sessions, accounts, templates, and security from a focused admin-only workspace.</p>
+                <div class="admin-hero-actions mt-4">
                   <button class="admin-command-button tap-target" type="button" data-refresh-admin>${icon("activity", 16)} Refresh data</button>
                   <button class="admin-command-button is-ghost tap-target" type="button" data-export-admin-users>${icon("download", 16)} Export users</button>
                   <button class="admin-command-button is-ghost tap-target" type="button" data-copy-admin-summary>${icon("copy", 16)} Copy summary</button>
@@ -4936,8 +5220,8 @@
               <aside class="admin-os-live-card">
                 <p class="eyebrow text-sky-100">Live Active Users</p>
                 <strong class="admin-os-live-count">${formatNumber(live.activeUsers)}</strong>
-                <p class="mt-3 text-sm font-bold text-slate-300">${formatNumber(live.idleUsers)} idle, ${formatNumber(live.offlineTrackedUsers)} offline tracked sessions.</p>
-                <div class="mt-5 grid grid-cols-2 gap-3">
+                <p class="mt-2 text-sm font-bold text-slate-300">${formatNumber(live.idleUsers)} idle, ${formatNumber(live.offlineTrackedUsers)} offline tracked.</p>
+                <div class="mt-3 grid grid-cols-2 gap-2">
                   <div class="admin-health-card bg-white/10 text-slate-100">
                     <strong class="text-sm font-black">Database</strong>
                     <p class="mt-1 text-slate-300">${escapeHtml(os.health?.database || state.adminHealth?.database || "checking")}</p>
@@ -4958,131 +5242,22 @@
               ${adminOsKpiCard("Live concurrency", formatNumber(live.activeUsers), "Users interacting right now", "database", "#f472b6")}
             </section>
 
-            <section class="admin-os-grid">
-              <div class="grid gap-4">
-                <article class="admin-os-card">
-                  <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p class="eyebrow">Platform load</p>
-                      <h3 class="mt-1 text-2xl font-black tracking-[-0.04em]">Peak Activity</h3>
-                    </div>
-                    <span class="round-icon">${icon("activity", 18)}</span>
-                  </div>
-                  <div class="admin-os-bars">${adminPeakBars(os.peakActivity?.days || [])}</div>
-                </article>
+            <nav class="admin-section-tabs" aria-label="Admin workspace sections">
+              ${adminSectionTabs(templates)}
+            </nav>
 
-                <article class="admin-os-card">
-                  <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p class="eyebrow">Global controls</p>
-                      <h3 class="mt-1 text-2xl font-black tracking-[-0.04em]">Global Subject Templates</h3>
-                      <p class="mt-2 max-w-[62ch] text-sm font-bold text-slate-500">Create import-ready subject and starter task packs that future students can add to their empty dashboard.</p>
-                    </div>
-                    <span class="admin-chip">${formatNumber(templates.length)} templates</span>
-                  </div>
-                  <form class="admin-template-form" data-admin-template-form>
-                    <label class="panel-field">
-                      <span class="field-label">Code</span>
-                      <input class="admin-input" name="code" placeholder="IT314" required />
-                    </label>
-                    <label class="panel-field">
-                      <span class="field-label">Subject name</span>
-                      <input class="admin-input" name="name" placeholder="Software Engineering" required />
-                    </label>
-                    <label class="panel-field">
-                      <span class="field-label">Semester</span>
-                      <select class="admin-select" name="semester">
-                        <option>1st Semester</option>
-                        <option>2nd Semester</option>
-                      </select>
-                    </label>
-                    <label class="panel-field">
-                      <span class="field-label">Accent</span>
-                      <input class="admin-input min-h-[2.85rem] p-1" name="accent" type="color" value="#38bdf8" />
-                    </label>
-                    <button class="soft-button tap-target" type="submit">${icon("plus", 16)} Add</button>
-                    <label class="panel-field">
-                      <span class="field-label">Starter tasks, one per line</span>
-                      <textarea class="admin-input" name="tasks" placeholder="Read syllabus&#10;Create project repository&#10;Submit first lab"></textarea>
-                    </label>
-                  </form>
-                  <div class="admin-template-grid mt-4">
-                    ${templates.length ? templates.map(adminTemplateCard).join("") : `<div class="admin-empty">No global templates yet. Add one above to seed future accounts.</div>`}
-                  </div>
-                </article>
-
-                <article class="admin-os-card">
-                  <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p class="eyebrow">User Management & Moderation</p>
-                      <h3 class="mt-1 text-2xl font-black tracking-[-0.04em]">Accounts</h3>
-                    </div>
-                    <p class="text-sm font-black text-slate-500" data-admin-results-count></p>
-                  </div>
-                  <div class="admin-toolbar mb-4">
-                    <label class="relative block min-w-0">
-                      <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#66717d]">${icon("search", 16)}</span>
-                      <input class="admin-input pl-10" type="search" placeholder="Search user ID or email..." value="${escapeHtml(state.adminSearch)}" data-admin-search />
-                    </label>
-                    <select class="admin-select" data-admin-role-filter>
-                      <option value="all" ${state.adminRoleFilter === "all" ? "selected" : ""}>All accounts</option>
-                      <option value="students" ${state.adminRoleFilter === "students" ? "selected" : ""}>Students only</option>
-                      <option value="admins" ${state.adminRoleFilter === "admins" ? "selected" : ""}>Admins only</option>
-                      <option value="setup" ${state.adminRoleFilter === "setup" ? "selected" : ""}>Needs setup</option>
-                      <option value="flagged" ${state.adminRoleFilter === "flagged" ? "selected" : ""}>Flagged</option>
-                      <option value="suspended" ${state.adminRoleFilter === "suspended" ? "selected" : ""}>Suspended</option>
-                    </select>
-                    <select class="admin-select" data-admin-sort>
-                      <option value="recent" ${state.adminSort === "recent" ? "selected" : ""}>Newest first</option>
-                      <option value="lastLogin" ${state.adminSort === "lastLogin" ? "selected" : ""}>Last login</option>
-                      <option value="usage" ${state.adminSort === "usage" ? "selected" : ""}>Most engaged</option>
-                    </select>
-                  </div>
-                  <div class="admin-os-table" data-admin-users-list></div>
-                </article>
-              </div>
-
-              <aside class="grid gap-4">
-                <article class="admin-os-card is-dark">
-                  <div class="flex items-start justify-between gap-3">
-                    <div>
-                      <p class="eyebrow">Admin Analytics</p>
-                      <h3 class="mt-1 text-xl font-black tracking-[-0.04em]">Activity Status</h3>
-                    </div>
-                    <span class="round-icon bg-white/10 text-white">${icon("users", 18)}</span>
-                  </div>
-                  <div class="admin-os-table mt-4">
-                    ${users.length ? users.map(adminSessionRow).join("") : `<div class="admin-empty">No tracked sessions yet.</div>`}
-                  </div>
-                </article>
-
-                <article class="admin-os-card">
-                  <p class="eyebrow">Feature Engagement</p>
-                  <h3 class="mt-1 text-xl font-black tracking-[-0.04em]">Most used today</h3>
-                  <div class="mt-4 grid gap-3">${adminFeatureRows(os.featureEngagement || [])}</div>
-                </article>
-
-                <article class="admin-os-card">
-                  <p class="eyebrow">Security</p>
-                  <h3 class="mt-1 text-xl font-black tracking-[-0.04em]">Change password</h3>
-                  <p class="mt-2 text-sm font-bold text-slate-500">Update your admin login without leaving the control plane.</p>
-                  ${changePasswordFormMarkup("admin")}
-                </article>
-
-                <article class="admin-os-card">
-                  <p class="eyebrow">Admin Activity Stream</p>
-                  <h3 class="mt-1 text-xl font-black tracking-[-0.04em]">Latest actions</h3>
-                  <div class="admin-os-table mt-4">
-                    ${stream.length ? stream.map(adminActivityRow).join("") : `<div class="admin-empty">No platform activity logged yet.</div>`}
-                  </div>
-                </article>
-              </aside>
-            </section>
+            ${panel}
           </section>
         `;
 
         renderAdminUserResults();
 
+        tabPanel.querySelectorAll("[data-admin-section]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.adminSection = button.dataset.adminSection;
+            renderActiveTab();
+          });
+        });
         tabPanel.querySelector("[data-admin-search]")?.addEventListener("input", (event) => {
           state.adminSearch = event.currentTarget.value;
           renderAdminUserResults();
