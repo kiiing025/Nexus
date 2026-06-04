@@ -47,7 +47,34 @@ function createPostgresPool() {
   return new Pool({
     connectionString: sanitizedPostgresConnectionString(databaseUrl),
     ssl: useSslForPostgres(databaseUrl) ? { rejectUnauthorized: false } : false,
+    max: 1,
   });
+}
+
+function isRetryablePostgresError(error) {
+  const message = String(error?.message || "");
+  return (
+    ["ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "ENOTFOUND"].includes(error?.code) ||
+    /network socket|connection terminated|timeout|tls connection/i.test(message)
+  );
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function queryWithRetry(pool, sql, params = []) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await pool.query(sql, params);
+    } catch (error) {
+      lastError = error;
+      if (!isRetryablePostgresError(error) || attempt === 2) break;
+      await wait(350 * (attempt + 1));
+    }
+  }
+  throw lastError;
 }
 
 function makePostgresWrapper(pool) {
@@ -55,11 +82,11 @@ function makePostgresWrapper(pool) {
     dialect: "postgres",
 
     async exec(sql) {
-      await pool.query(sql);
+      await queryWithRetry(pool, sql);
     },
 
     async run(sql, ...params) {
-      const result = await pool.query(toPostgresPlaceholders(withReturningId(sql)), normalizeParams(params));
+      const result = await queryWithRetry(pool, toPostgresPlaceholders(withReturningId(sql)), normalizeParams(params));
       const row = result.rows[0] || {};
       return {
         lastID: row.id || row.last_insert_rowid || 0,
@@ -68,12 +95,12 @@ function makePostgresWrapper(pool) {
     },
 
     async get(sql, ...params) {
-      const result = await pool.query(toPostgresPlaceholders(sql), normalizeParams(params));
+      const result = await queryWithRetry(pool, toPostgresPlaceholders(sql), normalizeParams(params));
       return result.rows[0];
     },
 
     async all(sql, ...params) {
-      const result = await pool.query(toPostgresPlaceholders(sql), normalizeParams(params));
+      const result = await queryWithRetry(pool, toPostgresPlaceholders(sql), normalizeParams(params));
       return result.rows;
     },
   };

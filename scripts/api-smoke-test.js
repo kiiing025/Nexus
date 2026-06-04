@@ -4,8 +4,10 @@ const baseUrl = process.env.SMOKE_BASE_URL || "http://127.0.0.1:3000";
 const unique = Date.now().toString(36);
 const email = `smoke-${unique}@example.com`;
 const password = "Passw0rd!";
+const changedPassword = "N3wPassw0rd!";
 const adminEmail = process.env.SMOKE_ADMIN_EMAIL || process.env.ADMIN_EMAIL || "admin@semstack.test";
 const adminPassword = process.env.SMOKE_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || "AdminPassw0rd!";
+const changedAdminPassword = "N3wAdminPassw0rd!";
 
 async function request(path, options = {}) {
   const response = await fetch(`${baseUrl}${path}`, {
@@ -24,6 +26,19 @@ async function request(path, options = {}) {
   }
 
   return payload;
+}
+
+async function requestFailure(path, options = {}) {
+  const response = await fetch(`${baseUrl}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+  const payload = await response.json().catch(() => ({}));
+  assert.equal(response.ok, false, `${options.method || "GET"} ${path} should fail`);
+  return { status: response.status, payload };
 }
 
 (async () => {
@@ -45,6 +60,32 @@ async function request(path, options = {}) {
   assert.ok(Array.isArray(dashboard.events));
   assert.equal(dashboard.folders.length, 0);
   assert.equal(dashboard.events.length, 0);
+
+  const rejectedUserPasswordChange = await requestFailure("/api/auth/change-password", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ currentPassword: "wrong-password", newPassword: changedPassword }),
+  });
+  assert.equal(rejectedUserPasswordChange.status, 400);
+
+  const changedUserPassword = await request("/api/auth/change-password", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ currentPassword: password, newPassword: changedPassword }),
+  });
+  assert.equal(changedUserPassword.ok, true);
+
+  const oldUserLogin = await requestFailure("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  assert.equal(oldUserLogin.status, 401);
+
+  const newUserLogin = await request("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password: changedPassword }),
+  });
+  assert.equal(newUserLogin.user.email, email);
 
   const customSubject = await request("/api/subjects", {
     method: "POST",
@@ -230,6 +271,37 @@ async function request(path, options = {}) {
   assert.ok(adminUsers.users.some((user) => user.email === email));
   assert.ok(adminUsers.users.some((user) => user.email === adminEmail));
   assert.ok(adminUsers.users.every((user) => user.password_hash === undefined));
+
+  const rejectedAdminPasswordChange = await requestFailure("/api/auth/change-password", {
+    method: "POST",
+    headers: adminHeaders,
+    body: JSON.stringify({ currentPassword: "wrong-password", newPassword: changedAdminPassword }),
+  });
+  assert.equal(rejectedAdminPasswordChange.status, 400);
+
+  const changedAdmin = await request("/api/auth/change-password", {
+    method: "POST",
+    headers: adminHeaders,
+    body: JSON.stringify({ currentPassword: adminPassword, newPassword: changedAdminPassword }),
+  });
+  assert.equal(changedAdmin.ok, true);
+
+  const oldAdminLogin = await requestFailure("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email: adminEmail, password: adminPassword }),
+  });
+  assert.equal(oldAdminLogin.status, 401);
+
+  const newAdminLogin = await request("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email: adminEmail, password: changedAdminPassword }),
+  });
+  assert.equal(newAdminLogin.user.role, "admin");
+  await request("/api/auth/change-password", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${newAdminLogin.token}` },
+    body: JSON.stringify({ currentPassword: changedAdminPassword, newPassword: adminPassword }),
+  });
 
   console.log(JSON.stringify({ ok: true, email, initialSubjects: dashboard.subjects.length }));
 })().catch((error) => {

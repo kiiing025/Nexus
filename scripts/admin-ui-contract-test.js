@@ -10,6 +10,8 @@ assert.match(html, /Peak Activity/);
 assert.match(html, /Global Subject Templates/);
 assert.match(html, /data-admin-template-form/);
 assert.match(html, /data-admin-user-status/);
+assert.match(html, /Change password/);
+assert.match(html, /data-change-password-form/);
 assert.match(html, /admin-os-mode/);
 assert.match(html, /state\.activeTab = isAdmin\(\) \? "admin" : "overview"/);
 

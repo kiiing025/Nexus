@@ -20,10 +20,18 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "semstack-dev-secret-change-me";
 const TOKEN_TTL = "7d";
 
-const dbReady = initializeData();
-dbReady.catch((error) => {
-  console.error("Database initialization failed", error);
-});
+let dbReadyPromise;
+
+function ensureDataReady() {
+  if (!dbReadyPromise) {
+    dbReadyPromise = initializeData().catch((error) => {
+      dbReadyPromise = null;
+      console.error("Database initialization failed", error);
+      throw error;
+    });
+  }
+  return dbReadyPromise;
+}
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -31,7 +39,7 @@ app.use(express.static(__dirname));
 
 app.use("/api", async (req, res, next) => {
   try {
-    await dbReady;
+    await ensureDataReady();
     return next();
   } catch (error) {
     return next(error);
@@ -179,6 +187,39 @@ app.post("/api/auth/login", async (req, res, next) => {
       token: signToken(loggedInUser, sessionKey),
       user: publicUser(loggedInUser),
     });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.post("/api/auth/change-password", requireAuth, async (req, res, next) => {
+  try {
+    const currentPassword = String(req.body.currentPassword || "");
+    const newPassword = String(req.body.newPassword || "");
+
+    if (!currentPassword) {
+      return res.status(400).json({ error: "Current password is required." });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: "New password must be at least 8 characters." });
+    }
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ error: "Choose a new password that is different from your current password." });
+    }
+    if (!req.user.password_hash || !(await bcrypt.compare(currentPassword, req.user.password_hash))) {
+      return res.status(400).json({ error: "Current password is incorrect." });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await User.updatePassword({ id: req.user.id, passwordHash });
+    await AdminOps.logActivity({
+      userId: req.user.id,
+      action: "changed_password",
+      entityType: "user",
+      entityId: req.user.id,
+      featureKey: "auth",
+    });
+    return res.json({ ok: true, user: publicUser(req.user) });
   } catch (error) {
     return next(error);
   }
@@ -709,7 +750,7 @@ app.use((error, req, res, next) => {
 });
 
 async function start() {
-  await dbReady;
+  await ensureDataReady();
   app.listen(PORT, () => {
     console.log(`SemStack running at http://localhost:${PORT}`);
   });

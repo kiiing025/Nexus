@@ -58,10 +58,16 @@ class User {
   static async findById(id) {
     const db = await getDb();
     const row = await db.get(
-      "SELECT id, email, role, status, moderation_reason, flagged_at, suspended_at, created_at, last_login_at FROM users WHERE id = ?",
+      "SELECT id, email, password_hash, role, status, moderation_reason, flagged_at, suspended_at, created_at, last_login_at FROM users WHERE id = ?",
       id,
     );
     return normalizeUser(row);
+  }
+
+  static async updatePassword({ id, passwordHash }) {
+    const db = await getDb();
+    const result = await db.run("UPDATE users SET password_hash = ? WHERE id = ?", passwordHash, id);
+    return result.changes > 0;
   }
 
   static async markLogin(id) {
@@ -77,11 +83,7 @@ class User {
     const existing = await this.findByEmail(normalizedEmail);
     const db = await getDb();
     if (existing) {
-      await db.run(
-        "UPDATE users SET password_hash = ?, role = 'admin' WHERE email = ?",
-        passwordHash,
-        normalizedEmail,
-      );
+      await db.run("UPDATE users SET role = 'admin' WHERE email = ?", normalizedEmail);
       return this.findByEmail(normalizedEmail);
     }
 

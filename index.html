@@ -4658,6 +4658,66 @@
         }
       }
 
+      function changePasswordFormMarkup(context = "settings") {
+        return `
+          <form class="mt-4 grid gap-3" data-change-password-form="${context}">
+            <label class="panel-field">
+              <span class="field-label">Current password</span>
+              <input class="panel-input tap-target" name="currentPassword" type="password" autocomplete="current-password" required />
+            </label>
+            <label class="panel-field">
+              <span class="field-label">New password</span>
+              <input class="panel-input tap-target" name="newPassword" type="password" autocomplete="new-password" minlength="8" required />
+            </label>
+            <label class="panel-field">
+              <span class="field-label">Confirm new password</span>
+              <input class="panel-input tap-target" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required />
+            </label>
+            <p class="error-text hidden" data-change-password-status></p>
+            <button class="soft-button tap-target w-full" type="submit">${icon("shield", 16)} Change password</button>
+          </form>
+        `;
+      }
+
+      async function handleChangePassword(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const status = form.querySelector("[data-change-password-status]");
+        const button = form.querySelector("button[type='submit']");
+        const data = new FormData(form);
+        const currentPassword = String(data.get("currentPassword") || "");
+        const newPassword = String(data.get("newPassword") || "");
+        const confirmPassword = String(data.get("confirmPassword") || "");
+
+        status.classList.add("hidden");
+        status.classList.remove("is-success");
+
+        if (newPassword !== confirmPassword) {
+          status.textContent = "New passwords do not match.";
+          status.classList.remove("hidden");
+          return;
+        }
+
+        button.disabled = true;
+        button.style.opacity = "0.7";
+        try {
+          await api("/api/auth/change-password", {
+            method: "POST",
+            body: JSON.stringify({ currentPassword, newPassword }),
+          });
+          form.reset();
+          status.textContent = "Password changed. Use the new password next time you log in.";
+          status.classList.add("is-success");
+          status.classList.remove("hidden");
+        } catch (error) {
+          status.textContent = error.message;
+          status.classList.remove("hidden");
+        } finally {
+          button.disabled = false;
+          button.style.opacity = "";
+        }
+      }
+
       function actionLabel(action) {
         return String(action || "activity")
           .replaceAll("_", " ")
@@ -5003,6 +5063,13 @@
                 </article>
 
                 <article class="admin-os-card">
+                  <p class="eyebrow">Security</p>
+                  <h3 class="mt-1 text-xl font-black tracking-[-0.04em]">Change password</h3>
+                  <p class="mt-2 text-sm font-bold text-slate-500">Update your admin login without leaving the control plane.</p>
+                  ${changePasswordFormMarkup("admin")}
+                </article>
+
+                <article class="admin-os-card">
                   <p class="eyebrow">Admin Activity Stream</p>
                   <h3 class="mt-1 text-xl font-black tracking-[-0.04em]">Latest actions</h3>
                   <div class="admin-os-table mt-4">
@@ -5082,6 +5149,9 @@
           event.currentTarget.innerHTML = `${icon("copy", 16)} ${escapeHtml(message === "Summary copied." ? "Copied" : "Summary ready")}`;
         });
         tabPanel.querySelector("[data-admin-logout]")?.addEventListener("click", () => logout());
+        tabPanel.querySelectorAll("[data-change-password-form]").forEach((form) => {
+          form.addEventListener("submit", handleChangePassword);
+        });
       }
 
       function renderSettingsTab() {
@@ -5092,6 +5162,12 @@
               <p class="eyebrow">Signed in as</p>
               <h3 class="mt-2 break-words text-xl font-black tracking-[-0.03em]">${escapeHtml(state.user?.email || "Not signed in")}</h3>
               <button id="settingsLogout" class="soft-button tap-target mt-4" type="button">Logout</button>
+            </article>
+            <article class="menu-panel">
+              <p class="eyebrow">Security</p>
+              <h3 class="mt-2 text-xl font-black tracking-[-0.03em]">Change password</h3>
+              <p class="mt-2 text-sm font-semibold leading-6 text-[#68717d]">Use your current password to set a new login password for this account.</p>
+              ${changePasswordFormMarkup("settings")}
             </article>
             <article class="menu-panel">
               <p class="eyebrow">Phone setup</p>
@@ -5111,6 +5187,9 @@
           </section>
         `;
         document.querySelector("#settingsLogout")?.addEventListener("click", () => logout());
+        tabPanel.querySelectorAll("[data-change-password-form]").forEach((form) => {
+          form.addEventListener("submit", handleChangePassword);
+        });
       }
 
       function updateProgress() {
